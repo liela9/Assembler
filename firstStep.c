@@ -3,71 +3,69 @@
 
 int first_translation(FILE *f){
     
-    char *row, *str1, *str2;
-    int op_code_index;;
-    
-    
-    there_is_error = 0; 
+    char *row_content, *first_word, *second_word;
+    int op_code_index, IC, DC;
+    unsigned int *data_table;
+    ptr_label head_label;
+    ptr_label tail_label;  
+
+    data_table = (unsigned int*)malloc(5 * sizeof(unsigned int));
+    head_label = (ptr_label)malloc(sizeof(label));
+    tail_label = head_label;
+
     IC = 0;
     DC = 0;
 
     /*Reads a line*/
-    while(fgets(row, ROW_LENGTH, f)){
-        L = 0;
+    while(fgets(row_content, row_content_LENGTH, f)){
+        
         /*Read the first word of the line*/
-        if(str1 = strtok(row, ' \t\r')){
-            if(!strcmp(str1, ';') || str1 == NULL || !strcmp(str1, ".entry"))/*If note or empty line or entry*/
+        if(first_word = strtok(row_content, ' \t\r')){
+            if(!strcmp(first_word, ';') || first_word == NULL || !strcmp(first_word, ".entry"))/*If note or empty line or entry*/
                 continue;
             
             /*Read the second word of the line*/
-            if(str2 = strtok(NULL, ' \t\r')){
+            if(second_word = strtok(NULL, ' \t\r')){
                 
                 /*If the first word is extern*/
-                if(!strcmp(str1, ".extern")){
-                    printf("Warning: %s is extern\n", str1);
-                    insert_new_label(str2, EXTERNAL, -1);
+                if(!strcmp(first_word, ".extern")){
+                    printf("Warning: %s is extern\n", first_word);
                 }
                 
                 /*If the first word is data/string/struct */
-                else if(!strcmp(str1, ".data") || !strcmp(str1, ".string") ||!strcmp(str1, ".struct")){
-                        create_new_line(NULL, DC, 0, 0, 0);// TODO: fill data content
+                else if(!strcmp(first_word, ".data") || !strcmp(first_word, ".string") ||!strcmp(first_word, ".struct"))
+                        DC = create_data_line(DC, row_content, &data_table, first_word);
 
-                        if(!strcmp(str1, ".string") ||!strcmp(str1, ".struct"))
-                            create_zero_line(DC);
-                    }
                     
                     /*If the first word is opcode*/    
-                    else if(op_code_index = find_opcode(str1) != -1)
-                            find_group(op_code_index, str1, IC);
+                    else if(op_code_index = find_opcode(first_word) != -1)
+                            IC = find_group(op_code_index, IC, &head_label);
 
                         /*If the first word is label*/
-                        else if(strlen(str1) > 1 && str1[strlen(str1)-1] == ':'){
+                        else if(strlen(first_word) > 1 && first_word[strlen(first_word)-1] == ':'){
                             
                                 /*If the second word is data/string/struct */
-                                if(!strcmp(str2, ".data") || !strcmp(str2, ".string") || !strcmp(str2, ".struct")){
-                                    insert_new_label(str1, DATA, DC);// TODO: fill data straight as binary
-                                    create_new_line(str1, DC, 0, 0, 0);
+                                if(!strcmp(second_word, ".data") || !strcmp(second_word, ".string") || !strcmp(second_word, ".struct")){
+                                    insert_new_label(first_word, DATA, DC, &head_label, &tail_label);// TODO: fill data straight as binary
+                                    DC = create_data_line(DC, row_content, &data_table, second_word);
 
-                                    if(!strcmp(str1, ".string") ||!strcmp(str1, ".struct"))
-                                        create_zero_line(DC);
                                 }
 
                                 /*If the second word is opcode*/
-                                else if(op_code_index = find_opcode(str2) != -1)
-                                    find_group(op_code_index, str2, IC);
+                                else if(op_code_index = find_opcode(second_word) != -1)
+                                    IC = find_group(op_code_index, IC, &head_label);
                      
                         }
                         else{
                             /*The first word is not label\opcode\data\extern\entry*/ 
-                            printf("Error: %s is illegal\n", str1);
-                            there_is_error = 1;
+                            printf("Error: %s is illegal\n", first_word);
                         }
             }
-            IC++;
+            
         }
-        IC = IC + L;
+        
     }
-    return &f;
+    return ;
 }
 
 
@@ -83,17 +81,18 @@ int find_opcode(char *str){
 }
 
 
-void find_group(int op_code_index, char *str, int IC){
+int find_group(int IC, int op_code_index, ptr_label head_label){
     
     /*If belongs to the first orders group*/
         if(op_code_index == 6 || (0 <= op_code_index && op_code_index <= 3))
-            insert_new_order(str, IC, convertDtoB(op_code_index), strtok(NULL, ' \t\r'), strtok(NULL, ' \t\r'));
+            IC = insert_order( IC, convertDtoB(op_code_index), strtok(NULL, ' \t\r'), strtok(NULL, ' \t\r'), &head_label);
 
         /*If belongs to the second orders group*/
         if((4 <= op_code_index && op_code_index <= 5) || (7 <= op_code_index && op_code_index <= 13))
-            insert_new_order(str, IC, convertDtoB(op_code_index), strtok(NULL, ' \t\r'), NULL);
+            IC = insert_order( IC, convertDtoB(op_code_index), strtok(NULL, ' \t\r'), NULL, &head_label);
 
         /*If belongs to the third orders group*/
         if(op_code_index == 14 || op_code_index == 15)
-            insert_new_order(str, IC, convertDtoB(op_code_index), NULL, NULL);
+            IC = insert_order( IC, convertDtoB(op_code_index), NULL, NULL, &head_label);
+    return IC;
 }
