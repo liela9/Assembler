@@ -13,29 +13,23 @@ int main(int argc, char *argv[]){
         exit(0);
     }
     
-    for(i = 0; i < argc - 1; i++){
+    for(i = 1; i < argc; i++){
         
-        if((f = fopen(argv[i], "r")) == NULL){
+        if(!(f = fopen(argv[i], "r"))){
             printf("Cannot open %s\n", argv[i]);
             continue;
         }
         
         pre_assembler(f, argv[i]);
-        
 
-        if(first_translation(&am)){
-            printf("There is error in file %s\n", argv[i]);
-            continue;
-        }
-
-        if(second_translation(&am)){
+        if(first_translation(argv[i]) || second_translation()){
             printf("There is error in file %s\n", argv[i]);
             continue;
         }
 
         fclose(f);
-        void write_files(char *, ptr_label );
         free_linked_lists();
+        printf("File:  %s run successfully!\n", argv[i]);
     }
     
     return(0);

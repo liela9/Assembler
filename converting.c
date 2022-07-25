@@ -1,5 +1,5 @@
-#include "assembler.h"
 #include "math.h"
+#include "constants.c"
 
 #define NO0 255
 
