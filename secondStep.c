@@ -1,19 +1,20 @@
 #include "assembler.h"
 
 
-int second_translation(FILE *f)
+int second_translation(ptr_label_apearence head, ptr_label head_label, unsigned int *orders_table)
 {
-	int i;
-	char *entryLable;
+	int index;
+	char *lable_name;
 	ptr_label_apearence temp;
 	ptr_label temp_label;
 
    
 
-	/* pointer to labelApearance */
+	/* pointers to labelApearance and label_table */
 	temp = (ptr_label_apearence) malloc(sizeof(label));
+        temp_label = (ptr_label) malloc(sizeof(label));
 
-	if(!temp)
+	if(!temp || !temp_label)
 	{
 
 		printf("Memory allocation failed\n");
@@ -22,34 +23,21 @@ int second_translation(FILE *f)
 
 	}
 
-
-	/* pointer to label_table */
-
-        temp_label = (ptr_label) malloc(sizeof(label));
-
-        if(!temp_label)
-        {
-
-		printf("Memory allocation failed\n");
-
-		exit(0);
-
-        }
-
+        
 	
 	/* take care in lebel as type entry */
-	for(i = 0; i < strlen(orders_table); i++)
+	for(index = 0; !orders_table[index]; index++)
 	{
-		if(orders_table[i] == '?')
+		if(orders_table[index] == '?')
 		{
 			/* find the name of label */
-			temp = labelApearance;
+			temp = head;
 			while (temp)
 			{
-				if((temp->index_in_orders_table) != i)
+				if((temp->index_in_orders_table) != index)
 					temp = temp->next;
 				else
-					entryLable = temp->name;
+					strcpy(lable_name, temp->name);
 			}
 			
 
@@ -59,11 +47,11 @@ int second_translation(FILE *f)
 			while(temp_label)
 			{
 
-				if(strcmp(temp_label->name, entryLable))
+				if(strcmp(temp_label->name, lable_name))
 
       					temp_label = temp_label->next;
       				else
-      					orders_table[i] == temp_label->dec_address;
+      					orders_table[index] = convertDtB(temp_label->dec_address);
       			}
 
 
