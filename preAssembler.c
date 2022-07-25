@@ -2,72 +2,85 @@
 #include "assembler.h"
 
 #define MACRO_LENGTH 5
-#define ENDMACRO_LENGTH 8
+#define AM_FILE ".am"
+
+
 
 
 /*Copeis the input file and pastes the macro*/
-FILE * first_copy_file(FILE *f){
-    FILE *copy;
-    long int *macro_pos, *endmacro_pos;
-    char *row, *word, **macro_name, **macro_content;
-    int index;
+void pre_assembler(FILE *file_to_read, char *file_name){
+    FILE *file_to_write;
+    char line[MAX_LINE_LENGTH];
+    char copy_line[MAX_LINE_LENGTH];
+    char *current_word;
+    ptr_macro current_macro;
+    int new_macro_flag;
 
-    index = 0;
-    there_is_error = 0;    
-    
-    
-    /*Saving all the macro's positions and contents*/
-    while(*macro_pos = find_word("macro", f) -MACRO_LENGTH){
-        fscanf(f, "%s", *macro_name);
+    current_word = NULL;
+    new_macro_flag = 0;
+    current_macro = NULL;
 
-        if(!(endmacro_pos = find_word("endmacro", f))){
-            there_is_error = 1;
-            printf("Missing 'endmacro'\n");
+    strcat(file_name, AM_FILE);
+    file_to_write = fopen(file_name, "w");
+    if(!file_to_write){
+        fprintf(stderr,"Could not create %s file", file_name);
+        exit(0);
+    }
+
+    
+    while(fgets(line, MAX_LINE_LENGTH, file_to_read)){
+        strcpy(copy_line, line);
+        current_word = strtok(copy_line, " \t\n");
+        if(new_macro_flag){
+            if(strcmp(current_word, "endmacro")){
+                strcat(current_macro->macro_content, line);
+                continue;
+            }
+            else{
+                new_macro_flag = 0;
+                current_macro = NULL;
+                continue;
+            }
+        }
+
+        if(!strcmp(current_word, "macro")){
+            current_word = strtok(NULL, " \t\n");
+            if(!current_word){
+                /*TODO: error - macro must have a name*/
+                return;
+            }
+            else if(!(current_macro = add_macro(current_word))){
+                /*TODO: error - cannot add new macro*/
+                return;
+            }
+            else
+                new_macro_flag = 1;
         }
         else{
-            fread(*macro_content, endmacro_pos - macro_pos +1, 1, f);
-            *macro_content++;
-            *endmacro_pos++;
-        }
-        *macro_pos++;
-        *macro_name++;
-    }
-    rewind(f);
-
-    /*Reads every row frow f and pastes the relavents into 'copy'*/
-    while(row = fgets(row, ROW_LENGTH, f)){
-
-        while(fscanf(f, "%s", word)){
-            if(strcmp(*macro_name, word) && macro_pos < ftell(f)){
-                fputs(*macro_content, copy);
-                fsetpos(f, &*endmacro_pos);
-                *macro_name++;
-                *macro_content++;
-                *endmacro_pos++;
+            ptr_macro lookup_macro = NULL;
+            if(!(lookup_macro = get_macro_by_id(current_word))){
+                fputs(line, file_to_write);
             }
-            else {
-                fputs(row, copy);
-                fputc('\n', copy);
-            }
+            else
+                fputs(lookup_macro->macro_content, file_to_write);
         }
     }
-    return &copy;
+    fclose(file_to_write);
+    free_macro_list();
 }
 
 
 
 /*Finds specific word in file*/
 long int find_word(char *word, FILE *file){
-    char *s;
+    char *string = NULL;
 
-    while(fscanf(file, "%s", s))
-        if(!strcmp(word, s))
+    while(fscanf(file, "%s", string))
+        if(!strcmp(word, string))
             return ftell(file); /*Return the word's position*/
     
     return 0;
 }
-
-
 
 
 

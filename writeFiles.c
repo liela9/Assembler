@@ -7,6 +7,9 @@
 #define FIRST_MEMORY_CELL 100
 
 
+
+
+
 void write_files(char *file_name, ptr_label head_label){
     write_ob_file(file_name);
     write_ext_ent_file(file_name, head_label);
@@ -27,19 +30,26 @@ void write_ob_file(char *file_name){
         exit(0);
     }
 
-    /*The first row => IC   DC */
+    /*The first row_content => IC   DC */
     fputs(IC, new_file);
     fputc('\t', new_file);
     fputs(DC, new_file);
 
-    for(i = 0; i < sizeof(binar_lines); i++){
+    for(i = 0; i < sizeof(orders_table); i++){
         fputs(i + FIRST_MEMORY_CELL, new_file);
         fputc('\t', new_file);
-        fputs(binar_lines[i], new_file);
+        fputs(orders_table[i], new_file);
+    }
+
+    for(i = 0; i < sizeof(data_table); i++){
+        fputs(i + FIRST_MEMORY_CELL, new_file);
+        fputc('\t', new_file);
+        fputs(data_table[i], new_file);
     }
 
     fclose(f);
-    free_binar_lines(binar_lines);
+    free(orders_table);
+    free(data_table);
 }
 
 
@@ -47,7 +57,7 @@ void write_ext_ent_files(char *file_name, ptr_label head_label){
     FILE *fext, *fent, *fob;
     ptr_label h_label;
     int count_ext, count_ent, i;
-    char *ext_name, *ent_name, *row, *ob_file_name;
+    char *ext_name, *ent_name, *row_content, *ob_file_name;
     
     count_ext = 0;
     count_ent = 0;
