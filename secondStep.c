@@ -40,6 +40,26 @@ void second_translation(ptr_label_apearence head, ptr_label head_label, unsigned
 					strcpy(lable_name, temp->name);
 			}
 			
+<<<<<<< HEAD
+
+			/* find the eddress of the label */
+			temp_label = head_label;
+
+			while(temp_label)
+			{
+
+				if(strcmp(temp_label->name, lable_name))
+
+      					temp_label = temp_label->next;
+      				else
+      					orders_table[index] = convertDtB(temp_label->dec_address);
+      			}
+
+
+		}
+	}
+=======
+>>>>>>> 096183d86a385d3e76d78e248280840a385b84e8
 
 			/* find the eddress of the label */
 			temp_label = head_label;
