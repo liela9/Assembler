@@ -1,13 +1,10 @@
-
 #include "assembler.h"
 
 #define MACRO_LENGTH 5
-#define AM_FILE ".am"
 
 
 
-
-/*Copeis the input file and pastes the macro*/
+/*Copeis the input file and pastes the macros*/
 void pre_assembler(FILE *file_to_read, char *file_name){
     FILE *file_to_write;
     char line[MAX_LINE_LENGTH];
@@ -20,7 +17,7 @@ void pre_assembler(FILE *file_to_read, char *file_name){
     new_macro_flag = 0;
     current_macro = NULL;
 
-    strcat(file_name, AM_FILE);
+    strcat(file_name, AM_FILE);/*Linking the extention .am to the file's name*/
     file_to_write = fopen(file_name, "w");
     if(!file_to_write){
         fprintf(stderr,"Could not create %s file", file_name);
@@ -33,7 +30,7 @@ void pre_assembler(FILE *file_to_read, char *file_name){
         current_word = strtok(copy_line, " \t\n");
         if(new_macro_flag){
             if(strcmp(current_word, "endmacro")){
-                strcat(current_macro->macro_content, line);
+                strcat(current_macro->macro_content, line);/*Add the relavent content (the line) to the variable "macro_content"*/
                 continue;
             }
             else{
@@ -66,6 +63,7 @@ void pre_assembler(FILE *file_to_read, char *file_name){
         }
     }
     fclose(file_to_write);
+    free(current_macro);
     free_macro_list();
 }
 

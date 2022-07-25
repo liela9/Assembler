@@ -2,12 +2,12 @@
 #include "label.c"
 #include "utils.c"
 
+/*A table of binary machine code for orders*/
 static unsigned int *orders_table;
 
-int insert_order(int IC, unsigned long op_code, char *source_op, char *dest_op, ptr_label head_label){
+int insert_order(int IC, unsigned long op_code, char *source_op, char *dest_op, ptr_label head_label, ptr_label_apearence label_apear_head){
     int source, dest;
     char **struct_access1, **struct_access2;
-    ptr_label_apearence label_apear_head;
     ptr_label_apearence label_apear_tail;
 
     orders_table = (unsigned int*)malloc(sizeof(unsigned int));
@@ -159,7 +159,7 @@ int create_unknown_line(int IC, unsigned int *orders_table, char *label, ptr_lab
 
     /*Saves the location of the label/struct apearence*/
     strcpy(temp_node->name, label);
-    temp_node->index_in_orders_table = IC; 
+    temp_node-> index_in_orders_table = IC; 
     temp_node->next = NULL;
     label_apear_tail->next = temp_node;
     label_apear_tail = temp_node;

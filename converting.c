@@ -2,6 +2,7 @@
 #include "constants.c"
 
 #define NO0 255
+#define BIN_MACHINE_CODE_LENGTH 10
 
 
 

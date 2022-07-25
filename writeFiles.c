@@ -1,46 +1,52 @@
 #include "lines.c"
+#include "firstStep.c"
 
-
+#define ENT_FILE ".ent"
+#define EXT_FILE ".ext"
+#define OB_FILE ".ob"
 #define FIRST_MEMORY_CELL 100
 
 
-
-
-void write_files(char *file_name, ptr_label head_label){
+/*Call the functions for writing the 3 files*/
+void write_files(char *file_name){
     write_ob_file(file_name);
-    write_ext_ent_file(file_name, head_label);
+    write_ext_ent_file(file_name);
 }
 
 
+/*Creates and writes the .ob file*/
 void write_ob_file(char *file_name){
     FILE *f;
     int i;
-    char *new_file;
+    char *new_file_name;
 
     /*Defines the file's name .ob*/
-    sprintf(new_file, "%s%s", file_name, OB_FILE);
+    sprintf(new_file_name, "%s%s", file_name, OB_FILE);
 
     f = fopen(file_name, "w");
     if(!f){
-        printf("Could not create new file!\n");
+        printf("System Error: Could not create new file!\n");
         exit(0);
     }
 
-    /*The first row_content => IC   DC */
-    fputs(IC, new_file);
-    fputc('\t', new_file);
-    fputs(DC, new_file);
+    /*
+    The first row_content => 
+    IC   DC 
+    */
+    fputs(IC, new_file_name);
+    fputc('\t', new_file_name);
+    fputs(DC, new_file_name);
 
     for(i = 0; i < sizeof(orders_table); i++){
-        fputs(i + FIRST_MEMORY_CELL, new_file);
-        fputc('\t', new_file);
-        fputs(orders_table[i], new_file);
+        fputs(i + FIRST_MEMORY_CELL, new_file_name);
+        fputc('\t', new_file_name);
+        fputs(orders_table[i], new_file_name);
     }
 
     for(i = 0; i < sizeof(data_table); i++){
-        fputs(i + FIRST_MEMORY_CELL, new_file);
-        fputc('\t', new_file);
-        fputs(data_table[i], new_file);
+        fputs(i + FIRST_MEMORY_CELL, new_file_name);
+        fputc('\t', new_file_name);
+        fputs(data_table[i], new_file_name);
     }
 
     fclose(f);
@@ -49,12 +55,15 @@ void write_ob_file(char *file_name){
 }
 
 
-void write_ext_ent_files(char *file_name, ptr_label head_label){
+/*Creates and writes the .ent and .ext files*/
+void write_ext_ent_files(char *file_name){
     FILE *fext, *fent, *fob;
     ptr_label h_label;
-    int count_ext, count_ent, i;
-    char *ext_name, *ent_name, *row_content, *ob_file_name;
+    int count_ext, count_ent;
+    char *ext_name, *ent_name, *ob_file_name;
+    ptr_label_apearence temp_ptr;
     
+    temp_ptr = label_apear_head;
     count_ext = 0;
     count_ent = 0;
 
@@ -66,17 +75,17 @@ void write_ext_ent_files(char *file_name, ptr_label head_label){
     fent = fopen(ent_name, "w");
 
     if(!fext || !fent){
-        printf("Could not create new file!\n");
+        printf("System Error: Could not create new file!\n");
         exit(0);
     }
 
-    ob_file_name = strcat(file_name, OB_FILE);
+    ob_file_name = strcat(file_name, OB_FILE);/*Linking the extention .ob to the file's name*/
     fob = fopen(ob_file_name, "r");/*Assumes the file .ob created correctly*/
     
     h_label = head_label;
     while (h_label){
-        for(i = 0; i < sizeof(label_apearances); i++){
-            if(!strcmp(h_label->name, label_apearances[i])){
+        while(temp_ptr){
+            if(!strcmp(h_label->name, temp_ptr->name)){
                 if(h_label->type == EXTERNAL){
                     count_ext++;
                     fputs(h_label->name, ext_name);
@@ -90,6 +99,7 @@ void write_ext_ent_files(char *file_name, ptr_label head_label){
                     fputs(convertDtoB32(h_label->dec_address), ent_name);
                 }
             }
+            temp_ptr = temp_ptr->next;
         }
         h_label = h_label->next;
     }

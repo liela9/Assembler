@@ -2,37 +2,40 @@
 #include <string.h>
 #include <stdlib.h>
  
-#define MACRO_MAX_LINE_NUMBER 10
-#define BASE_LENGTH 32
+
+
 #define OPCODE_LENGTH 16
 #define MAX_LINE_LENGTH 81
 #define NUM_OF_REGISTERS 8
 #define NUM_OF_GUIDANCE_NAME 5
 #define MAX_LABEL_LENGTH 30
-#define BIN_MACHINE_CODE_LENGTH 10
 #define AM_FILE ".am"
-#define ENT_FILE ".ent"
-#define EXT_FILE ".ext"
-#define OB_FILE ".ob"
+
 
 
 enum {ENTRY, EXTERNAL, CODE, DATA};
 typedef enum {false, true} bool;
 
 
+/*
+A linked list of macros.
+*/
 typedef struct macro *ptr_macro;
 typedef struct macro {
-    char *macro_id; 
-    char *macro_content; 
+    char *macro_id; /*Number of the macro*/
+    char *macro_content; /*Content of the macro*/
 
     ptr_macro next;
 } macro;
 
 
+/*
+A linked list of labels.
+*/
 typedef struct label *ptr_label;
 typedef struct label{
     
-    char name[MAX_LABEL_LENGTH];
+    char name[MAX_LABEL_LENGTH];/*Label name*/
     int type; /*Options: 0 == ENTRY, 1 == EXTERNAL, 2 == CODE, 3 == DATA*/
     int dec_address; /*Decimal address*/
 
@@ -41,11 +44,15 @@ typedef struct label{
 }label;
 
 
+/*
+A linked list of unknown labels in the orders_table.
+Assists to complete the orders_table in second step.
+*/
 typedef struct labelApearance *ptr_label_apearence;
 typedef struct labelApearance{
     
-    char name[MAX_LABEL_LENGTH];
-    int index_in_orders_table;
+    char name[MAX_LABEL_LENGTH];/*Label name*/
+    int index_in_orders_table;/*Contains the index of unknown label line at the first step*/
 
     ptr_label_apearence next;
 
@@ -65,7 +72,7 @@ void free_macro_list();
 
 
 /*Functions of file 'firsStep'*/
-bool first_translation();
+bool first_step();
 int find_opcode(char *);
 int find_group(int IC, int , ptr_label);
 void free_label_list();
@@ -73,7 +80,7 @@ void free_data_table();
 
 
 /*Functions of file 'lines'*/
-int insert_order(int , unsigned long , char *, char *, ptr_label);
+int insert_order(int , unsigned long , char *, char *, ptr_label, ptr_label_apearence);
 int create_order_line(int , unsigned long , long , long , unsigned int *);
 int create_registers_line(int , int , int , unsigned int *);
 int create_value_line(char *, int , unsigned int *);
@@ -99,12 +106,12 @@ bool valid_label_name(char *);
 
 
 /*Functions of file 'writeFiles'*/
-void write_files(char *, ptr_label );
+void write_files(char *);
 void write_ob_file(char *);
-void write_ext_ent_files(char *, ptr_label );
+void write_ext_ent_files(char *);
 
 
-
-
+/*Function of file 'secondStep'*/
+void second_step(ptr_label_apearence , ptr_label);
 
 
