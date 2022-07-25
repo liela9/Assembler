@@ -39,8 +39,6 @@ void second_translation(ptr_label_apearence head, ptr_label head_label, unsigned
 				else
 					strcpy(lable_name, temp->name);
 			}
-			
-<<<<<<< HEAD
 
 			/* find the eddress of the label */
 			temp_label = head_label;
@@ -58,8 +56,6 @@ void second_translation(ptr_label_apearence head, ptr_label head_label, unsigned
 
 		}
 	}
-=======
->>>>>>> 096183d86a385d3e76d78e248280840a385b84e8
 
 			/* find the eddress of the label */
 			temp_label = head_label;
