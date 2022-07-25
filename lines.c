@@ -2,11 +2,11 @@
 #include "label.c"
 #include "utils.c"
 
+static unsigned int *orders_table;
 
 int insert_order(int IC, unsigned long op_code, char *source_op, char *dest_op, ptr_label head_label){
     int source, dest;
     char **struct_access1, **struct_access2;
-    unsigned int *orders_table;
     ptr_label_apearence label_apear_head;
     ptr_label_apearence label_apear_tail;
 
@@ -227,3 +227,7 @@ void create_zero_line(unsigned int *data_table, int DC){
     *(data_table + DC) = convertDtoB(0);
 }
 
+/*Free the orders array*/
+void free_orders_table(){
+    free(orders_table);
+}

@@ -1,13 +1,21 @@
-
 #include "assembler.h"
+#include "constants.c"
 
-int first_translation(FILE *f){
-    
+static ptr_label head_label;
+static ptr_label tail_label;
+static unsigned int *data_table;
+
+
+bool first_translation(char *file_name){
+    FILE *f;
     char *row_content, *first_word, *second_word;
     int op_code_index, IC, DC;
-    unsigned int *data_table;
-    ptr_label head_label;
-    ptr_label tail_label;  
+    bool there_is_error;
+
+    there_is_error = 0;
+
+    strcat(file_name, AM_FILE);/*Add the extention ".am" to the name of the file*/
+    f = fopen(file_name, "w");
 
     data_table = (unsigned int*)malloc(5 * sizeof(unsigned int));
     head_label = (ptr_label)malloc(sizeof(label));
@@ -17,7 +25,7 @@ int first_translation(FILE *f){
     DC = 0;
 
     /*Reads a line*/
-    while(fgets(row_content, row_content_LENGTH, f)){
+    while(fgets(row_content, MAX_LINE_LENGTH, f)){
         
         /*Read the first word of the line*/
         if(first_word = strtok(row_content, ' \t\r')){
@@ -30,6 +38,7 @@ int first_translation(FILE *f){
                 /*If the first word is extern*/
                 if(!strcmp(first_word, ".extern")){
                     printf("Warning: %s is extern\n", first_word);
+                    there_is_error = 1;
                 }
                 
                 /*If the first word is data/string/struct */
@@ -59,17 +68,19 @@ int first_translation(FILE *f){
                         else{
                             /*The first word is not label\opcode\data\extern\entry*/ 
                             printf("Error: %s is illegal\n", first_word);
+                            there_is_error = 1;
                         }
             }
             
         }
         
     }
-    return ;
+    fclose(f);
+    return there_is_error;
 }
 
 
-
+/*Finds opcode index by opcode name*/
 int find_opcode(char *str){
     int i;
 
@@ -96,3 +107,26 @@ int find_group(int IC, int op_code_index, ptr_label head_label){
             IC = insert_order( IC, convertDtoB(op_code_index), NULL, NULL, &head_label);
     return IC;
 }
+
+
+/*Free the labels list */
+void free_label_list() {
+    ptr_label it = head_label, temp;
+
+    while (it != NULL) {
+        temp = it;
+        it = it->next;
+        free(temp->name);
+        free(temp->type);
+        free(temp);
+    }
+    head_label = NULL;
+    tail_label = NULL;
+}
+
+
+/*Free the data array*/
+void free_data_table(){
+    free(data_table);
+}
+

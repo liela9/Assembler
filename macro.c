@@ -8,7 +8,7 @@ static ptr_macro head_macro = NULL;
 
 ptr_macro add_macro(char *macro_id){
     ptr_macro new = NULL;
-    //TODO: check valid name for macro
+    /*TODO: check valid name for macro*/
     if((new = get_macro_by_id(macro_id))){
         fprintf(stderr, "Cannot add new macro %s, macro already exist\n", macro_id);
         return NULL;
@@ -63,7 +63,7 @@ void print_macro_list() {
 }
 
 
-/*Free the list named "macro"*/
+/*Free the macro list*/
 void free_macro_list() {
     ptr_macro it = head_macro, temp;
 

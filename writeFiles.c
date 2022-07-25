@@ -1,11 +1,7 @@
 #include "lines.c"
-#include "free.c"
 
-#define ENT_FILE ".ent"
-#define EXT_FILE ".ext"
-#define OB_FILE ".ob"
+
 #define FIRST_MEMORY_CELL 100
-
 
 
 
@@ -48,8 +44,8 @@ void write_ob_file(char *file_name){
     }
 
     fclose(f);
-    free(orders_table);
-    free(data_table);
+    free_orders_table();
+    free_data_table();
 }
 
 
