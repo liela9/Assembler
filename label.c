@@ -18,8 +18,8 @@ int insert_new_label(char *name, int type, int address, ptr_label head_label, pt
 
     name[sizeof(name)-1] = '\0'; /*Remove the char ':' */
 
-    if(label_exists(name, &head_label)){
-        printf("Error: %s label already exists!\n", name);
+    if(label_exists(name, &head_label) || !valid_label_name(name)){
+        printf("Error: %s Illegal label name!\n", name);
         
     }
     
@@ -43,38 +43,57 @@ int insert_new_label(char *name, int type, int address, ptr_label head_label, pt
 
 
 /*Checks if this label exists in this file*/
-int label_exists(char *name, ptr_label head_label){
+bool label_exists(char *name, ptr_label head_label){
     ptr_label temp_label;
 
     temp_label = head_label;
 
     while(temp_label){
         if(strcmp(temp_label->name, name))
-            return 1;
+            return true;
         temp_label = temp_label->next;
     }
-    return 0;
+    return false;
 }
 
+
+/*Checks if it is a valid label name*/
+bool valid_label_name(char *name){
+	/* Checks: length, first char is alpha and all the others are alphanumeric, and not saved word */
+	return name[0] && strlen(name) <= 31 && isalpha(name[0]) && alphanumeric_str(name + 1) &&
+	       !saved_words(name);
+}
+
+
 /*Checks if it is a saved word of the system*/
-int saved_words(char *name){ 
+bool saved_words(char *name){ 
     int i;
     
     for(i = 0; i < NUM_OF_REGISTERS; i++){
         if(!strcmp(name, registers[i]))
-            return 1;
+            return true;
     }
 
     for(i = 0; i < OPCODE_LENGTH; i++){
         if(!strcmp(name, opcode[i]))
-            return 1;
+            return true;
     }
 
     for(i = 0; i < NUM_OF_GUIDANCE_NAME; i++){
         if(!strcmp(name, guidance[i]))
-            return 1;
+            return true;
     }
 
-    return 0;
+    return false;
 }
 
+/*checks for every char in the string if it is non alphanumeric char*/
+bool alphanumeric_str(char *string){
+	int i;
+
+	for(i = 0; string[i]; i++){
+		if (!isalpha(string[i]) && !isdigit(string[i]))
+            return false;
+	}
+	return true;
+}

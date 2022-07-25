@@ -2,23 +2,27 @@
 #include <string.h>
 #include <stdlib.h>
  
+#define MACRO_MAX_LINE_NUMBER 10
 #define BASE_LENGTH 32
 #define OPCODE_LENGTH 16
-#define ROW_LENGTH 81
+#define MAX_LINE_LENGTH 81
 #define NUM_OF_REGISTERS 8
 #define NUM_OF_GUIDANCE_NAME 5
 #define MAX_LABEL_LENGTH 30
 #define BIN_MACHINE_CODE_LENGTH 10
 
-  
-
-
-const char* registers[NUM_OF_REGISTERS] = {"r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"};
-const char* opcode[OPCODE_LENGTH] = {"mov", "cmp", "add", "sub", "not", "clr", "lea", "inc", "dec", "jmp", "bne", "get", "prn", "jsr", "rts", "hlt"}; 
-const char base32[BASE_LENGTH] = {'!', '@', '#', '$', '%', '^', '&', '*', '<', '>', 'a', 'b', 'c', 'd', 'e', 'f', 'g',' h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v'};
-const char* guidance[NUM_OF_GUIDANCE_NAME] = {"data", "string", "struct", "entry", "extern"};
 
 enum {ENTRY, EXTERNAL, CODE, DATA};
+typedef enum {false, true} bool;
+
+
+typedef struct macro *ptr_macro;
+typedef struct macro {
+    char *macro_id; 
+    char *macro_content; 
+
+    ptr_macro next;
+} macro;
 
 
 typedef struct label *ptr_label;
@@ -26,7 +30,7 @@ typedef struct label{
     
     char name[MAX_LABEL_LENGTH];
     int type; /*Options: 0 == ENTRY, 1 == EXTERNAL, 2 == CODE, 3 == DATA*/
-    int dec_address;
+    int dec_address; /*Decimal address*/
 
     ptr_label next;
 
@@ -37,66 +41,57 @@ typedef struct labelApearance *ptr_label_apearence;
 typedef struct labelApearance{
     
     char name[MAX_LABEL_LENGTH];
-    int index_in_order_table;
+    int index_in_orders_table;
 
     ptr_label_apearence next;
 
 }labelApearance;
 
-/*
-typedef struct OrdersBinaryCode *ptr_order_bin;
-typedef struct OrdersBinaryCode
-{
-    unsigned int ARE : 2;
-    unsigned int destination : 2;
-    unsigned int source : 2;
-    unsigned int opcode : 4;
 
-    ptr_order_bin next;
+/*Functions of file 'preAssembler'*/
+void pre_assembler(FILE *, char *);
+long int find_word(char *word, FILE *);
 
-}OrdersBinaryCode;
-*/
+/*Functions of file 'macro'*/
+ptr_macro add_macro(char *);
+ptr_macro get_macro_by_id(char *);
+void print_macro_list();
+void free_macro_list();
 
-typedef struct BinaryCode *ptr_bin;
-typedef struct BinaryCode{
-    unsigned int code : 10;
-    ptr_bin next;
-    
-}BinaryCode;
-
-
-
-
-
-FILE * first_copy_file(FILE *);
-long int find_word(char *, FILE *);
-
-int find_opcode(char *);
-void find_group(int , char *, int );
+/*Functions of file 'firsStep'*/
 int first_translation(FILE *);
+int find_opcode(char *);
+int find_group(int IC, int , ptr_label);
 
-int second_translation(FILE *);
+/*Functions of file 'lines'*/
+int insert_order(int , unsigned long , char *, char *, ptr_label);
+int create_order_line(int , unsigned long , long , long , unsigned int *);
+int create_registers_line(int , int , int , unsigned int *);
+int create_value_line(char *, int , unsigned int *);
+int create_index_line(int , int , unsigned int *);
+int create_unknown_line(int , unsigned int *, char *, ptr_label_apearence );
+int create_data_line(int , char *, unsigned int *, char *);
+void create_zero_line(unsigned int *, int DC);
 
-int insert_new_label(char *, int, int );
-int label_exists(char *);
-int saved_words(char *);
-void fill_values(FILE *, long int , int *);
 
-void insert_new_order(char * ,int , unsigned long , char *, char *);
-void create_new_line(char *, int , unsigned long , long , long );
-void create_line_for_registers(int , int, int);
-void create_line_for_value(char *, int);
-void create_unknown_line(int);
 int is_register(char *);
 char** is_struct(char *);
+void realloc_check(int , unsigned int *);
 
-void write_files(char *, ptr_label);
+/*Functions of file 'label'*/
+int insert_new_label(char *, int , int , ptr_label , ptr_label );
+bool label_exists(char *, ptr_label );
+bool valid_label_name(char *);
+bool saved_words(char *);
+bool alphanumeric_str(char *);
+
+/*Functions of file 'writeFiles'*/
+void write_files(char *, ptr_label );
 void write_ob_file(char *);
-void write_ext_ent_file(char *, ptr_label);
+void write_ext_ent_files(char *, ptr_label );
 
-unsigned long convertDtoB(int);
-int convertBtoD(unsigned long);
-char* reverstr(char *, int);
-char* convertDtoB32(int);
+
+
+
 
 
