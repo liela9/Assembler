@@ -1,12 +1,12 @@
 #include "math.h"
 #include "constants.c"
 
-#define NO0 255
 #define BIN_MACHINE_CODE_LENGTH 10
+#define NO0 (pow(2,BIN_MACHINE_CODE_LENGTH))-1
 
 
 
-/* Converts decimal number to binary */
+/* Converts decimal number to binary with the Two's complement method */
 unsigned long convertDtoB(int n) {
   unsigned long bin;
   int rem, i, numOfBits;
