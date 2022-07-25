@@ -1,7 +1,7 @@
 #include "assembler.h"
 
 
-int second_translation(ptr_label_apearence head, ptr_label head_label, unsigned int *orders_table)
+void second_translation(ptr_label_apearence head, ptr_label head_label, unsigned int *orders_table)
 {
 	int index;
 	char *lable_name;
