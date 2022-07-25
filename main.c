@@ -5,31 +5,34 @@
 int main(int argc, char *argv[]){
     
     FILE *f;
-    int i;
+    int index;
      
 
-    if(argc == 1){
+    if(argc == 1){/*If there are no names of files in the command line*/
         printf("\nMissing name of file/s\n");
         exit(0);
     }
     
-    for(i = 1; i < argc; i++){
+    for(index = 1; index < argc; index++){
         
-        if(!(f = fopen(argv[i], "r"))){
-            printf("Cannot open %s\n", argv[i]);
+        if(!(f = fopen(argv[index], "r"))){
+            printf("Cannot open %s\n", argv[index]);
             continue;
         }
         
-        pre_assembler(f, argv[i]);
+        pre_assembler(f, argv[index]);
 
-        if(first_translation(argv[i]) || second_translation()){
-            printf("There is error in file %s\n", argv[i]);
-            continue;
+        
+        if(first_step(argv[index])){/*If there was error at the first step*/
+            printf("There is error in file %s\n", argv[index]);
+            continue;/*Continue to the next assembler file*/
         }
+
+	    write_files(argv[index]);
 
         fclose(f);
         free_linked_lists();
-        printf("File:  %s run successfully!\n", argv[i]);
+        printf("File:  %s run successfully!\n", argv[index]);
     }
     
     return(0);

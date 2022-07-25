@@ -1,5 +1,5 @@
 #include "main.c"
-
+#include "constants.c"
 
 #define ZERO_ASCII_CODE 48
 #define NINE_ASCII_CODE 57
@@ -64,36 +64,3 @@ bool valid_label_name(char *name){
 	       !saved_words(name);
 }
 
-
-/*Checks if it is a saved word of the system*/
-bool saved_words(char *name){ 
-    int i;
-    
-    for(i = 0; i < NUM_OF_REGISTERS; i++){
-        if(!strcmp(name, registers[i]))
-            return true;
-    }
-
-    for(i = 0; i < OPCODE_LENGTH; i++){
-        if(!strcmp(name, opcode[i]))
-            return true;
-    }
-
-    for(i = 0; i < NUM_OF_GUIDANCE_NAME; i++){
-        if(!strcmp(name, guidance[i]))
-            return true;
-    }
-
-    return false;
-}
-
-/*checks for every char in the string if it is non alphanumeric char*/
-bool alphanumeric_str(char *string){
-	int i;
-
-	for(i = 0; string[i]; i++){
-		if (!isalpha(string[i]) && !isdigit(string[i]))
-            return false;
-	}
-	return true;
-}

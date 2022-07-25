@@ -1,77 +1,71 @@
 #include "assembler.h"
+#include "lines.c"
 
 
-void second_translation(ptr_label_apearence head, ptr_label head_label, unsigned int *orders_table)
+void second_step(ptr_label_apearence head_label_apear, ptr_label head_label)
 {
 	int index;
-	char *lable_name;
-	ptr_label_apearence temp;
+	char *label_name;
+
+	/* Pointers to temporery labelApearance and label_table */
+	ptr_label_apearence temp_label_apear;
 	ptr_label temp_label;
 
-   
+	temp_label_apear = (ptr_label_apearence) malloc(sizeof(labelApearance));
+    temp_label = (ptr_label) malloc(sizeof(label));
 
-	/* pointers to labelApearance and label_table */
-	temp = (ptr_label_apearence) malloc(sizeof(label));
-        temp_label = (ptr_label) malloc(sizeof(label));
-
-	if(!temp || !temp_label)
+	if(!temp_label_apear || !temp_label)
 	{
-
 		printf("Memory allocation failed\n");
-
 		exit(0);
-
 	}
 
-        
+	temp_label = head_label;
 	
-	/* take care in lebel as type entry */
+	/*While it is not the end of the list*/
 	for(index = 0; !orders_table[index]; index++)
 	{
+		/*Finds the lines without binary code*/
 		if(orders_table[index] == '?')
 		{
-			/* find the name of label */
-			temp = head;
-			while (temp)
+			/* Finds the name of label */
+			temp_label_apear = head_label_apear;
+			while (temp_label_apear)
 			{
-				if((temp->index_in_orders_table) != index)
-					temp = temp->next;
+				if((temp_label_apear->index_in_orders_table) != index)
+					temp_label_apear = temp_label_apear->next;
 				else
-					strcpy(lable_name, temp->name);
+					strcpy(label_name, temp_label_apear->name);
+
+				temp_label_apear = temp_label_apear->next;
 			}
 
-			/* find the eddress of the label */
+			/* Finds the eddress of the label */
 			temp_label = head_label;
 
 			while(temp_label)
 			{
+				/*If temp_label->name != label_name*/
+				if(strcmp(temp_label->name, label_name))
+      				temp_label = temp_label->next;
+      			else/*If they are equals*/
+      				orders_table[index] = convertDtB(temp_label->dec_address);
 
-				if(strcmp(temp_label->name, lable_name))
-
-      					temp_label = temp_label->next;
-      				else
-      					orders_table[index] = convertDtB(temp_label->dec_address);
-      			}
+				temp_label = temp_label->next;
+      		}
 
 
 		}
 	}
 
-			/* find the eddress of the label */
-			temp_label = head_label;
-
-			while(temp_label)
-			{
-
-				if(strcmp(temp_label->name, lable_name))
-
-      					temp_label = temp_label->next;
-      				else
-      					orders_table[index] = convertDtB(temp_label->dec_address);
-      			}
-
-
-		}
+	/* Finds the eddress of the label and replace the '?' by it*/
+	while(temp_label){
+		if(strcmp(temp_label->name, label_name))
+			temp_label = temp_label->next;
+		else
+			orders_table[index] = convertDtB(temp_label->dec_address);
 	}
 
+	free(temp_label);
+	free(temp_label_apear);
 }

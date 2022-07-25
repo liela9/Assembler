@@ -1,5 +1,6 @@
 #include "assembler.h"
 
+#define BASE_LENGTH 32
 
 const char registers[NUM_OF_REGISTERS][2] = {"r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"};
 const char opcode[OPCODE_LENGTH][3] = {"mov", "cmp", "add", "sub", "not", "clr", "lea", "inc", "dec", "jmp", "bne", "get", "prn", "jsr", "rts", "hlt"}; 

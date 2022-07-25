@@ -1,12 +1,16 @@
 #include "assembler.h"
 #include "constants.c"
 
+
 static ptr_label head_label;
 static ptr_label tail_label;
+static ptr_label_apearence label_apear_head;
+
+/*A table of binary machine code for data*/
 static unsigned int *data_table;
 
 
-bool first_translation(char *file_name){
+bool first_step(char *file_name){
     FILE *f;
     char *row_content, *first_word, *second_word;
     int op_code_index, IC, DC;
@@ -76,6 +80,7 @@ bool first_translation(char *file_name){
         
     }
     fclose(f);
+    second_translation(&label_apear_head, &head_label);
     return there_is_error;
 }
 
@@ -96,15 +101,15 @@ int find_group(int IC, int op_code_index, ptr_label head_label){
     
     /*If belongs to the first orders group*/
         if(op_code_index == 6 || (0 <= op_code_index && op_code_index <= 3))
-            IC = insert_order( IC, convertDtoB(op_code_index), strtok(NULL, ' \t\r'), strtok(NULL, ' \t\r'), &head_label);
+            IC = insert_order( IC, convertDtoB(op_code_index), strtok(NULL, ' \t\r'), strtok(NULL, ' \t\r'), &head_label, &label_apear_head);
 
         /*If belongs to the second orders group*/
         if((4 <= op_code_index && op_code_index <= 5) || (7 <= op_code_index && op_code_index <= 13))
-            IC = insert_order( IC, convertDtoB(op_code_index), strtok(NULL, ' \t\r'), NULL, &head_label);
+            IC = insert_order( IC, convertDtoB(op_code_index), strtok(NULL, ' \t\r'), NULL, &head_label, &label_apear_head);
 
         /*If belongs to the third orders group*/
         if(op_code_index == 14 || op_code_index == 15)
-            IC = insert_order( IC, convertDtoB(op_code_index), NULL, NULL, &head_label);
+            IC = insert_order( IC, convertDtoB(op_code_index), NULL, NULL, &head_label, &label_apear_head);
     return IC;
 }
 
