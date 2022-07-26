@@ -92,7 +92,7 @@ char* convertDtoB32(int decimal_number) {
     decimal_number /= 32;
 	  index++;
   }
-  
+
   revers_str = reverstr(str, index);
   return revers_str;
 }
