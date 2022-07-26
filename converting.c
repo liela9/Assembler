@@ -2,59 +2,61 @@
 #include "constants.c"
 
 #define BIN_MACHINE_CODE_LENGTH 10
-#define NO0 (pow(2,BIN_MACHINE_CODE_LENGTH))-1
-
-
+#define ONLY1 1023
 
 /* Converts decimal number to binary with the Two's complement method */
-unsigned long convertDtoB(int n) {
-  unsigned long bin;
+unsigned long convertDtoB(int dec_num) {
+  unsigned long bin_num;
   int rem, i, numOfBits;
 	
-  bin = 0;
+  bin_num = 0;
   i = 1;
   numOfBits = 0;
 
-  if(n < 0)
+  if(dec_num < 0)
 	{
-		n = -n;
-		n = n ^ NO0;
-		while (n != 0) 
+		dec_num = -dec_num;
+		
+		/* Bit conversion */
+		dec_num = dec_num ^ ONLY1;
+		
+		while (dec_num != 0) 
 		  {
 		    numOfBits++;
-		    rem = n % 2;
-		    n /= 2;
-		    bin += rem * i;
+		    rem = dec_num % 2;
+		    dec_num /= 2;
+		    bin_num += rem * i;
 		    i *= BIN_MACHINE_CODE_LENGTH;
 		  }
-		 bin += 1;
+		 bin_num += 1;
 	}
-        else while (n != 0) 
+	/* If the decimal number is positive. */
+        else while (dec_num != 0) 
 	{
-	    rem = n % 2;
-	    n /= 2;
-	    bin += rem * i;
+	    rem = dec_num % 2;
+	    dec_num /= 2;
+	    bin_num += rem * i;
 	    i *= BIN_MACHINE_CODE_LENGTH;
 	}
 
-  return bin;
+  return bin_num;
 }
 
 /* Converts binary number to decimal */
-int convertBtoD(unsigned long n) {
-  int dec, rem, i;
+int convertBtoD(unsigned long bin_num) {
+  int dec_num, rem, i;
 
-  dec = 0;
+  dec_num = 0;
   i = 1;
 
-  while(n > 0) {
-    rem = n % BIN_MACHINE_CODE_LENGTH;
-    n /= BIN_MACHINE_CODE_LENGTH;
-    dec += rem * i;
+  while(bin_num > 0) {
+    rem = bin_num % BIN_MACHINE_CODE_LENGTH;
+    bin_num /= BIN_MACHINE_CODE_LENGTH;
+    dec_num += rem * i;
     i *= 2;
   }
 
-  return dec;
+  return dec_num;
 }
 
 /* Revers the string */
@@ -64,7 +66,7 @@ char* reverstr(char str[], int index)
 	char *rstr;
 	
   i = 0;
-  *rstr = malloc(BIN_MACHINE_CODE_LENGTH * sizeof(char));
+  rstr = malloc(BIN_MACHINE_CODE_LENGTH * sizeof(char));
 
 	/* ignore the '\0' */
 	index -= 1;
@@ -76,7 +78,7 @@ char* reverstr(char str[], int index)
 }
 
 /* Converts decimal number to base32 */
-char* convertDtoB32(int n) 
+char* convertDtoB32(int dec_num) 
 {
   int rem, index;
   char str[BIN_MACHINE_CODE_LENGTH];
@@ -84,10 +86,10 @@ char* convertDtoB32(int n)
 
   index = 0;
 
-  while (n > 0) {
-    rem = n % 32;
+  while (dec_num > 0) {
+    rem = dec_num % 32;
     str[index] = (base32[rem]);
-    n /= 32;
+    dec_num /= 32;
 	  index++;
   }
   s = reverstr(str, index);
