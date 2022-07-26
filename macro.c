@@ -3,8 +3,8 @@
 #define MACRO_MAX_LINE_NUMBER 10
 
 
-/* macro linked list head pointer */
-static ptr_macro head_macro = NULL;
+/*Macro's linked list head pointer */
+static ptr_macro head_macro;
 
 
 /*Add new macro to the list*/
@@ -15,13 +15,13 @@ ptr_macro add_macro(char *macro_id){
 
     /*TODO: check valid name for macro*/
     if((new = get_macro_by_id(macro_id))){
-        fprintf(stderr, "Cannot add new macro %s, macro already exist\n", macro_id);
+        fprintf(stderr, "Can not add new macro %s, Macro already exists\n", macro_id);
         return NULL;
     }
 
     new = malloc(sizeof(macro));
     if (!new){
-        fprintf(stderr,"Could not allocate memory ");
+        fprintf(stderr,"System Error: Could not allocate memory\n");
         exit(0);
     }
 
@@ -65,21 +65,18 @@ void print_macro_list() {
     ptr_macro ptr;
 
     for (ptr = head_macro; ptr != NULL; ptr = ptr->next)
-        printf("macro id: %s\nmacro content: %s \n", ptr->macro_id, ptr->macro_content);
+        printf("Macro id: %s\nMacro content: %s \n", ptr->macro_id, ptr->macro_content);
 }
 
 
-/*Free the macro list*/
+/*Free the macro's list*/
 void free_macro_list() {
-    ptr_macro it = head_macro, temp;
+    ptr_macro temp;
 
-    while (it != NULL) {
-        temp = it;
-        it = it->next;
-        free(temp->macro_id);
-        free(temp->macro_content);
+    while (head_macro) {
+        temp = head_macro;
+        head_macro = head_macro->next;
         free(temp);
     }
-    head_macro = NULL;
 }
 

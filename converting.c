@@ -2,94 +2,97 @@
 #include "constants.c"
 
 #define BIN_MACHINE_CODE_LENGTH 10
-#define NO0 (pow(2,BIN_MACHINE_CODE_LENGTH))-1
-
+#define ONLY1 1023
 
 
 /* Converts decimal number to binary with the Two's complement method */
-unsigned long convertDtoB(int n) {
-  unsigned long bin;
-  int rem, i, numOfBits;
-	
-  bin = 0;
-  i = 1;
-  numOfBits = 0;
+unsigned long convertDtoB(int decimal_number){
+  unsigned long bin_number;
+  int remainder, index, num_of_bits;
 
-  if(n < 0)
-	{
-		n = -n;
-		n = n ^ NO0;
-		while (n != 0) 
-		  {
-		    numOfBits++;
-		    rem = n % 2;
-		    n /= 2;
-		    bin += rem * i;
-		    i *= BIN_MACHINE_CODE_LENGTH;
-		  }
-		 bin += 1;
-	}
-        else while (n != 0) 
-	{
-	    rem = n % 2;
-	    n /= 2;
-	    bin += rem * i;
-	    i *= BIN_MACHINE_CODE_LENGTH;
-	}
+  bin_number = 0;
+  index = 1;
+  num_of_bits = 0;
 
-  return bin;
-}
-
-/* Converts binary number to decimal */
-int convertBtoD(unsigned long n) {
-  int dec, rem, i;
-
-  dec = 0;
-  i = 1;
-
-  while(n > 0) {
-    rem = n % BIN_MACHINE_CODE_LENGTH;
-    n /= BIN_MACHINE_CODE_LENGTH;
-    dec += rem * i;
-    i *= 2;
+  if(decimal_number < 0){
+    decimal_number = -decimal_number;
+    
+    /* Bit conversion */
+    decimal_number = decimal_number ^ ONLY1;
+    
+    while (decimal_number != 0){
+      num_of_bits++;
+      remainder = decimal_number % 2;
+      decimal_number /= 2;
+      bin_number += remainder * index;
+      index *= BIN_MACHINE_CODE_LENGTH;
+    }
+    bin_number += 1;
   }
 
-  return dec;
+  /* If the decimal number is positive. */
+  else while (decimal_number != 0) {
+    remainder = decimal_number % 2;
+    decimal_number /= 2;
+    bin_number += remainder * index;
+    index *= BIN_MACHINE_CODE_LENGTH;
+  }
+
+  return bin_number;
 }
 
+
+/* Converts binary number to decimal */
+int convertBtoD(unsigned long bin_number){
+  int decimal_number, remainder, index;
+
+  decimal_number = 0;
+  index = 1;
+
+  while(bin_number > 0){
+    remainder = bin_number % BIN_MACHINE_CODE_LENGTH;
+    bin_number /= BIN_MACHINE_CODE_LENGTH;
+    decimal_number += remainder * index;
+    index *= 2;
+  }
+
+  return decimal_number;
+}
+
+
 /* Revers the string */
-char* reverstr(char str[], int index)
-{
-	int i;
+char* reverstr(char str[], int index){
+	int index;
 	char *rstr;
 	
-  i = 0;
-  *rstr = malloc(BIN_MACHINE_CODE_LENGTH * sizeof(char));
+  index = 0;
+  rstr = malloc(BIN_MACHINE_CODE_LENGTH * sizeof(char));
 
-	/* ignore the '\0' */
+	/* Ignore the '\0' */
 	index -= 1;
 	while(index > -1){
-		*(rstr+i) = str[index--];
-		i++;
+		*(rstr + index) = str[index--];
+		index++;
 	}
 	return rstr;
 }
 
+
 /* Converts decimal number to base32 */
-char* convertDtoB32(int n) 
-{
-  int rem, index;
+char* convertDtoB32(int decimal_number) {
+  int remainder, index;
   char str[BIN_MACHINE_CODE_LENGTH];
-  char *s;
+  char *revers_str;
 
   index = 0;
 
-  while (n > 0) {
-    rem = n % 32;
-    str[index] = (base32[rem]);
-    n /= 32;
+  while (decimal_number > 0) {
+    remainder = decimal_number % 32;
+    str[index] = (base32[remainder]);
+    decimal_number /= 32;
 	  index++;
   }
-  s = reverstr(str, index);
-  return s;
+  
+  revers_str = reverstr(str, index);
+  return revers_str;
 }
