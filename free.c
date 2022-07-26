@@ -1,8 +1,12 @@
 #include "assembler.h"
+#include "lines.c"
+#include "firstStep.c"
 
 
-/*Free all linked lists in the project*/
-void free_linked_lists(){
+
+
+/*Free all the lists in the project*/
+void free_lists(){
     free_label_list();
     free_labelApearence_list();
     free_data_table();
@@ -10,17 +14,71 @@ void free_linked_lists(){
 }
 
 
-/*Free the list named "macro"*/
-void free_macro_list() {
-    ptr_macro it = head_macro, temp;
-
-    while (it != NULL) {
-        temp = it;
-        it = it->next;
-        free(temp->macro_id);
-        free(temp->macro_content);
+/*Free the labels list */
+void free_label_list(){
+    ptr_label *temp;
+    
+    while (head_label) {
+        temp = head_label;
+        head_label = head_label->next;
         free(temp);
     }
-    head_macro = NULL;
+    head_label = NULL;
+}
+   
+
+/*Free the label_apearences list */
+void free_labelApearence_list(){
+    ptr_label_apearence *temp;
+    
+    while (head_label) {
+        temp = head_label;
+        head_label = head_label->next;
+        free(temp);
+    }
+    head_label = NULL;
 }
 
+
+/*Free the data array*/
+void free_data_table(){
+    free(data_table);
+}
+
+
+/*Free the orders array*/
+void free_orders_table(){
+    free(orders_table);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+void free_list(char *type, void *head) {
+    void *temp;
+
+    
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+        
+        free(temp);
+    }
+    head = NULL;
+    
+}
+
+
+*/

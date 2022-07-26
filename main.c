@@ -19,11 +19,9 @@ int main(int argc, char *argv[]){
             printf("Cannot open %s\n", argv[index]);
             continue;
         }
-        
-        pre_assembler(f, argv[index]);
 
-        
-        if(first_step(argv[index])){/*If there was error at the first step*/
+        /*If there was error at the pre Assembler or at the first step*/
+        if(pre_assembler(f, argv[index]) || first_step(argv[index])){
             printf("There is error in file %s\n", argv[index]);
             continue;/*Continue to the next assembler file*/
         }
@@ -31,7 +29,7 @@ int main(int argc, char *argv[]){
 	    write_files(argv[index]);
 
         fclose(f);
-        free_linked_lists();
+        free_lists();
         printf("File:  %s run successfully!\n", argv[index]);
     }
     

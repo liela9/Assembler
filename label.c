@@ -6,13 +6,16 @@
 
 
 
-/*Inserts new label to the label list*/
-int insert_new_label(char *name, int type, int address, ptr_label head_label, ptr_label tail_label){
+/*Inserts new label to the labels list*/
+bool insert_new_label(char *name, int type, int address, ptr_label head_label, ptr_label tail_label){
     ptr_label temp_label;
+    bool there_is_error_flag;
+
+    there_is_error_flag = false;
 
     temp_label = (ptr_label) malloc(sizeof(label));
     if(!temp_label){
-        printf("Memory allocation failed\n");
+        printf("System Error: Memory allocation failed!\n");
         exit(0);
     }
 
@@ -20,15 +23,11 @@ int insert_new_label(char *name, int type, int address, ptr_label head_label, pt
 
     if(label_exists(name, &head_label) || !valid_label_name(name)){
         printf("Error: %s Illegal label name!\n", name);
-        
-    }
-    
-    if(saved_words(name)){
-        printf("Error: label name (%s) is not possible\n", name);
-        return 0;
+        there_is_error_flag = true;
     }
 
     else{
+        /*Fills the values*/
         strcpy(temp_label->name, name);
         strcpy(temp_label->type, type);
         temp_label->dec_address = address;
@@ -38,7 +37,8 @@ int insert_new_label(char *name, int type, int address, ptr_label head_label, pt
         tail_label = temp_label;
     }
     
-    return address;   
+    free(temp_label);
+    return there_is_error_flag;   
 }
 
 
@@ -53,14 +53,19 @@ bool label_exists(char *name, ptr_label head_label){
             return true;
         temp_label = temp_label->next;
     }
+
+    free(temp_label);
     return false;
 }
 
 
 /*Checks if it is a valid label name*/
 bool valid_label_name(char *name){
-	/* Checks: length, first char is alpha and all the others are alphanumeric, and not saved word */
-	return name[0] && strlen(name) <= 31 && isalpha(name[0]) && alphanumeric_str(name + 1) &&
-	       !saved_words(name);
+	/* Checks: 
+        the length is at most 30
+        the first char is alpha 
+        all the others are alphanumeric, and not saved word */
+	return name[0] && strlen(name) <= MAX_LABEL_LENGTH && isalpha(name[0]) && alphanumeric_str(name + 1) &&
+	       !is_saved_words(name);
 }
 

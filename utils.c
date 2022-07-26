@@ -30,12 +30,14 @@ char** is_struct(char *op){
     return struct_val;
 }
 
+
+/*Tries to do realoc*/
 void realloc_check(int index, unsigned int *table){
     unsigned int *ptr;
     
     ptr = (unsigned int*)realloc(table, index + sizeof(unsigned int));
     if(!ptr){
-        printf("Memory allocation faild!");
+        printf("System Error: Memory allocation faild!\n");
         exit(0);
     }
     table = ptr;
@@ -43,21 +45,24 @@ void realloc_check(int index, unsigned int *table){
     
 
 /*Checks if it is a saved word of the system*/
-bool saved_words(char *name){ 
-    int i;
+bool is_saved_words(char *name){ 
+    int index;
     
-    for(i = 0; i < NUM_OF_REGISTERS; i++){
-        if(!strcmp(name, registers[i]))
+    /*Checks if it is a name of register*/
+    for(index = 0; index < NUM_OF_REGISTERS; index++){
+        if(!strcmp(name, registers[index]))
             return true;
     }
 
-    for(i = 0; i < OPCODE_LENGTH; i++){
-        if(!strcmp(name, opcode[i]))
+    /*Checks if it is a name of opcode*/
+    for(index = 0; index < OPCODE_LENGTH; index++){
+        if(!strcmp(name, opcode[index]))
             return true;
     }
 
-    for(i = 0; i < NUM_OF_GUIDANCE_NAME; i++){
-        if(!strcmp(name, guidance[i]))
+    /*Checks if it is a guidance word*/
+    for(index = 0; index < NUM_OF_SAVED_WORDS; index++){
+        if(!strcmp(name, saved_words[index]))
             return true;
     }
 
@@ -66,11 +71,12 @@ bool saved_words(char *name){
 
 /*checks for every char in the string if it is non alphanumeric char*/
 bool alphanumeric_str(char *string){
-	int i;
+	int index;
 
-	for(i = 0; string[i]; i++){
-		if (!isalpha(string[i]) && !isdigit(string[i]))
+	for(index = 0; string[index]; index++){
+		if (!isalpha(string[index]) && !isdigit(string[index]))
             return false;
 	}
 	return true;
 }
+
