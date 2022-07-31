@@ -1,7 +1,7 @@
-#include "assembler.h"
+#include "constants.h"
+#include "lines.h"
 #include "utils.h"
-
-
+#include "converting.h"
 
 
 /*Gets information about the line and classify it's parts*/
@@ -185,7 +185,7 @@ int create_data_line(int DC, char *row_content, unsigned int *data_table, char *
     int number;
 
     realloc_check(DC++, data_table);
-    token = strtok(row_content, ' ,\t\r');
+    token = strtok(row_content, " ,\t\r");
 
     if(!strcmp(type, ".data")){
         while (token){
@@ -211,7 +211,7 @@ int create_data_line(int DC, char *row_content, unsigned int *data_table, char *
         int i;
 
         number = atoi(token);
-        token = strtok(NULL, ' ,\t\r');
+        token = strtok(NULL, " ,\t\r");
 
         *(data_table + DC) = convertDtoB(number);
         DC++;
@@ -235,4 +235,5 @@ void create_zero_line(unsigned int *data_table, int DC){
 
     *(data_table + DC) = convertDtoB(0);
 }
+
 

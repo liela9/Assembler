@@ -1,8 +1,8 @@
-#include "math.h"
 #include "constants.h"
+#include "converting.h"
 
 #define BIN_MACHINE_CODE_LENGTH 10
-#define ONLY1 1023
+#define TEN_BITS_OF_ONE 1023
 
 
 /* Converts decimal number to binary with the Two's complement method */
@@ -18,7 +18,7 @@ unsigned long convertDtoB(int decimal_number){
     decimal_number = -decimal_number;
     
     /* Bit conversion */
-    decimal_number = decimal_number ^ ONLY1;
+    decimal_number = decimal_number ^ TEN_BITS_OF_ONE;
     
     while (decimal_number != 0){
       num_of_bits++;
@@ -62,17 +62,17 @@ int convertBtoD(unsigned long bin_number){
 
 /* Revers the string */
 char* reverstr(char str[], int index){
-	int index;
+	int local_index;
 	char *rstr;
 	
-  index = 0;
+  local_index = 0;
   rstr = malloc(BIN_MACHINE_CODE_LENGTH * sizeof(char));
 
 	/* Ignore the '\0' */
 	index -= 1;
 	while(index > -1){
-		*(rstr + index) = str[index--];
-		index++;
+		*(rstr + local_index) = str[index--];
+		local_index++;
 	}
 	return rstr;
 }

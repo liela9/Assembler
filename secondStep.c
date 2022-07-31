@@ -1,4 +1,6 @@
-#include "assembler.h"
+#include "constants.h"
+#include "secondStep.h"
+#include "converting.h"
 
 
 /*The second step of the Assembler*/
@@ -12,6 +14,8 @@ void second_step(multiVars *vars){
 
 	temp_label_apear = (ptr_label_apearence) malloc(sizeof(labelApearance));
     temp_label = (ptr_label) malloc(sizeof(label));
+
+	label_name = NULL;	
 
 	if(!temp_label_apear || !temp_label){
 		printf("Memory allocation failed\n");
@@ -43,7 +47,7 @@ void second_step(multiVars *vars){
 				if(strcmp(temp_label->name, label_name))
       				temp_label = temp_label->next;
       			else/*If they are equals*/
-      				vars->orders_table[index] = convertDtB(temp_label->dec_address);
+      				vars->orders_table[index] = convertDtoB(temp_label->dec_address);
 
 				temp_label = temp_label->next;
       		}
@@ -57,9 +61,10 @@ void second_step(multiVars *vars){
 		if(strcmp(temp_label->name, label_name))
 			temp_label = temp_label->next;
 		else
-			vars->orders_table[index] = convertDtB(temp_label->dec_address);
+			vars->orders_table[index] = convertDtoB(temp_label->dec_address);
 	}
 
 	free(temp_label);
 	free(temp_label_apear);
 }
+

@@ -1,4 +1,6 @@
-#include "assembler.h"
+#include "constants.h"
+#include "preAssembler.h"
+#include "macro.h"
 
 #define MACRO_LENGTH 5
 
@@ -86,6 +88,7 @@ long int find_word(char *word, FILE *file){
     
     return 0;
 }
+
 
 
 

@@ -1,4 +1,9 @@
-#include "assembler.h"
+#include "constants.h"
+#include "preAssembler.h"
+#include "firstStep.h"
+#include "secondStep.h"
+#include "writeFiles.h"
+#include "free.h"
 
 
 int main(int argc, char *argv[]){
@@ -22,7 +27,7 @@ int main(int argc, char *argv[]){
         }
 
         /*If there was error at the pre Assembler*/
-        if(pre_assembler(&f, argv[index])){
+        if(pre_assembler(f, argv[index])){
             printf("There is error in file %s\n", argv[index]);
             continue;
             /*Continue to the next assembler file*/
@@ -36,14 +41,16 @@ int main(int argc, char *argv[]){
             /*Continue to the next assembler file*/
         }
 
-        second_step(&vars);
+        second_step(vars);
 
-	    write_files(argv[index], &vars);
+	    write_files(argv[index], vars);
 
         fclose(f);
-        free_lists(&vars);
+        free_lists(vars);
         printf("File: %s run successfully!\n", argv[index]);
     }
     
     return(0);
 }
+
+
