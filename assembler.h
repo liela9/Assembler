@@ -4,16 +4,13 @@
  
 
 
-#define OPCODE_LENGTH 16
 #define MAX_LINE_LENGTH 81
-#define NUM_OF_REGISTERS 8
-#define NUM_OF_SAVED_WORDS 7
 #define MAX_LABEL_LENGTH 30
 #define AM_FILE ".am"
 
 
 
-/*Used for the labels table*/
+/*Uses for the labels table*/
 enum {ENTRY, EXTERNAL, DATA};
 typedef enum {false, true} bool;
 
@@ -35,7 +32,6 @@ A linked list of labels.
 */
 typedef struct label *ptr_label;
 typedef struct label{
-    
     char name[MAX_LABEL_LENGTH];/*Label name*/
     int type; /*Options: 0 == ENTRY, 1 == EXTERNAL, 2 == DATA*/
     int dec_address; /*Decimal address*/
@@ -51,7 +47,6 @@ Assists to complete the orders_table in second step.
 */
 typedef struct labelApearance *ptr_label_apearence;
 typedef struct labelApearance{
-    
     char name[MAX_LABEL_LENGTH];/*Label name*/
     int index_in_orders_table;
     /*Contains the index of unknown label line at the first step*/
@@ -59,6 +54,24 @@ typedef struct labelApearance{
     ptr_label_apearence next;
 
 }labelApearance;
+
+
+/*
+A structure of multiple types of variables.
+Assists to save and move variables from first step to second step.
+*/
+typedef struct multiVars{
+    ptr_label head_label;
+    ptr_label_apearence head_label_apear;
+    unsigned int *orders_table;
+    unsigned int *data_table;
+    int IC;/*Instruction counter*/
+    int DC;/*Data counter*/
+
+    bool there_is_error_flag;
+
+}multiVars;
+
 
 
 /*Functions of file 'preAssembler.c'*/
@@ -74,10 +87,21 @@ void free_macro_list();
 
 
 /*Functions of file 'firsStep.c'*/
-bool first_step();
+multiVars* first_step();
 int find_opcode(char *);
-int find_group(int IC, int , ptr_label);
+int find_group(int IC, int , ptr_label, ptr_label_apearence);
 
+
+/*Function of file 'secondStep.c'*/
+void second_step(multiVars *);
+
+
+/*Functions of file 'utils.c'*/
+int is_register(char *);
+char** is_struct(char *);
+void realloc_check(int , unsigned int *);
+bool is_saved_words(char *);
+bool alphanumeric_str(char *);
 
 /*Functions of file 'lines.c'*/
 int insert_order(int , unsigned long , char *, char *, ptr_label, ptr_label_apearence);
@@ -90,12 +114,11 @@ int create_data_line(int , char *, unsigned int *, char *);
 void create_zero_line(unsigned int *, int DC);
 
 
-/*Functions of file 'utils.c'*/
-int is_register(char *);
-char** is_struct(char *);
-void realloc_check(int , unsigned int *);
-bool is_saved_words(char *);
-bool alphanumeric_str(char *);
+/*Functions of file 'converting.c'*/
+unsigned long convertDtoB(int);
+int convertBtoD(unsigned long);
+char* reverstr(char [], int);
+char* convertDtoB32(int);
 
 
 /*Functions of file 'label.c'*/
@@ -105,17 +128,15 @@ bool valid_label_name(char *);
 
 
 /*Functions of file 'writeFiles.c'*/
-void write_files(char *);
-void write_ob_file(char *);
-void write_ext_ent_files(char *);
+void write_files(char *, multiVars *);
+void write_ob_file(char *, multiVars *);
+void write_ext_ent_files(char *, multiVars *);
 
-
-/*Function of file 'secondStep.c'*/
-void second_step(ptr_label_apearence , ptr_label);
 
 
 /*Functions of file 'free.c'*/
-void free_label_list();
-void free_labelApearence_list();
+void free_lists(multiVars *);
+void free_label_list(multiVars *);
+void free_labelApearence_list(multiVars *);
 void free_data_table();
-void free_orders_table();
+void free_orders_table(multiVars *);

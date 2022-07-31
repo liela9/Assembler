@@ -1,11 +1,12 @@
 #include "assembler.h"
 
 
-
 int main(int argc, char *argv[]){
-    
     FILE *f;
     int index;
+    multiVars *vars;
+
+    vars = (multiVars *)malloc(sizeof(multiVars));
      
 
     if(argc == 1){/*If there are no names of files in the command line*/
@@ -20,17 +21,28 @@ int main(int argc, char *argv[]){
             continue;
         }
 
-        /*If there was error at the pre Assembler or at the first step*/
-        if(pre_assembler(f, argv[index]) || first_step(argv[index])){
+        /*If there was error at the pre Assembler*/
+        if(pre_assembler(&f, argv[index])){
             printf("There is error in file %s\n", argv[index]);
-            continue;/*Continue to the next assembler file*/
+            continue;
+            /*Continue to the next assembler file*/
         }
 
-	    write_files(argv[index]);
+        vars = first_step(argv[index]);
+
+        if(vars->there_is_error_flag){
+            printf("There is error in file %s\n", argv[index]);
+            continue;
+            /*Continue to the next assembler file*/
+        }
+
+        second_step(&vars);
+
+	    write_files(argv[index], &vars);
 
         fclose(f);
-        free_lists();
-        printf("File:  %s run successfully!\n", argv[index]);
+        free_lists(&vars);
+        printf("File: %s run successfully!\n", argv[index]);
     }
     
     return(0);

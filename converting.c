@@ -1,5 +1,5 @@
 #include "math.h"
-#include "constants.c"
+#include "constants.h"
 
 #define BIN_MACHINE_CODE_LENGTH 10
 #define ONLY1 1023

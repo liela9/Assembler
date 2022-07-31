@@ -1,9 +1,6 @@
 #include "assembler.h"
-#include "label.c"
-#include "utils.c"
+#include "utils.h"
 
-/*A table of binary machine code for orders*/
-static unsigned int *orders_table;
 
 
 
@@ -13,6 +10,8 @@ ptr_label head_label, ptr_label_apearence label_apear_head){
     int source, dest;
     char **first_struct_access, **second_struct_access;/*Access to a struct*/
     ptr_label_apearence label_apear_tail;/*Tail node of the list "label_apearence"*/
+    /*A table of binary machine code for orders*/
+    static unsigned int *orders_table;
 
     orders_table = (unsigned int*)malloc(sizeof(unsigned int));
     label_apear_head = (ptr_label_apearence)malloc(sizeof(labelApearance));

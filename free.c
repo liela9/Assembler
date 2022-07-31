@@ -1,54 +1,51 @@
 #include "assembler.h"
-#include "lines.c"
-#include "firstStep.c"
-
 
 
 
 /*Free all the lists in the project*/
-void free_lists(){
-    free_label_list();
-    free_labelApearence_list();
-    free_data_table();
-    free_orders_table();
+void free_lists(multiVars *vars){
+    free_label_list(&vars);
+    free_labelApearence_list(&vars);
+    free_data_table(&vars);
+    free_orders_table(&vars);
 }
 
 
 /*Free the labels list */
-void free_label_list(){
+void free_label_list(multiVars *vars){
     ptr_label *temp;
     
-    while (head_label) {
-        temp = head_label;
-        head_label = head_label->next;
+    while (vars->head_label) {
+        temp = vars->head_label;
+        vars->head_label = vars->head_label->next;
         free(temp);
     }
-    head_label = NULL;
+    vars->head_label = NULL;
 }
    
 
 /*Free the label_apearences list */
-void free_labelApearence_list(){
+void free_labelApearence_list(multiVars *vars){
     ptr_label_apearence *temp;
     
-    while (head_label) {
-        temp = head_label;
-        head_label = head_label->next;
+    while (vars->head_label) {
+        temp = vars->head_label;
+        vars->head_label = vars->head_label->next;
         free(temp);
     }
-    head_label = NULL;
+    vars->head_label = NULL;
 }
 
 
 /*Free the data array*/
-void free_data_table(){
-    free(data_table);
+void free_data_table(multiVars *vars){
+    free(vars->data_table);
 }
 
 
 /*Free the orders array*/
-void free_orders_table(){
-    free(orders_table);
+void free_orders_table(multiVars *vars){
+    free(vars->orders_table);
 }
 
 
