@@ -1,9 +1,8 @@
 #include "assembler.h"
-#include "lines.c"
 
 
 /*The second step of the Assembler*/
-void second_step(ptr_label_apearence head_label_apear, ptr_label head_label){
+void second_step(multiVars *vars){
 	int index;
 	char *label_name;
 
@@ -19,14 +18,14 @@ void second_step(ptr_label_apearence head_label_apear, ptr_label head_label){
 		exit(0);
 	}
 
-	temp_label = head_label;
+	temp_label = vars->head_label;
 	
 	/*While it is not the end of the list*/
-	for(index = 0; !orders_table[index]; index++){
+	for(index = 0; !vars->orders_table[index]; index++){
 		/*Finds the lines without binary code*/
-		if(orders_table[index] == '?'){
+		if(vars->orders_table[index] == '?'){
 			/* Finds the name of label */
-			temp_label_apear = head_label_apear;
+			temp_label_apear = vars->head_label_apear;
 			while (temp_label_apear){
 				if((temp_label_apear->index_in_orders_table) != index)
 					temp_label_apear = temp_label_apear->next;
@@ -37,14 +36,14 @@ void second_step(ptr_label_apearence head_label_apear, ptr_label head_label){
 			}
 
 			/* Finds the eddress of the label */
-			temp_label = head_label;
+			temp_label = vars->head_label;
 
 			while(temp_label){
 				/*If temp_label->name != label_name*/
 				if(strcmp(temp_label->name, label_name))
       				temp_label = temp_label->next;
       			else/*If they are equals*/
-      				orders_table[index] = convertDtB(temp_label->dec_address);
+      				vars->orders_table[index] = convertDtB(temp_label->dec_address);
 
 				temp_label = temp_label->next;
       		}
@@ -58,7 +57,7 @@ void second_step(ptr_label_apearence head_label_apear, ptr_label head_label){
 		if(strcmp(temp_label->name, label_name))
 			temp_label = temp_label->next;
 		else
-			orders_table[index] = convertDtB(temp_label->dec_address);
+			vars->orders_table[index] = convertDtB(temp_label->dec_address);
 	}
 
 	free(temp_label);

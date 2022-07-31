@@ -1,5 +1,4 @@
-#include "lines.c"
-#include "firstStep.c"
+#include "assembler.h"
 
 #define ENT_FILE ".ent"
 #define EXT_FILE ".ext"
@@ -8,15 +7,15 @@
 
 
 /*Call the functions of writing the three files*/
-void write_files(char *file_name){
+void write_files(char *file_name, multiVars *vars){
     
-    write_ob_file(file_name);
-    write_ext_ent_file(file_name);
+    write_ob_file(file_name, &vars);
+    write_ext_ent_file(file_name, &vars);
 }
 
 
 /*Creates and writes the .ob file*/
-void write_ob_file(char *file_name){
+void write_ob_file(char *file_name, multiVars *vars){
     FILE *file;
     int index;
     char *new_file_name;
@@ -34,37 +33,37 @@ void write_ob_file(char *file_name){
     The first row_content => 
     IC   DC 
     */
-    fputs(IC, new_file_name);
+    fputs(vars->IC, new_file_name);
     fputc('\t', new_file_name);
-    fputs(DC, new_file_name);
+    fputs(vars->DC, new_file_name);
 
-    for(index = 0; index < sizeof(orders_table); index++){
+    for(index = 0; index < sizeof(vars->orders_table); index++){//TODO : change the sizeof
         fputs(index + FIRST_MEMORY_CELL, new_file_name);
         fputc('\t', new_file_name);
-        fputs(orders_table[index], new_file_name);
+        fputs(vars->orders_table[index], new_file_name);
     }
 
-    for(index = 0; index < sizeof(data_table); index++){
+    for(index = 0; index < sizeof(vars->data_table); index++){//TODO : change the sizeof
         fputs(index + FIRST_MEMORY_CELL, new_file_name);
         fputc('\t', new_file_name);
-        fputs(data_table[index], new_file_name);
+        fputs(vars->data_table[index], new_file_name);
     }
 
     fclose(file);
-    free_orders_table();
+    free_orders_table(&vars);
     free_data_table();
 }
 
 
 /*Creates and writes the .ent and .ext files*/
-void write_ext_ent_files(char *file_name){
+void write_ext_ent_files(char *file_name, multiVars *vars){
     FILE *fext, *fent, *fob;
     ptr_label h_label;
+    ptr_label_apearence temp_ptr;
     int count_ext, count_ent;
     char *ext_name, *ent_name, *ob_file_name;
-    ptr_label_apearence temp_ptr;
     
-    temp_ptr = label_apear_head;
+    temp_ptr = vars->head_label_apear;
     count_ext = 0;
     count_ent = 0;
 
@@ -85,7 +84,7 @@ void write_ext_ent_files(char *file_name){
     /*Assumes the file .ob created and open correctly*/
     fob = fopen(ob_file_name, "r");
     
-    h_label = head_label;
+    h_label = vars->head_label;
     while (h_label){
         while(temp_ptr){
             /*If h_label->name equals to temp_ptr->name*/

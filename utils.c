@@ -1,4 +1,6 @@
 #include "assembler.h"
+#include "utils.h"
+#include "constants.h"
 
 
 /*Checks if the operand is register*/

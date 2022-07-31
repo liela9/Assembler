@@ -1,5 +1,5 @@
-#include "main.c"
-#include "constants.c"
+#include "assembler.h"
+#include "constants.h"
 
 #define ZERO_ASCII_CODE 48
 #define NINE_ASCII_CODE 57
