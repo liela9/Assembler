@@ -1,6 +1,5 @@
-#include "assembler.h"
-#include "utils.h"
 #include "constants.h"
+#include "utils.h"
 
 
 /*Checks if the operand is register*/
@@ -81,4 +80,5 @@ bool alphanumeric_str(char *string){
 	}
 	return true;
 }
+
 

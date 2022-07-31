@@ -1,7 +1,7 @@
-#include "assembler.h"
-#include "utils.h"
 #include "constants.h"
-
+#include "firstStep.h"
+#include "converting.h"
+#include "lines.h"
 
 
 /*The first step of the Assembler*/
@@ -17,6 +17,10 @@ multiVars* first_step(char *file_name){
     ptr_label tail_label;/*Tail node of the list "label"*/
     ptr_label_apearence label_apear_head;/*Head node of the list "label_apearence"*/
     unsigned int *data_table;/*A table of binary machine code for data*/
+
+	row_content	= NULL;
+	first_word = NULL;
+	second_word = NULL;
 
     vars = (multiVars *)malloc(sizeof(multiVars));
     vars->there_is_error_flag = false;
@@ -38,7 +42,7 @@ multiVars* first_step(char *file_name){
         entry_word[MAX_LABEL_LENGTH] = NULL;
 
         /*Reads the first word of the line*/
-        if(first_word = strtok(row_content, ' \t\r')){
+        if(first_word = strtok(row_content, " \t\r")){
             /*If it is comment or empty line*/
             if(!strcmp(first_word, ';') || first_word == NULL)
                 continue;/*Continue to the next line*/
@@ -46,12 +50,12 @@ multiVars* first_step(char *file_name){
             /*If it is entry*/
             else if(!strcmp(first_word, ".entry")){
                 /*Save the entry label name locally and continue to the next line*/
-                entry_word[MAX_LABEL_LENGTH] = strtok(NULL, ' \t\r');
+                entry_word[MAX_LABEL_LENGTH] = strtok(NULL, " \t\r");
                 continue;
             }
 
             /*Reads the second word of the line*/
-            if(second_word = strtok(NULL, ' \t\r')){
+            if(second_word = strtok(NULL, " \t\r")){
                 
                 /*If the first word is extern*/
                 if(!strcmp(first_word, ".extern")){
@@ -147,4 +151,5 @@ int find_group(int IC, int op_code_index, ptr_label head_label, ptr_label_apeare
             &label_apear_head);
     return IC;
 }
+
 

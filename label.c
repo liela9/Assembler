@@ -1,5 +1,5 @@
-#include "assembler.h"
 #include "constants.h"
+#include "label.h"
 
 #define ZERO_ASCII_CODE 48
 #define NINE_ASCII_CODE 57
@@ -21,7 +21,7 @@ bool insert_new_label(char *name, int type, int address, ptr_label head_label, p
 
     name[sizeof(name)-1] = '\0'; /*Remove the char ':' */
 
-    if(label_exists(name, &head_label) || !valid_label_name(name)){
+    if(label_exists(name, head_label) || !valid_label_name(name)){
         printf("Error: %s Illegal label name!\n", name);
         there_is_error_flag = true;
     }
@@ -29,7 +29,7 @@ bool insert_new_label(char *name, int type, int address, ptr_label head_label, p
     else{
         /*Fills the values*/
         strcpy(temp_label->name, name);
-        strcpy(temp_label->type, type);
+        temp_label->type = type;
         temp_label->dec_address = address;
         temp_label->next = NULL;
         
@@ -68,4 +68,5 @@ bool valid_label_name(char *name){
 	return name[0] && strlen(name) <= MAX_LABEL_LENGTH && isalpha(name[0]) && alphanumeric_str(name + 1) &&
 	       !is_saved_words(name);
 }
+
 

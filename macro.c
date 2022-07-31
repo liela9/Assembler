@@ -1,4 +1,5 @@
-#include "assembler.h"
+#include "constants.h"
+#include "macro.h"
 
 #define MACRO_MAX_LINE_NUMBER 10
 
@@ -79,4 +80,5 @@ void free_macro_list() {
         free(temp);
     }
 }
+
 
