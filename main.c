@@ -1,4 +1,4 @@
-#include "constants.h"
+#include "main.h"
 #include "preAssembler.h"
 #include "firstStep.h"
 #include "secondStep.h"
@@ -35,7 +35,7 @@ void process_file(FILE *file, char *file_name){
     vars = (multiVars *)malloc(sizeof(multiVars));
     if (!vars) {
         printf("System Error: Memory allocation failed");
-        return false;
+        return;
     }
 
     vars->head_label = NULL;

@@ -4,50 +4,37 @@
 #define MACRO_MAX_LINE_NUMBER 10
 
 
-/*Macro's linked list head pointer */
-static ptr_macro head_macro;
+/*Insert new macro to the list*/
+bool insert_macro(ptr_macro head_macro, ptr_macro *macro_pointer, char *macro_id){
+    ptr_macro temp;
 
-
-/*Add new macro to the list*/
-ptr_macro add_macro(char *macro_id){
-    ptr_macro new;
-
-    new = NULL;
-
+    temp = NULL;
     /*TODO: check valid name for macro*/
-    if((new = get_macro_by_id(macro_id))){
+    if((*macro_pointer = get_macro_by_id(head_macro, macro_id))){
         fprintf(stderr, "Can not add new macro %s, Macro already exists\n", macro_id);
-        return NULL;
+        return false;
     }
 
-    new = malloc(sizeof(macro));
-    if (!new){
-        fprintf(stderr,"System Error: Could not allocate memory\n");
-        exit(0);
-    }
-
-    new->macro_id = malloc(sizeof(char) * MAX_LINE_LENGTH);
-    strcpy(new->macro_id,macro_id);
-
-    new->macro_content = (char *)malloc(sizeof(char) * MAX_LINE_LENGTH * MACRO_MAX_LINE_NUMBER);
-    new->macro_content[0] = '\0';
-    new->next = NULL;
+    (*macro_pointer)->macro_id = (char *)malloc(sizeof(char) * MAX_LINE_LENGTH);
+    strcpy((*macro_pointer)->macro_id, macro_id);
+    (*macro_pointer)->macro_content = (char *)malloc(sizeof(char) * MAX_LINE_LENGTH * MACRO_MAX_LINE_NUMBER);
+    (*macro_pointer)->macro_content[0] = '\0';
+    (*macro_pointer)->next = NULL;
 
     if(!head_macro)
-        head_macro = new;
+        head_macro = *macro_pointer;
     
-    else {
-        ptr_macro ptr = head_macro;
-        while (ptr->next){
-            ptr = ptr->next;
-        }
-        ptr->next = new;
+    else {/*Insert the new node to the end of the list*/
+        temp = head_macro;
+        while (temp->next)
+            temp = temp->next;
+        temp->next = *macro_pointer;
     }
-    return new;
+    return true;
 }
 
 /*Finds macro by it's id and return it's pointer*/
-ptr_macro get_macro_by_id(char *macro_id){
+ptr_macro get_macro_by_id(ptr_macro head_macro, char *macro_id){
     ptr_macro ptr;
     ptr = head_macro;
 
@@ -62,7 +49,7 @@ ptr_macro get_macro_by_id(char *macro_id){
 
 
 /*Prints the macro list */
-void print_macro_list() {
+void print_macro_list(ptr_macro head_macro) {
     ptr_macro ptr;
 
     for (ptr = head_macro; ptr != NULL; ptr = ptr->next)
@@ -71,12 +58,14 @@ void print_macro_list() {
 
 
 /*Free the macro's list*/
-void free_macro_list() {
+void free_macro_list(ptr_macro head_macro) {
     ptr_macro temp;
 
     while (head_macro) {
         temp = head_macro;
         head_macro = head_macro->next;
+        free(temp->macro_content);
+        free(temp->macro_id);
         free(temp);
     }
 }

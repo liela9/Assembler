@@ -11,7 +11,7 @@
 #define NUM_OF_SAVED_WORDS 7
 #define MAX_LINE_LENGTH 81
 #define MAX_LABEL_LENGTH 30
-#define AM_FILE ".am"
+#define AM_EXTENSION ".am"
 
 const char base32[BASE_LENGTH];
 const char registers[NUM_OF_REGISTERS][2];
@@ -39,6 +39,11 @@ typedef struct macro{
     ptr_macro next;
 }macro;
 
+typedef struct macro_list *ptr_macro_list;
+typedef struct macro_list{
+    ptr_macro head;
+}macro_list;
+
 
 /*
 A linked list of labels.
@@ -55,13 +60,13 @@ typedef struct label{
 
 
 /*
-A linked list of unknown labels in the orders_table.
-Assists to complete the orders_table in second step.
+A linked list of unknown labels in the commands_table.
+Assists to complete the commands_table in second step.
 */
 typedef struct labelApearance *ptr_label_apearence;
 typedef struct labelApearance{
     char name[MAX_LABEL_LENGTH];/*Label name*/
-    int index_in_orders_table;
+    int index_in_commands_table;
     /*Contains the index of unknown label line at the first step*/
 
     ptr_label_apearence next;
@@ -78,7 +83,7 @@ typedef struct multiVars{
     ptr_label tail_label;
     ptr_label_apearence head_label_apear;
     ptr_label_apearence tail_label_apear;
-    unsigned int *orders_table;
+    unsigned int *commands_table;
     unsigned int *data_table;
     int IC;/*Instruction counter*/
     int DC;/*Data counter*/

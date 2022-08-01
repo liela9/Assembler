@@ -44,11 +44,11 @@ void write_ob_file(char *file_name, multiVars *vars){
 	temp_char = convertDtoB32(vars->DC);
     fputs(temp_char, file);
 
-    for(index = 0; index < sizeof(vars->orders_table)/4; index++){/*TODO : change the sizeof*/
+    for(index = 0; index < sizeof(vars->commands_table)/4; index++){/*TODO : change the sizeof*/
 		temp_char = convertDtoB32(index + FIRST_MEMORY_CELL);
         fputs(temp_char, file);
         fputc('\t', file);
-		temp_char = convertBtoB32(vars->orders_table[index]);
+		temp_char = convertBtoB32(vars->commands_table[index]);
         fputs(temp_char, file);
     }
     
