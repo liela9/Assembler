@@ -12,7 +12,7 @@
                   
 
 
-/*Free all the lists in the project
+Free all the lists in the project
 void free_lists(multiVars *vars){
 
     FREE(ptr_label, vars->head_label)
@@ -38,7 +38,7 @@ void free_lists(multiVars *vars){
 
     free_label_list(vars->head_label);
     free_labelApearence_list(vars->head_label_apear);
-
+    
     free(vars->data_table);
     free(vars->orders_table);
 }
@@ -63,5 +63,6 @@ void free_labelApearence_list(ptr_label_apearence head){
         free(temp);
     }
 }
+
 
 

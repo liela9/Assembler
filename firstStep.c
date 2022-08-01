@@ -8,7 +8,7 @@
 multiVars* first_step(char *file_name, multiVars *vars){
     FILE *file;
     char *row_content, *first_word, *second_word;
-    char entry_word[MAX_LABEL_LENGTH];
+    char *entry_word;
     int op_code_index;
     int IC; /*Instruction counter*/
     int DC;/*Data counter*/
@@ -22,30 +22,31 @@ multiVars* first_step(char *file_name, multiVars *vars){
     DC = 0;
 
     /*Add the extention ".am" to the name of the file*/
-    strcat(file_name, AM_FILE);
+    /*strcat(file_name, AM_FILE);*/
+    
     file = fopen(file_name, "w");
 
 
     /*Reads a line*/
     while(fgets(row_content, MAX_LINE_LENGTH, file)){
         
-        entry_word[MAX_LABEL_LENGTH] = NULL;
+        entry_word = NULL;
 
         /*Reads the first word of the line*/
-        if(first_word = strtok(row_content, " \t\r")){
+        if((first_word = strtok(row_content, " \t\r"))){
             /*If it is comment or empty line*/
-            if(!strcmp(first_word, ';') || first_word == NULL)
+            if(!strcmp(first_word, ";") || first_word == NULL)
                 continue;/*Continue to the next line*/
             
             /*If it is entry*/
             else if(!strcmp(first_word, ".entry")){
                 /*Save the entry label name locally and continue to the next line*/
-                entry_word[MAX_LABEL_LENGTH] = strtok(NULL, " \t\r");
+                entry_word = strtok(NULL, " \t\r");
                 continue;
             }
 
             /*Reads the second word of the line*/
-            if(second_word = strtok(NULL, " \t\r")){
+            if((second_word = strtok(NULL, " \t\r"))){
                 
                 /*If the first word is extern*/
                 if(!strcmp(first_word, ".extern")){
@@ -61,7 +62,7 @@ multiVars* first_step(char *file_name, multiVars *vars){
 
                     
                 /*If the first word is opcode*/    
-                else if(op_code_index = find_opcode(first_word) != -1)
+                else if((op_code_index = find_opcode(first_word)) != -1)
                         IC = find_group(op_code_index, IC, vars->head_label, 
                         vars->head_label_apear, vars->tail_label_apear, vars->orders_table);
 
@@ -83,7 +84,7 @@ multiVars* first_step(char *file_name, multiVars *vars){
                     }
 
                     /*If the second word is opcode*/
-                    else if(op_code_index = find_opcode(second_word) != -1)
+                    else if((op_code_index = find_opcode(second_word)) != -1)
                         IC = find_group(op_code_index, IC, vars->head_label, 
                         vars->head_label_apear, vars->tail_label_apear, vars->orders_table);
                 
@@ -101,7 +102,7 @@ multiVars* first_step(char *file_name, multiVars *vars){
     vars->IC = IC;
     vars->DC = DC;
 
-    return &vars;
+    return vars;
 }
 
 
@@ -141,5 +142,6 @@ ptr_label_apearence tail_label_apear, unsigned int *orders_table){
             head_label_apear, tail_label_apear, orders_table);
     return IC;
 }
+
 
 

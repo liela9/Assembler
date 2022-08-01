@@ -6,7 +6,6 @@ int is_register(char *);
 char** is_struct(char *);
 void realloc_check(int , unsigned int *);
 bool is_saved_words(char *);
-bool alphanumeric_str(char *);
 
 
 #endif

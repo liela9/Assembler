@@ -7,7 +7,7 @@ int is_register(char *op){
     
     int i;
     for(i = 0; i < NUM_OF_REGISTERS; i++){
-        if(strcmp(op, *registers[i]))
+        if(strcmp(op, registers[i]))
             return i;
     }
     return -1;
@@ -36,7 +36,7 @@ char** is_struct(char *op){
 void realloc_check(int index, unsigned int *table){
     unsigned int *ptr;
     
-    ptr = (unsigned int*)realloc(table, index + sizeof(unsigned int));
+    ptr = (unsigned int*)realloc(table, index * sizeof(unsigned int));
     if(!ptr){
         printf("System Error: Memory allocation faild!\n");
         exit(0);
@@ -68,17 +68,6 @@ bool is_saved_words(char *name){
     }
 
     return false;
-}
-
-/*checks for every char in the string if it is non alphanumeric char*/
-bool alphanumeric_str(char *string){
-	int index;
-
-	for(index = 0; string[index]; index++){
-		if (!isalpha(string[index]) && !isdigit(string[index]))
-            return false;
-	}
-	return true;
 }
 
 

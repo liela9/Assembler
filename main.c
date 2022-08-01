@@ -7,50 +7,58 @@
 
 
 #define ERROR(name_of_file) printf("An error occured while processing file %s\n", #name_of_file);
+   
 
 
 int main(int argc, char *argv[]){
     FILE *f;
     int index;
+    /* TODO: remove all 6 following varaibles. initialize directly vars->... */
     multiVars *vars; /* TODO: Change to contextVars*/
     ptr_label head_label;/*Head node of the list "label"*/
     ptr_label tail_label;/*Tail node of the list "label"*/
     ptr_label_apearence head_label_apear;/*Head node of the list "label_apearence"*/
     ptr_label_apearence tail_label_apear;/*Tail node of the list "label_apearence"*/
     
+    /* TODO: change order->command everywhere */
     unsigned int *orders_table;/*A table of binary machine code for orders*/
     unsigned int *data_table;/*A table of binary machine code for data*/
 
+    
 
     if(argc == 1){/*If there are no names of files in the command line*/
         printf("\nMissing name of file/s\n");
         exit(0);
     }
-
+    
     head_label = NULL;
     tail_label = NULL;
     head_label_apear = NULL;
     tail_label_apear = NULL;
     orders_table = NULL;
     data_table = NULL;
-
-
+    
     vars = (multiVars *)malloc(sizeof(multiVars));
+    /* TODO: if allocation failed? */
     vars->head_label = head_label;
     vars->head_label = tail_label;
     vars->head_label_apear = head_label_apear;
     vars->data_table = data_table;
     vars->tail_label_apear = tail_label_apear;
-
+    /* TODO: if allocation failed? */
     vars->head_label = (ptr_label)malloc(sizeof(label));
     vars->head_label_apear = (ptr_label_apearence)malloc(sizeof(labelApearance));
     vars->tail_label = vars->head_label;
     vars->tail_label_apear = vars->head_label_apear;
-
-    vars->orders_table = (unsigned int*)malloc(5 * sizeof(unsigned int));
+    
     vars->data_table = (unsigned int*)malloc(5 * sizeof(unsigned int));
+    /* TODO: if allocation failed? */
+    vars->orders_table = (unsigned int*)malloc(5 * sizeof(unsigned int));
+    /* TODO: if allocation failed? */s
+    
 
     for(index = 1; index < argc; index++){
+    /* TODO: Add function "process_file" to handle for each file */
         
         if(!(f = fopen(argv[index], "r"))){
             printf("Cannot open %s\n", argv[index]);
@@ -62,7 +70,6 @@ int main(int argc, char *argv[]){
             ERROR(argv[index])
             continue;
         }
-
         vars = first_step(argv[index], vars);
 
 
@@ -73,7 +80,10 @@ int main(int argc, char *argv[]){
 
         second_step(vars);
 
+        
 	    write_files(argv[index], vars);
+        printf("65555555555555555 %s 55555555555555", argv[index]);
+        return(0);
 
         fclose(f);
         free_lists(vars);
@@ -82,4 +92,6 @@ int main(int argc, char *argv[]){
     
     return(0);
 }
+
+
 

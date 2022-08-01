@@ -12,8 +12,8 @@ void second_step(multiVars *vars){
 	ptr_label_apearence temp_label_apear;
 	ptr_label temp_label;
 
-	temp_label_apear = (ptr_label_apearence) malloc(sizeof(labelApearance));
     temp_label = (ptr_label) malloc(sizeof(label));
+	temp_label_apear = (ptr_label_apearence) malloc(sizeof(labelApearance));
 
 	label_name = NULL;	
 
@@ -23,6 +23,7 @@ void second_step(multiVars *vars){
 	}
 
 	temp_label = vars->head_label;
+	temp_label_apear = vars->head_label_apear;
 	
 	/*While it is not the end of the list*/
 	for(index = 0; !vars->orders_table[index]; index++){
@@ -33,35 +34,26 @@ void second_step(multiVars *vars){
 			while (temp_label_apear){
 				if((temp_label_apear->index_in_orders_table) != index)
 					temp_label_apear = temp_label_apear->next;
-				else
+				else{
 					strcpy(label_name, temp_label_apear->name);
-
-				temp_label_apear = temp_label_apear->next;
+					continue;
+                }
 			}
 
 			/* Finds the eddress of the label */
 			temp_label = vars->head_label;
-
+            /* Finds the address of the label and replace the '?' by it*/
 			while(temp_label){
 				/*If temp_label->name != label_name*/
 				if(strcmp(temp_label->name, label_name))
       				temp_label = temp_label->next;
-      			else/*If they are equals*/
+      			else{/*If they are equals*/
       				vars->orders_table[index] = convertDtoB(temp_label->dec_address);
-
-				temp_label = temp_label->next;
+      				continue;
+                }
       		}
 
-
 		}
-	}
-
-	/* Finds the address of the label and replace the '?' by it*/
-	while(temp_label){
-		if(strcmp(temp_label->name, label_name))
-			temp_label = temp_label->next;
-		else
-			vars->orders_table[index] = convertDtoB(temp_label->dec_address);
 	}
 
 	free(temp_label);

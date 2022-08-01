@@ -120,7 +120,6 @@ unsigned int *orders_table){
     return IC++;
 }
 
-
 /*Creates new machine code line (binary) for registers*/
 int create_registers_line(int source, int dest, int IC, unsigned int *orders_table){
     realloc_check(IC++, orders_table);
@@ -161,7 +160,7 @@ ptr_label_apearence tail_label_apear){
     
     temp_node = NULL;
     
-    realloc_check(IC++, orders_table);
+    realloc_check(++IC, orders_table);
 
     /*Saves the location of the label/struct apearence*/
     strcpy(temp_node->name, label);
@@ -231,5 +230,6 @@ void create_zero_line(unsigned int *data_table, int DC){
 
     *(data_table + DC) = convertDtoB(0);
 }
+
 
 
