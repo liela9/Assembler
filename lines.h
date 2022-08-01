@@ -2,7 +2,8 @@
 #define LINES_H
 
 /*Functions of file 'lines.c'*/
-int insert_order(int , unsigned long , char *, char *, ptr_label, ptr_label_apearence);
+int insert_order(int IC, unsigned long , char *, char *, ptr_label ,
+ptr_label_apearence , ptr_label_apearence , unsigned int *);
 int create_order_line(int , unsigned long , long , long , unsigned int *);
 int create_registers_line(int , int , int , unsigned int *);
 int create_value_line(char *, int , unsigned int *);
