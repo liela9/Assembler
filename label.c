@@ -10,7 +10,7 @@
 
 
 /*Inserts new label to the labels list*/
-bool insert_new_label(char *name, int type, int address, ptr_label head_label, ptr_label tail_label){
+bool insert_new_label(char *name, int type, int address, multiVars *vars){
     ptr_label temp_label;
     bool there_is_error_flag;
 
@@ -18,6 +18,8 @@ bool insert_new_label(char *name, int type, int address, ptr_label head_label, p
 
     /* TODO: check if putting \0 manualy doesn't screw up "free" */
     name[sizeof(name)-1] = '\0'; /*Remove the char ':' */
+
+    if (!vars->head_label) /*empty list*/
 
     if(label_exists(name, head_label) || !valid_label_name(name)){
         printf("Error: %s Illegal label name!\n", name);
@@ -28,7 +30,7 @@ bool insert_new_label(char *name, int type, int address, ptr_label head_label, p
         temp_label = (ptr_label) malloc(sizeof(label));
         if(!temp_label){
             printf("System Error: Memory allocation failed!\n");
-            /* TODO: release all memory allocation in the program*/
+            free(temp_label);
             exit(0);
         }
 

@@ -18,7 +18,7 @@ void free_lists(multiVars *vars){
     FREE(ptr_label, vars->head_label)
     FREE(ptr_label_apearence, vars->head_label_apear)
     free(vars->data_table);
-    free(vars->orders_table);
+    free(vars->commands_table);
 }
 */
 
@@ -40,7 +40,7 @@ void free_lists(multiVars *vars){
     free_labelApearence_list(vars->head_label_apear);
     
     free(vars->data_table);
-    free(vars->orders_table);
+    free(vars->commands_table);
 }
 
 

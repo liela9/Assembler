@@ -2,9 +2,9 @@
 #define MACRO_H
 
 /*Functions of file 'macro.c'*/
-ptr_macro add_macro(char *);
-ptr_macro get_macro_by_id(char *);
-void print_macro_list();
-void free_macro_list();
+bool insert_macro(ptr_macro, ptr_macro *, char *);
+ptr_macro get_macro_by_id(ptr_macro, char *);
+void print_macro_list(ptr_macro);
+void free_macro_list(ptr_macro);
 
 #endif

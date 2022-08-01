@@ -32,6 +32,8 @@
     "assembler.h": "c",
     "free.h": "c",
     "constants.h": "c",
-    "preassembler.h": "c"
+    "preassembler.h": "c",
+    "ctype.h": "c",
+    "firststep.h": "c"
   }
 }

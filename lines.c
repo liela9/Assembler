@@ -6,8 +6,8 @@
 
 
 /*Gets information about the line and classify it's parts*/
-int insert_order(int IC, unsigned long op_code, char *source_op, char *dest_op, ptr_label head_label, 
-ptr_label_apearence head_label_apear, ptr_label_apearence tail_label_apear, unsigned int *orders_table){
+int insert_command(int IC, unsigned long op_code, char *source_op, char *dest_op, ptr_label head_label, 
+ptr_label_apearence head_label_apear, ptr_label_apearence tail_label_apear, unsigned int *commands_table){
     int source, dest;
     char **first_struct_access, **second_struct_access;/*Access to a struct*/
     
@@ -27,105 +27,105 @@ ptr_label_apearence head_label_apear, ptr_label_apearence tail_label_apear, unsi
     */
     if((source = is_register(source_op)) != -1){
         if((dest = is_register(dest_op)) != -1){/*Two registers*/
-            IC = create_order_line( IC, op_code, convertDtoB(3), convertDtoB(3), orders_table);
-            IC = create_registers_line(source, dest, IC, orders_table);
+            IC = create_command_line( IC, op_code, convertDtoB(3), convertDtoB(3), commands_table);
+            IC = create_registers_line(source, dest, IC, commands_table);
         }
         else if(label_exists(dest_op, head_label)){/*Register and label*/
-                IC = create_order_line( IC, op_code, convertDtoB(3), convertDtoB(1), orders_table);
-                IC = create_registers_line(source, 0, IC, orders_table);
-                IC = create_unknown_line(IC, orders_table, dest_op, tail_label_apear);
+                IC = create_command_line( IC, op_code, convertDtoB(3), convertDtoB(1), commands_table);
+                IC = create_registers_line(source, 0, IC, commands_table);
+                IC = create_unknown_line(IC, commands_table, dest_op, tail_label_apear);
             }
             else if((first_struct_access = is_struct(dest_op))){/*Register and struct*/
-                    IC = create_order_line( IC, op_code, convertDtoB(3), convertDtoB(2), orders_table);
-                    IC = create_registers_line(source, 0, IC, orders_table);
-                    IC = create_unknown_line(IC, orders_table, dest_op, tail_label_apear);
-                    IC = create_index_line(atoi(first_struct_access[1]), IC, orders_table);
+                    IC = create_command_line( IC, op_code, convertDtoB(3), convertDtoB(2), commands_table);
+                    IC = create_registers_line(source, 0, IC, commands_table);
+                    IC = create_unknown_line(IC, commands_table, dest_op, tail_label_apear);
+                    IC = create_index_line(atoi(first_struct_access[1]), IC, commands_table);
                 }
     }
         
     else if(label_exists(source_op, head_label), head_label){
         if((dest = is_register(dest_op)) != -1){/*Label and register*/
-            IC = create_order_line( IC, op_code, convertDtoB(1), convertDtoB(3), orders_table);
-            IC = create_unknown_line(IC, orders_table, dest_op, tail_label_apear);
-            IC = create_registers_line(0, dest, IC, orders_table);
+            IC = create_command_line( IC, op_code, convertDtoB(1), convertDtoB(3), commands_table);
+            IC = create_unknown_line(IC, commands_table, dest_op, tail_label_apear);
+            IC = create_registers_line(0, dest, IC, commands_table);
         }
         else if((first_struct_access = is_struct(dest_op))){/*Label and struct*/
-                IC = create_order_line( IC, op_code, convertDtoB(1), convertDtoB(2), orders_table);
-                IC = create_unknown_line(IC, orders_table, dest_op, tail_label_apear);
-                IC = create_unknown_line(IC, orders_table, dest_op, tail_label_apear);
-                IC = create_index_line(atoi(first_struct_access[1]), IC, orders_table);
+                IC = create_command_line( IC, op_code, convertDtoB(1), convertDtoB(2), commands_table);
+                IC = create_unknown_line(IC, commands_table, dest_op, tail_label_apear);
+                IC = create_unknown_line(IC, commands_table, dest_op, tail_label_apear);
+                IC = create_index_line(atoi(first_struct_access[1]), IC, commands_table);
             }
             else if(label_exists(dest_op, head_label)){/*Label and label*/
-                    IC = create_order_line( IC, op_code, convertDtoB(1), convertDtoB(1), orders_table);
-                    IC = create_unknown_line(IC, orders_table, dest_op, tail_label_apear);
-                    IC = create_unknown_line(IC, orders_table, dest_op, tail_label_apear);
+                    IC = create_command_line( IC, op_code, convertDtoB(1), convertDtoB(1), commands_table);
+                    IC = create_unknown_line(IC, commands_table, dest_op, tail_label_apear);
+                    IC = create_unknown_line(IC, commands_table, dest_op, tail_label_apear);
                 }
     }
         
     else if(source_op[0] == '#'){
         if((dest = is_register(dest_op)) != -1){/*Value and register*/
-            IC = create_order_line( IC, op_code, convertDtoB(0), convertDtoB(3), orders_table);
-            IC = create_value_line(source_op, IC, orders_table);
-            IC = create_registers_line(0, dest, IC, orders_table);
+            IC = create_command_line( IC, op_code, convertDtoB(0), convertDtoB(3), commands_table);
+            IC = create_value_line(source_op, IC, commands_table);
+            IC = create_registers_line(0, dest, IC, commands_table);
         }
         else if(label_exists(dest_op, head_label)){/*Value and label*/
-                IC = create_order_line( IC, op_code, convertDtoB(0), convertDtoB(1), orders_table);
-                IC = create_value_line(source_op, IC, orders_table);
-                IC = create_unknown_line(IC, orders_table, dest_op, tail_label_apear);
+                IC = create_command_line( IC, op_code, convertDtoB(0), convertDtoB(1), commands_table);
+                IC = create_value_line(source_op, IC, commands_table);
+                IC = create_unknown_line(IC, commands_table, dest_op, tail_label_apear);
             }
             else if((first_struct_access = is_struct(dest_op))){/*Value and struct*/
-                    IC = create_order_line( IC, op_code, convertDtoB(0), convertDtoB(2), orders_table);
-                    IC = create_value_line(source_op, IC, orders_table);
-                    IC = create_unknown_line(IC, orders_table, dest_op, tail_label_apear);
-                    IC = create_index_line(atoi(first_struct_access[1]), IC, orders_table);
+                    IC = create_command_line( IC, op_code, convertDtoB(0), convertDtoB(2), commands_table);
+                    IC = create_value_line(source_op, IC, commands_table);
+                    IC = create_unknown_line(IC, commands_table, dest_op, tail_label_apear);
+                    IC = create_index_line(atoi(first_struct_access[1]), IC, commands_table);
                 }
     }
         
     
     else if((first_struct_access = is_struct(source_op))){
         if((dest = is_register(dest_op)) != -1){/*Struct and register*/
-            IC = create_order_line( IC, op_code, convertDtoB(2), convertDtoB(3), orders_table);
-            IC = create_unknown_line(IC, orders_table, dest_op, tail_label_apear);
-            IC = create_index_line(atoi(first_struct_access[1]), IC, orders_table);
-            IC = create_registers_line(0, dest, IC, orders_table);
+            IC = create_command_line( IC, op_code, convertDtoB(2), convertDtoB(3), commands_table);
+            IC = create_unknown_line(IC, commands_table, dest_op, tail_label_apear);
+            IC = create_index_line(atoi(first_struct_access[1]), IC, commands_table);
+            IC = create_registers_line(0, dest, IC, commands_table);
         }
         else if(label_exists(dest_op, head_label)){/*Struct and label*/
-                IC = create_order_line( IC, op_code, convertDtoB(2), convertDtoB(1), orders_table);
-                IC = create_unknown_line(IC, orders_table, dest_op, tail_label_apear);
-                IC = create_index_line(atoi(first_struct_access[1]), IC, orders_table);
-                IC = create_unknown_line(IC, orders_table, dest_op, tail_label_apear);
+                IC = create_command_line( IC, op_code, convertDtoB(2), convertDtoB(1), commands_table);
+                IC = create_unknown_line(IC, commands_table, dest_op, tail_label_apear);
+                IC = create_index_line(atoi(first_struct_access[1]), IC, commands_table);
+                IC = create_unknown_line(IC, commands_table, dest_op, tail_label_apear);
             }
             else if((second_struct_access = is_struct(dest_op))){/*Struct and struct*/
-                    IC = create_order_line( IC, op_code, convertDtoB(2), convertDtoB(2), orders_table);
-                    IC = create_unknown_line(IC, orders_table, dest_op, tail_label_apear);
-                    IC = create_index_line(atoi(first_struct_access[1]), IC, orders_table);
-                    IC = create_unknown_line(IC, orders_table, dest_op, tail_label_apear);
-                    IC = create_value_line(second_struct_access[1], IC, orders_table);
+                    IC = create_command_line( IC, op_code, convertDtoB(2), convertDtoB(2), commands_table);
+                    IC = create_unknown_line(IC, commands_table, dest_op, tail_label_apear);
+                    IC = create_index_line(atoi(first_struct_access[1]), IC, commands_table);
+                    IC = create_unknown_line(IC, commands_table, dest_op, tail_label_apear);
+                    IC = create_value_line(second_struct_access[1], IC, commands_table);
                 }
     }
     return IC;
 }
 
 
-/*Creates new machine code line (binary) in orderd_table*/
-int create_order_line(int IC, unsigned long op_code, long source_op_addressing, long dest_op_addressing, 
-unsigned int *orders_table){
-    realloc_check(IC++, orders_table);
+/*Creates new machine code line (binary) in commandd_table*/
+int create_command_line(int IC, unsigned long op_code, long source_op_addressing, long dest_op_addressing, 
+unsigned int *commands_table){
+    realloc_check(IC++, commands_table);
 
-    *(orders_table + IC) = ~0<<2; /*Two zeros in the right*/
-    *(orders_table + IC) = *(orders_table + IC)&(dest_op_addressing<<2);
-    *(orders_table + IC) = *(orders_table + IC)&(source_op_addressing<<4);
-    *(orders_table + IC) = *(orders_table + IC)&(op_code<<6);
+    *(commands_table + IC) = ~0<<2; /*Two zeros in the right*/
+    *(commands_table + IC) = *(commands_table + IC)&(dest_op_addressing<<2);
+    *(commands_table + IC) = *(commands_table + IC)&(source_op_addressing<<4);
+    *(commands_table + IC) = *(commands_table + IC)&(op_code<<6);
     
     return IC++;
 }
 
 /*Creates new machine code line (binary) for registers*/
-int create_registers_line(int source, int dest, int IC, unsigned int *orders_table){
-    realloc_check(IC++, orders_table);
+int create_registers_line(int source, int dest, int IC, unsigned int *commands_table){
+    realloc_check(IC++, commands_table);
 
-    *(orders_table + IC) = *(orders_table + IC)&(convertDtoB(source)<<6);
-    *(orders_table + IC) = *(orders_table + IC)&(convertDtoB(dest)<<2);
+    *(commands_table + IC) = *(commands_table + IC)&(convertDtoB(source)<<6);
+    *(commands_table + IC) = *(commands_table + IC)&(convertDtoB(dest)<<2);
     
     return IC++;
 }
@@ -135,41 +135,41 @@ int create_registers_line(int source, int dest, int IC, unsigned int *orders_tab
 Gets numeric value as string
 And puts it's value as binary in new line
 */
-int create_value_line(char *value, int IC, unsigned int *orders_table){
+int create_value_line(char *value, int IC, unsigned int *commands_table){
     value[0] = '\0'; /*Removes the charactar # */
     
-    realloc_check(IC++, orders_table);
+    realloc_check(IC++, commands_table);
 
-    *(orders_table + IC) = convertDtoB(atoi(value));
+    *(commands_table + IC) = convertDtoB(atoi(value));
     return IC++;
 }
 
 /*Puts the wanted index of struct in new line (as binary) in case of access to struct*/
-int create_index_line(int number, int IC, unsigned int *orders_table){
-    realloc_check(IC++, orders_table);
+int create_index_line(int number, int IC, unsigned int *commands_table){
+    realloc_check(IC++, commands_table);
 
-    *(orders_table + IC) = convertDtoB(number);
+    *(commands_table + IC) = convertDtoB(number);
     return IC++;
 }
 
 
 /*At this point, the address of the label (data type) is unknown*/
-int create_unknown_line(int IC, unsigned int *orders_table, char *label, 
+int create_unknown_line(int IC, unsigned int *commands_table, char *label, 
 ptr_label_apearence tail_label_apear){
     ptr_label_apearence temp_node;
     
     temp_node = NULL;
     
-    realloc_check(++IC, orders_table);
+    realloc_check(++IC, commands_table);
 
     /*Saves the location of the label/struct apearence*/
     strcpy(temp_node->name, label);
-    temp_node-> index_in_orders_table = IC; 
+    temp_node-> index_in_commands_table = IC; 
     temp_node->next = NULL;
     tail_label_apear->next = temp_node;
     tail_label_apear = temp_node;
 
-    *(orders_table + IC) = '?'; /*Fills the unknown line with the char '?' for now*/
+    *(commands_table + IC) = '?'; /*Fills the unknown line with the char '?' for now*/
     
     return IC++;
 }

@@ -26,13 +26,13 @@ void second_step(multiVars *vars){
 	temp_label_apear = vars->head_label_apear;
 	
 	/*While it is not the end of the list*/
-	for(index = 0; !vars->orders_table[index]; index++){
+	for(index = 0; !vars->commands_table[index]; index++){
 		/*Finds the lines without binary code*/
-		if(vars->orders_table[index] == '?'){
+		if(vars->commands_table[index] == '?'){
 			/* Finds the name of label */
 			temp_label_apear = vars->head_label_apear;
 			while (temp_label_apear){
-				if((temp_label_apear->index_in_orders_table) != index)
+				if((temp_label_apear->index_in_commands_table) != index)
 					temp_label_apear = temp_label_apear->next;
 				else{
 					strcpy(label_name, temp_label_apear->name);
@@ -48,7 +48,7 @@ void second_step(multiVars *vars){
 				if(strcmp(temp_label->name, label_name))
       				temp_label = temp_label->next;
       			else{/*If they are equals*/
-      				vars->orders_table[index] = convertDtoB(temp_label->dec_address);
+      				vars->commands_table[index] = convertDtoB(temp_label->dec_address);
       				continue;
                 }
       		}
