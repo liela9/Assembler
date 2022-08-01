@@ -31,6 +31,7 @@
   "files.associations": {
     "assembler.h": "c",
     "free.h": "c",
-    "constants.h": "c"
+    "constants.h": "c",
+    "preassembler.h": "c"
   }
 }

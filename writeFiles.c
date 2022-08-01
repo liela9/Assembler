@@ -20,14 +20,14 @@ void write_files(char *file_name, multiVars *vars){
 void write_ob_file(char *file_name, multiVars *vars){
     FILE *file;
     int index;
-    char *new_file_name;
-	char *temp_char;
+	char *temp_char, new_file_name[FILENAME_MAX];
 
-	new_file_name = NULL;	
 	
-    /*Defines the file's name .ob*/
-    sprintf(new_file_name, "%s%s", file_name, OB_FILE);
-
+	strcpy(new_file_name, file_name);
+    /*Linking the extention .ob to the file's name*/
+    strcat(new_file_name, OB_FILE);
+    
+    
     file = fopen(new_file_name, "w");
     if(!file){
         printf("System Error: Could not create new file!\n");
@@ -44,19 +44,19 @@ void write_ob_file(char *file_name, multiVars *vars){
 	temp_char = convertDtoB32(vars->DC);
     fputs(temp_char, file);
 
-    for(index = 0; index < sizeof(vars->orders_table); index++){/*TODO : change the sizeof*/
+    for(index = 0; index < sizeof(vars->orders_table)/4; index++){/*TODO : change the sizeof*/
 		temp_char = convertDtoB32(index + FIRST_MEMORY_CELL);
         fputs(temp_char, file);
         fputc('\t', file);
-		temp_char = convertDtoB32(vars->orders_table[index]);
+		temp_char = convertBtoB32(vars->orders_table[index]);
         fputs(temp_char, file);
     }
-
-    for(index = 0; index < sizeof(vars->data_table); index++){/*TODO : change the sizeof*/
+    
+    for(index = 0; index < sizeof(vars->data_table)/4; index++){/*TODO : change the sizeof*/
 		temp_char = convertDtoB32(index + FIRST_MEMORY_CELL);
         fputs(temp_char, file);
         fputc('\t', file);
-		temp_char = convertDtoB32(vars->data_table[index]);
+		temp_char = convertBtoB32(vars->data_table[index]);
         fputs(temp_char, file);
     }
 
@@ -66,21 +66,25 @@ void write_ob_file(char *file_name, multiVars *vars){
 
 /*Creates and writes the .ent and .ext files*/
 void write_ext_ent_files(char *file_name, multiVars *vars){
-    FILE *fext, *fent /*,*fob*/;
     ptr_label h_label;
-    ptr_label_apearence temp_ptr;
+    ptr_label_apearence h_label_apear;
+    FILE *fext, *fent;
     int count_ext, count_ent;
-    char *ext_name, *ent_name/*, *ob_file_name*/;
+    char ext_name[FILENAME_MAX], ent_name[FILENAME_MAX];
     
-    temp_ptr = vars->head_label_apear;
+    h_label = vars->head_label;
+    h_label_apear = vars->head_label_apear;
     count_ext = 0;
     count_ent = 0;
-	ext_name = NULL;
-	ent_name = NULL;
+    fext = NULL;
+    fent = NULL;
+    
+	strcpy(ext_name, file_name);
+	strcpy(ent_name, file_name);
 
-    /*Defines the file's name .ext /.ent */
-    sprintf(ext_name, "%s%s", file_name, EXT_FILE);
-    sprintf(ent_name, "%s%s", file_name, ENT_FILE);
+    /*Linking the extention .ext .ent to the file's name*/
+    strcat(ext_name, EXT_FILE);
+    strcat(ent_name, ENT_FILE);
 
     fext = fopen(ext_name, "w");
     fent = fopen(ent_name, "w");
@@ -90,16 +94,13 @@ void write_ext_ent_files(char *file_name, multiVars *vars){
         exit(0);
     }
 
-    /*Linking the extention .ob to the file's name*/
-    /*ob_file_name = strcat(file_name, OB_FILE);*/
-    /*Assumes the file .ob created and open correctly*/
-    /*fob = fopen(ob_file_name, "r");*/
     
-    h_label = vars->head_label;
     while (h_label){
-        while(temp_ptr){
-            /*If h_label->name equals to temp_ptr->name*/
-            if(!strcmp(h_label->name, temp_ptr->name)){
+        while(h_label_apear){
+            /*If h_label->name equals to h_label_apear->name*/
+            if(!strcmp(h_label->name, h_label_apear->name)){
+                printf("65555555555555555 %s 55555555555555\n", file_name);
+                exit(0);
                 if(h_label->type == EXTERNAL){
                     count_ext++;
                     fputs(h_label->name, fext);
@@ -113,7 +114,7 @@ void write_ext_ent_files(char *file_name, multiVars *vars){
                     fputs(convertDtoB32(h_label->dec_address), fent);
                 }
             }
-            temp_ptr = temp_ptr->next;
+            h_label_apear = h_label_apear->next;
         }
         h_label = h_label->next;
     }

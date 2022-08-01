@@ -2,32 +2,31 @@
 #include "preAssembler.h"
 #include "macro.h"
 
-#define MACRO_LENGTH 5
-
 
 /*Copeis the input file and pastes the macros*/
 bool pre_assembler(FILE *file_to_read, char *file_name){
     FILE *file_to_write;
-    char line[MAX_LINE_LENGTH];
-    char copy_line[MAX_LINE_LENGTH];
-    char *current_word;
+    char line[MAX_LINE_LENGTH], copy_line[MAX_LINE_LENGTH];
+    char *current_word, new_file_name[MAX_LINE_LENGTH];
     ptr_macro current_macro;
-    bool there_is_error_flag;
-    bool new_macro_flag;
+    bool there_is_error_flag, new_macro_flag;
+
 
     new_macro_flag = false;
     there_is_error_flag = false;
     current_word = NULL;
     current_macro = NULL;
-
-    strcat(file_name, AM_FILE);/*Linking the extention .am to the file's name*/
-    file_to_write = fopen(file_name, "w");
+    
+    strcpy(new_file_name, file_name);
+    strcat(new_file_name, AM_FILE);/*Linking the extention .am to the file's name*/
+    file_to_write = fopen(new_file_name, "w");
     if(!file_to_write){
-        fprintf(stderr,"Could not create %s file", file_name);
+        fprintf(stderr,"Could not create %s file", new_file_name);
         exit(0);
     }
+    
 
-    /*Reads s line*/
+    /*Reads a line*/
     while(fgets(line, MAX_LINE_LENGTH, file_to_read)){
         strcpy(copy_line, line);
         current_word = strtok(copy_line, " \t\n");
