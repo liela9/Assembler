@@ -75,7 +75,9 @@ Assists to save and move variables from first step to second step.
 */
 typedef struct multiVars{
     ptr_label head_label;
+    ptr_label tail_label;
     ptr_label_apearence head_label_apear;
+    ptr_label_apearence tail_label_apear;
     unsigned int *orders_table;
     unsigned int *data_table;
     int IC;/*Instruction counter*/

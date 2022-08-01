@@ -3,9 +3,9 @@
 
 
 /*Functions of file 'firsStep.c'*/
-multiVars* first_step(char *);
+multiVars* first_step(char *, multiVars *);
 int find_opcode(char *);
-int find_group(int IC, int , ptr_label, ptr_label_apearence);
+int find_group(int , int , ptr_label, ptr_label_apearence, ptr_label_apearence, unsigned int *);
 
 #endif
 
