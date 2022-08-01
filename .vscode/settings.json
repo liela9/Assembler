@@ -29,6 +29,8 @@
     "**/.vscode/**"
   ],
   "files.associations": {
-    "assembler.h": "c"
+    "assembler.h": "c",
+    "free.h": "c",
+    "constants.h": "c"
   }
 }
