@@ -6,10 +6,15 @@
 #include "free.h"
 
 
+#define ERROR(name_of_file) printf("An error occured while processing file %s\n", #name_of_file);
+                            
+
+
+
 int main(int argc, char *argv[]){
     FILE *f;
     int index;
-    multiVars *vars;
+    multiVars *vars; // TODO: Change to contextVars
 
     vars = (multiVars *)malloc(sizeof(multiVars));
      
@@ -26,19 +31,18 @@ int main(int argc, char *argv[]){
             continue;
         }
 
-        /*If there was error at the pre Assembler*/
+        /*If there was an error in the pre_assembler*/
         if(pre_assembler(f, argv[index])){
-            printf("There is error in file %s\n", argv[index]);
+            ERROR(argv[index])
             continue;
-            /*Continue to the next assembler file*/
         }
 
         vars = first_step(argv[index]);
 
+
         if(vars->there_is_error_flag){
-            printf("There is error in file %s\n", argv[index]);
+            ERROR(argv[index])
             continue;
-            /*Continue to the next assembler file*/
         }
 
         second_step(vars);
@@ -46,6 +50,8 @@ int main(int argc, char *argv[]){
 	    write_files(argv[index], vars);
 
         fclose(f);
+        // TODO: everything that is freed in "main" should be allocated in "main"
+        // The allocating function is the releasing
         free_lists(vars);
         printf("File: %s run successfully!\n", argv[index]);
     }
