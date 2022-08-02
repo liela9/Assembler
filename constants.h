@@ -33,7 +33,7 @@ A linked list of macros.
 */
 typedef struct macro *ptr_macro;
 typedef struct macro{
-    char *macro_id; /*Number of the macro*/
+    char *macro_id; /*Name of the macro*/
     char *macro_content; /*Content of the macro*/
 
     ptr_macro next;

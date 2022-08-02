@@ -8,7 +8,7 @@ bool pre_assembler(FILE *file_to_read, char *file_name){
     FILE *file_to_write;
     char line[MAX_LINE_LENGTH], copy_line[MAX_LINE_LENGTH];
     char *current_word, new_file_name[FILENAME_MAX];
-    ptr_macro *current_macro, head_macro;
+    ptr_macro head_macro, current_macro, new_macro;
     bool there_is_error_flag, in_macro_flag;
    
     strcpy(new_file_name, file_name);
@@ -23,8 +23,8 @@ bool pre_assembler(FILE *file_to_read, char *file_name){
     in_macro_flag = false;
     there_is_error_flag = false;
     current_word = NULL;
-    current_macro = NULL;
     head_macro = NULL;
+    current_macro = NULL;
 
     /*Reads a line*/
     while(fgets(line, MAX_LINE_LENGTH, file_to_read)){
@@ -34,19 +34,31 @@ bool pre_assembler(FILE *file_to_read, char *file_name){
         if (!in_macro_flag) {
             /*If the current word is "macro"*/
             if(!strcmp(current_word, "macro")){
-                current_macro = (ptr_macro *)malloc(sizeof(ptr_macro));
 
                 if(!(current_word = strtok(NULL, " \t\n"))){
                     /* TODO: add function for "user error" */
                     printf("Error: Macro must have a name\n");
+                    there_is_error_flag = true;
+                }
+                /*TODO: check valid name for macro*/
+                else if((macro_exists(head_macro, current_word))){
+                    printf("Can not add new macro %s, Macro already exists\n", current_word);
                     return false;
                 }
                 /* TODO: can the macro content start in the same line? */
-                else if(!(insert_macro(head_macro, *current_macro, current_word))){
-                    return false;
+                else if(!(new_macro = create_macro_node(current_word))){
+                    there_is_error_flag = true;
                 }
-                else
+                else{
+                    new_macro->next = NULL;
                     in_macro_flag = true;
+                    if (!current_macro)
+                        head_macro = current_macro = new_macro;
+                    else {
+                        current_macro->next = new_macro;
+                        current_macro = new_macro;
+                    }
+                }
             }
             else{
                 ptr_macro lookup_macro = NULL;
@@ -61,38 +73,15 @@ bool pre_assembler(FILE *file_to_read, char *file_name){
         /*If we're in the middle of a macro*/
         else{
             /*If the current word is not "endmacro"*/
-            if(strcmp(current_word, "endmacro")){
+            if(strcmp(current_word, "endmacro"))
+                strcat(current_macro->macro_content, line);
                 /*Add the content (the line) to the variable "macro_content"*/
-                strcat((*current_macro)->macro_content, line);
-                continue;
-            }
-            else{
+            else
                 in_macro_flag = false;
-                current_macro = NULL;
-                continue;
-            }
+                /* TODO: can be more words in line with endmacro? */
         }
     }
     fclose(file_to_write);
     free_macro_list(head_macro);
-
     return !there_is_error_flag;
 }
-
-
-
-/*Finds specific word in file*/
-long int find_word(char *word, FILE *file){
-    char *string = NULL;
-
-    while(fscanf(file, "%s", string))
-        /*If 'word' equals to 'string'*/
-        if(!strcmp(word, string))
-            return ftell(file); /*Return the word's position*/
-    
-    return 0;
-}
-
-
-
-
