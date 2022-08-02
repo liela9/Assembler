@@ -44,13 +44,20 @@ void process_file(FILE *file, char *file_name){
     vars->tail_label = NULL;
     vars->data_table = NULL;
     vars->commands_table = NULL;
-    
     /*If there was an error in the pre_assembler*/
-    if(!pre_assembler(file, file_name) || !first_step(file, file_name) || !second_step(vars) || !write_files(file_name, vars))
+    if(!pre_assembler(file, file_name))
         printf("An error occured while processing file %s\n", file_name);
-    else
-        printf("File: %s run successfully!\n", file_name);
+    if(!first_step(file_name, vars))
+        printf("An error occured while processing file %s\n", file_name);
+    if(!second_step(vars))
+        printf("An error occured while processing file %s\n", file_name);
+    if(!write_files(file_name, vars))
+        printf("An error occured while processing file %s\n", file_name);
     
+    
+    
+    
+    printf("File '%s' run successfully!\n", file_name);
     free_lists(vars);
 }
 

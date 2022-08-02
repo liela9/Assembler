@@ -61,12 +61,16 @@ int convertBtoD(unsigned long bin_number){
 
 
 /* Revers the string */
-char* reverstr(char str[], int index){
+char *reverstr(char str[], int index){
 	int local_index;
 	char *rstr;
 	
     local_index = 0;
     rstr = malloc(BIN_MACHINE_CODE_LENGTH * sizeof(char));
+    if(!rstr){
+        printf("System Error: Memory allocation failed!\n");
+        return NULL;
+    }
 
 	/* Ignore the '\0' */
 	index -= 1;
@@ -79,7 +83,7 @@ char* reverstr(char str[], int index){
 
 
 /* Converts decimal number to base32 */
-char* convertDtoB32(int decimal_number) {
+char *convertDtoB32(int decimal_number) {
     int remainder, index;
     char str[BIN_MACHINE_CODE_LENGTH];
     char *revers_str;
