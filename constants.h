@@ -15,12 +15,11 @@
 
 const char base32[BASE_LENGTH];
 const char registers[NUM_OF_REGISTERS][2];
-
 const char opcode[OPCODE_LENGTH][3]; 
-
-/*Used for checking saved words*/
 const char* saved_words[NUM_OF_SAVED_WORDS];
 
+int IC; /*Instruction counter*/
+int DC;/*Data counter*/
 
 
 /*Uses for the labels table*/
@@ -38,11 +37,6 @@ typedef struct macro{
 
     ptr_macro next;
 }macro;
-
-typedef struct macro_list *ptr_macro_list;
-typedef struct macro_list{
-    ptr_macro head;
-}macro_list;
 
 
 /*
@@ -85,8 +79,6 @@ typedef struct multiVars{
     ptr_label_apearence tail_label_apear;
     unsigned int *commands_table;
     unsigned int *data_table;
-    int IC;/*Instruction counter*/
-    int DC;/*Data counter*/
 
     bool there_is_error_flag;
 
