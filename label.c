@@ -11,38 +11,37 @@
 
 /*Inserts new label to the labels list*/
 bool insert_new_label(char *name, int type, int address, multiVars *vars){
-    ptr_label temp_label;
-    bool there_is_error_flag;
+    ptr_label new_node;
+    
+    new_node = NULL;
 
-    there_is_error_flag = false;
 
     /* TODO: check if putting \0 manualy doesn't screw up "free" */
     name[sizeof(name)-1] = '\0'; /*Remove the char ':' */
 
-    if (!vars->head_label) /*empty list*/
 
-    if(label_exists(name, head_label) || !valid_label_name(name)){
-        printf("Error: %s Illegal label name!\n", name);
-        there_is_error_flag = true;
+    if(label_exists(name, vars->head_label) || !valid_label_name(name)){
+        printf("Error: Illegal label name: %s!\n", name);
+        return false;
     }
 
     else{
-        temp_label = (ptr_label) malloc(sizeof(label));
-        if(!temp_label){
+        new_node = (ptr_label) malloc(sizeof(label));
+        if(!new_node){
             printf("System Error: Memory allocation failed!\n");
-            free(temp_label);
-            exit(0);
+            free(new_node);
+            return false;
         }
 
         /*Fills the values*/
-        strcpy(temp_label->name, name);
-        temp_label->type = type;
-        temp_label->dec_address = address;
-        temp_label->next = NULL;
+        strcpy(new_node->name, name);
+        new_node->type = type;
+        new_node->dec_address = address;
+        new_node->next = NULL;
         
-        tail_label->next = temp_label;
+        vars->tail_label->next = new_node;
     }
-    return there_is_error_flag;   
+    return true;   
 }
 
 

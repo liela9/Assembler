@@ -5,27 +5,23 @@
 #include "label.h"
 
 /*The first step of the Assembler*/
-multiVars* first_step(char *file_name, multiVars *vars){
+bool first_step(char *file_name, multiVars *vars){
     FILE *file;
-    char *row_content, *first_word, *second_word;
-    char *entry_word;
+    char *row_content, *first_word, *second_word, *entry_word;
+    char new_fil_name[FILENAME_MAX];
     int op_code_index;
-    int IC; /*Instruction counter*/
-    int DC;/*Data counter*/
+    bool there_is_error_flag;
     
 	row_content	= NULL;
 	first_word = NULL;
 	second_word = NULL;
 
-    vars->there_is_error_flag = false;
-    IC = 0;
-    DC = 0;
+    there_is_error_flag = false;
 
-    /*Add the extention ".am" to the name of the file*/
-    /*strcat(file_name, AM_EXTENSION);*/
+    strcpy(new_fil_name, file_name);
+    strcat(new_fil_name, AM_EXTENSION);/*Add the extention ".am" to the name of the file*/
     
     file = fopen(file_name, "w");
-
 
     /*Reads a line*/
     while(fgets(row_content, MAX_LINE_LENGTH, file)){
@@ -51,20 +47,19 @@ multiVars* first_step(char *file_name, multiVars *vars){
                 /*If the first word is extern*/
                 if(!strcmp(first_word, ".extern")){
                     printf("Warning: %s is extern\n", second_word);
-                    if(insert_new_label(second_word, EXTERNAL, DC, vars->head_label, vars->tail_label))
-                        vars->there_is_error_flag = true;
+                    if(insert_new_label(second_word, EXTERNAL, DC, vars))
+                        there_is_error_flag = true;
                 }
                 
                 /*If the first word is data/string/struct */
                 else if(!strcmp(first_word, ".data") || 
                     !strcmp(first_word, ".string") ||!strcmp(first_word, ".struct"))
-                    DC = create_data_line(DC, row_content, vars->data_table, first_word);
+                    create_data_line(row_content, vars->data_table, first_word);
 
                     
                 /*If the first word is opcode*/    
                 else if((op_code_index = find_opcode(first_word)) != -1)
-                        IC = find_group(op_code_index, IC, vars->head_label, 
-                        vars->head_label_apear, vars->tail_label_apear, vars->commands_table);
+                        find_group(op_code_index, vars);
 
                 /*If the first word is label*/
                 else if(strlen(first_word) > 1 && first_word[strlen(first_word)-1] == ':'){
@@ -75,34 +70,29 @@ multiVars* first_step(char *file_name, multiVars *vars){
                        !strcmp(second_word, ".struct")){
                         
                         if(entry_word)
-                            insert_new_label(first_word, ENTRY, DC, vars->head_label, vars->tail_label);   
+                            insert_new_label(first_word, ENTRY, DC, vars);   
 
-                        else if(insert_new_label(first_word, DATA, DC, vars->head_label, vars->tail_label))
+                        else if(insert_new_label(first_word, DATA, DC, vars))
                             vars->there_is_error_flag = true;
                             
-                        DC = create_data_line(DC, row_content, vars->data_table, second_word);
+                        create_data_line(row_content, vars->data_table, second_word);
                     }
 
                     /*If the second word is opcode*/
                     else if((op_code_index = find_opcode(second_word)) != -1)
-                        IC = find_group(op_code_index, IC, vars->head_label, 
-                        vars->head_label_apear, vars->tail_label_apear, vars->commands_table);
+                        find_group(op_code_index, vars);
                 
                 }
                 else{
                     /*The first word is not label\opcode\data\extern\entry*/ 
                     printf("Error: %s is illegal\n", first_word);
-                    vars->there_is_error_flag = true;
+                    there_is_error_flag = true;
                 }
             }
         }
     }
     fclose(file);
-
-    vars->IC = IC;
-    vars->DC = DC;
-
-    return vars;
+    return !there_is_error_flag;
 }
 
 
@@ -123,24 +113,20 @@ Groups:
     The second group using 1 openad.
     The third group using 0 openads.
 */
-int find_group(int IC, int op_code_index, ptr_label head_label, ptr_label_apearence head_label_apear, 
-ptr_label_apearence tail_label_apear, unsigned int *commands_table){
+void find_group(int op_code_index, multiVars *vars){
     
     /*If belongs to the first opcode group*/
-        if(op_code_index == 6 || (0 <= op_code_index && op_code_index <= 3))
-            IC = insert_command( IC, convertDtoB(op_code_index), strtok(NULL, " \t\r"),
-            strtok(NULL, " \t\r"), head_label, head_label_apear, tail_label_apear, commands_table);
+    if(op_code_index == 6 || (0 <= op_code_index && op_code_index <= 3))
+        insert_command(convertDtoB(op_code_index), strtok(NULL, " \t\r"),strtok(NULL, " \t\r"), vars);
 
-        /*If belongs to the second opcode group*/
-        if((4 <= op_code_index && op_code_index <= 5) || (7 <= op_code_index && op_code_index <= 13))
-            IC = insert_command( IC, convertDtoB(op_code_index), strtok(NULL, " \t\r"),
-            NULL, head_label, head_label_apear, tail_label_apear, commands_table);
+    /*If belongs to the second opcode group*/
+    if((4 <= op_code_index && op_code_index <= 5) || (7 <= op_code_index && op_code_index <= 13))
+        insert_command(convertDtoB(op_code_index), strtok(NULL, " \t\r"),NULL, vars);
 
-        /*If belongs to the third opcode group*/
-        if(op_code_index == 14 || op_code_index == 15)
-            IC = insert_command( IC, convertDtoB(op_code_index), NULL, NULL, head_label,
-            head_label_apear, tail_label_apear, commands_table);
-    return IC;
+    /*If belongs to the third opcode group*/
+    if(op_code_index == 14 || op_code_index == 15)
+        insert_command( convertDtoB(op_code_index), NULL, NULL, vars);
+
 }
 
 
