@@ -16,9 +16,10 @@ bool second_step(multiVars *vars){
 	temp_label_apear = vars->head_label_apear;
 	
 	/*While it is not the end of the list*/
-	for(index = 0; !vars->commands_table[index]; index++){
+	for(index = 0; sizeof(vars->commands_table[index])/8; index++){
 		/*Finds the lines without binary code*/
 		if(vars->commands_table[index] == '?'){
+		
 			temp_label_apear = vars->head_label_apear;
 
 			/* Finds the name of label */
@@ -46,4 +47,5 @@ bool second_step(multiVars *vars){
 	free(temp_label_apear);
 	return true;
 }
+
 

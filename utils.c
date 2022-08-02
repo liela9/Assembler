@@ -16,24 +16,23 @@ int is_register(char *op){
 
 /*Splits the name of struct and the index after the point*/
 char** is_struct(char *op){
+    char **struct_val[2];
     
-    char *struct_val[2];
     struct_val[0] = NULL;
     struct_val[1] = NULL;
 
-    while (op)
-    {
+    while (op){
         if(*op == '.'){
-            struct_val[0] = strtok(op, ".");
-            struct_val[1] = strtok(NULL, ".");
+            (*struct_val)[0] = strtok(op, ".");
+            (*struct_val)[1] = strtok(NULL, ".");
         }
     }
-    return struct_val;
+    return *struct_val;
 }
 
 
 /*Tries to do realoc*/
-void realloc_check(int index, unsigned int *table){
+unsigned int * realloc_check(int index, unsigned int *table){
     unsigned int *ptr;
     
     ptr = (unsigned int*)realloc(table, index * sizeof(unsigned int));
@@ -41,7 +40,7 @@ void realloc_check(int index, unsigned int *table){
         printf("System Error: Memory allocation faild!\n");
         exit(0);
     }
-    table = ptr;
+    return ptr;
 }
     
 

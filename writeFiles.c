@@ -19,11 +19,11 @@ bool write_files(char *file_name, multiVars *vars){
 bool write_ob_file(char *file_name, multiVars *vars){
     FILE *file;
     int index;
-	char *temp_char, new_file_name[FILENAME_MAX];
+	char new_file_name[FILENAME_MAX];
 
 	strcpy(new_file_name, file_name);
     strcat(new_file_name, OB_FILE);/*Linking the extention .ob to the file's name*/
-    
+
     file = fopen(new_file_name, "w");
     if(!file){
         printf("System Error: Could not create new file!\n");
@@ -34,17 +34,15 @@ bool write_ob_file(char *file_name, multiVars *vars){
     The first row_content => 
     IC   DC 
     */
-	add_line_to_ob(convertDtoB32(IC), convertDtoB32(DC), file);
+    
+	add_line_to_ob(IC, DC, file);
 
-
-    for(index = 0; index < sizeof(vars->commands_table)/4; index++)/*TODO : change the sizeof*/
-        add_line_to_ob(convertBtoB32(index + FIRST_MEMORY_CELL) 
-        ,convertBtoB32(vars->commands_table[index]), file);
+    for(index = 0; index < sizeof(vars->commands_table)/8; index++)/*TODO : change the sizeof*/
+        add_line_to_ob(index + FIRST_MEMORY_CELL ,vars->commands_table[index], file);
     
     
-    for(index = 0; index < sizeof(vars->data_table)/4; index++)/*TODO : change the sizeof*/
-        add_line_to_ob(convertDtoB32(index + FIRST_MEMORY_CELL)
-        ,convertBtoB32(vars->data_table[index]), file);
+    for(index = 0; index < sizeof(vars->data_table)/8; index++)/*TODO : change the sizeof*/
+        add_line_to_ob(index + FIRST_MEMORY_CELL ,vars->data_table[index], file);
 		
 
     fclose(file);
@@ -121,11 +119,12 @@ bool write_ext_ent_files(char *file_name, multiVars *vars){
 
 
 
-void add_line_to_ob(char *first_item, char *second_item, FILE *file){
+void add_line_to_ob(int first_item, int second_item, FILE *file){
    
     fputs(convertDtoB32(first_item), file);
     fputc('\t', file);
     fputs(convertBtoB32(second_item), file);
     fputc('\n', file);
 }
+
 
