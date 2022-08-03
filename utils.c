@@ -38,11 +38,10 @@ unsigned int * realloc_check(int index, unsigned int *table){
     ptr = (unsigned int*)realloc(table, index * sizeof(unsigned int));
     if(!ptr){
         printf("System Error: Memory allocation faild!\n");
-        exit(0);
+        return NULL;
     }
     return ptr;
-}
-    
+}    
 
 /*Checks if it is a saved word of the system*/
 bool is_saved_words(char *name){ 
@@ -69,4 +68,18 @@ bool is_saved_words(char *name){
     return false;
 }
 
+void *calloc_with_check(long units_num, long unit_size) {
+    /* TODO: split to malloc_with_check and calloc_with_check */
+	void *ptr = calloc(units_num, unit_size);
+	if (ptr == NULL)
+		printf("System Error: memory allocation failed\n");
+	return ptr;
+}
 
+void *malloc_with_check(long size) {
+    /* TODO: split to malloc_with_check and calloc_with_check */
+	void *ptr = malloc(size);
+	if (ptr == NULL)
+		printf("System Error: memory allocation failed\n");
+	return ptr;
+}

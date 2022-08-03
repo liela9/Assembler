@@ -6,9 +6,10 @@
 
 /*The first step of the Assembler*/
 bool first_step(char *file_name, multiVars *vars){
+    
     FILE *file;
     char *row_content, *first_word, *second_word, *entry_word;
-    char new_fil_name[FILENAME_MAX];
+    char new_file_name[FILENAME_MAX];
     int op_code_index;
     bool there_is_error_flag;
     
@@ -18,14 +19,13 @@ bool first_step(char *file_name, multiVars *vars){
 
     there_is_error_flag = false;
 
-    strcpy(new_fil_name, file_name);
-    strcat(new_fil_name, AM_EXTENSION);/*Add the extention ".am" to the name of the file*/
+    strcpy(new_file_name, file_name);
+    strcat(new_file_name, AM_EXTENSION);/*Add the extension ".am" to the name of the file*/
     
-    file = fopen(file_name, "w");
+    file = fopen(new_file_name, "r");
 
     /*Reads a line*/
     while(fgets(row_content, MAX_LINE_LENGTH, file)){
-        
         entry_word = NULL;
 
         /*Reads the first word of the line*/
@@ -47,7 +47,7 @@ bool first_step(char *file_name, multiVars *vars){
                 /*If the first word is extern*/
                 if(!strcmp(first_word, ".extern")){
                     printf("Warning: %s is extern\n", second_word);
-                    if(insert_new_label(second_word, EXTERNAL, DC, vars))
+                    if(!insert_new_label(second_word, EXTERNAL, DC, vars))
                         there_is_error_flag = true;
                 }
                 

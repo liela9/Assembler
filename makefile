@@ -8,7 +8,7 @@ preAssembler.o : preAssembler.c constants.h preAssembler.h
 	gcc -g -Wall -ansi -pedantic -c preAssembler.c -o preAssembler.o
 
 firstStep.o : firstStep.c constants.h firstStep.h
-	gcc -Wall -ansi -pedantic -c firstStep.c -o firstStep.o
+	gcc -g -Wall -ansi -pedantic -c firstStep.c -o firstStep.o
 
 secondStep.o : secondStep.c constants.h secondStep.h
 	gcc -g -Wall -ansi -pedantic -c secondStep.c -o secondStep.o
