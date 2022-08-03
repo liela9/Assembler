@@ -13,6 +13,8 @@
 #define MAX_LINE_LENGTH 81
 #define MAX_LABEL_LENGTH 30
 #define AM_EXTENSION ".am"
+#define MACRO_WORD "macro"
+#define ENDMACRO_WORD "endmacro"
 
 const char base32[BASE_LENGTH];
 const char registers[NUM_OF_REGISTERS][2];
@@ -27,6 +29,7 @@ int DC;/*Data counter*/
 enum {ENTRY, EXTERNAL, DATA};
 typedef enum {false, true} bool;
 
+typedef enum {SUCCESS, SYSTEM_ERROR, USER_ERROR} response_type;
 
 /*
 A linked list of macros.

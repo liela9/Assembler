@@ -39,8 +39,10 @@ void free_lists(multiVars *vars){
     free_label_list(vars->head_label);
     free_labelApearence_list(vars->head_label_apear);
     
-    free(vars->data_table);
-    free(vars->commands_table);
+    if (vars->data_table)
+        free(vars->data_table);
+    if (vars->commands_table)
+        free(vars->commands_table);
 }
 
 

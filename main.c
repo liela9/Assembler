@@ -5,39 +5,35 @@
 #include "writeFiles.h"
 #include "free.h"
 #include "converting.h"
+#include "utils.h"
 
 int main(int argc, char *argv[]){
-    FILE *file;
     int index;
 
     if(argc == 1){/*If there are no names of files in the command line*/
-        printf("\nMissing name of file/s\n");
-        return(-1);
+        printf("User Error: Missing name of file/s\n");
+        return(1);
     }
     
 
-    for(index = 1; index < argc; index++){       
-        if(!(file = fopen(argv[index], "r"))){
-            printf("Cannot open %s\n", argv[index]);
-            continue;
+    for(index = 1; index < argc; index++){
+        if (process_file(argv[index]) == SYSTEM_ERROR) {
+            printf("Program encountered internal error. Shutting down\n");
+            return (1);
         }
-        process_file(file, argv[index]);
-        fclose(file);
     }
     
     return(0);
 }
 
 
-
-void process_file(FILE *file, char *file_name){
+response_type process_file(char *file_name){
     multiVars *vars; /* TODO: Change to contextVars*/
+    response_type response;
 
-    vars = (multiVars *)malloc(sizeof(multiVars));
-    if (!vars) {
-        printf("System Error: Memory allocation failed");
-        return;
-    }
+    vars = (multiVars *)malloc_with_check(sizeof(multiVars));
+    if (!vars)
+        return SYSTEM_ERROR;
 
     vars->head_label = NULL;
     vars->head_label_apear = NULL;
@@ -45,22 +41,19 @@ void process_file(FILE *file, char *file_name){
     vars->tail_label = NULL;
     vars->data_table = NULL;
     vars->commands_table = NULL;
-    /*If there was an error in the pre_assembler*/
-    if(!pre_assembler(file, file_name))
-        printf("An error occured while processing file %s\n", file_name);
-    if(!first_step(file_name, vars))
-        printf("An error occured while processing file %s\n", file_name);
-    if(!second_step(vars))
-        printf("An error occured while processing file %s\n", file_name);
-    if(!write_files(file_name, vars))
-        printf("An error occured while processing file %s\n", file_name);
+    if((response = pre_assembler(file_name)) == SUCCESS) { /* can't proceed if encoutered error */
+        if(!first_step(file_name, vars))
+            printf("An error occured while processing file %s\n", file_name);
+        if(!second_step(vars))
+            printf("An error occured while processing file %s\n", file_name);
+        if(!write_files(file_name, vars))
+            printf("An error occured while processing file %s\n", file_name);
     
-    printf("%s\n", convertDtoB32(50));
-    printf("%s\n", convertBtoB32(1011111));
-    
-    
-    printf("File '%s' run successfully!\n", file_name);
-    free_lists(vars);
+        printf("File '%s' compiled successfully!\n", file_name);
+        free_lists(vars);
+    }
+    free(vars);
+    return response;
 }
 
 

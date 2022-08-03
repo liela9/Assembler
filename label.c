@@ -12,6 +12,7 @@
 /*Inserts new label to the labels list*/
 bool insert_new_label(char *name, int type, int address, multiVars *vars){
     ptr_label new_node;
+    int i;
     
     new_node = NULL;
 
@@ -29,9 +30,13 @@ bool insert_new_label(char *name, int type, int address, multiVars *vars){
         new_node = (ptr_label) malloc(sizeof(label));
         if(!new_node){
             printf("System Error: Memory allocation failed!\n");
-            free(new_node);
             return false;
         }
+
+        for(i=0; i<30; ++i) {
+            new_node->name[i] = '\0';
+        } /* Does it work?*/
+        printf("%d", sizeof(new_node->name));
 
         /*Fills the values*/
         strcpy(new_node->name, name);
@@ -52,7 +57,7 @@ bool label_exists(char *name, ptr_label head_label){
     temp_label = head_label;
 
     while(temp_label){
-        if(strcmp(temp_label->name, name))
+        if(!strcmp(temp_label->name, name))
             return true;
         temp_label = temp_label->next;
     }
@@ -66,8 +71,15 @@ bool valid_label_name(char *name){
         the length is at most 30
         the first char is alpha 
         all the others are alphanumeric, and not saved word */
-	return name[0] && strlen(name) <= MAX_LABEL_LENGTH && isalnum(name) &&
-	       !is_saved_words(name);
+    int index, len;
+    len = strlen(name);
+
+    for (index = 0; index < len; ++index) {
+        if (!isalnum(name[index]))
+            return false;
+    }
+
+	return name[0] && len <= MAX_LABEL_LENGTH && !is_saved_words(name);
 }
 
 

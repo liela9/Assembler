@@ -3,7 +3,7 @@
 #include "constants.h"
  
 
-void process_file(FILE *, char *);
+response_type process_file(char *);
 
 
 #endif

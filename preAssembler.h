@@ -2,6 +2,6 @@
 #define PRE_ASSEMBLER_H
 
 /*Functions of file 'preAssembler.c'*/
-bool pre_assembler(FILE *, char *);
+response_type pre_assembler(char *);
 
 #endif
