@@ -34,8 +34,11 @@ bool write_ob_file(char *file_name, multiVars *vars){
     The first row_content => 
     IC   DC 
     */
-    
-	add_line_to_ob(IC, DC, file);
+	fputs(convertDtoB32(IC), file);
+    fputc('\t', file);
+    fputs(convertDtoB32(DC), file);
+    fputc('\n', file);
+	
 
     for(index = 0; index < sizeof(vars->commands_table)/8; index++)/*TODO : change the sizeof*/
         add_line_to_ob(index + FIRST_MEMORY_CELL ,vars->commands_table[index], file);
@@ -119,7 +122,7 @@ bool write_ext_ent_files(char *file_name, multiVars *vars){
 
 
 
-void add_line_to_ob(int first_item, int second_item, FILE *file){
+void add_line_to_ob(int first_item, unsigned long second_item, FILE *file){
    
     fputs(convertDtoB32(first_item), file);
     fputc('\t', file);

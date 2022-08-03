@@ -1,4 +1,5 @@
 #include "constants.h"
+#include "constants.c"
 #include "converting.h"
 
 #define BIN_MACHINE_CODE_LENGTH 10
@@ -66,7 +67,7 @@ char *reverstr(char str[], int index){
 	char *rstr;
 	
     local_index = 0;
-    rstr = malloc(BIN_MACHINE_CODE_LENGTH * sizeof(char));
+    rstr = (char *)malloc(BIN_MACHINE_CODE_LENGTH * sizeof(char));
     if(!rstr){
         printf("System Error: Memory allocation failed!\n");
         return NULL;
@@ -91,7 +92,7 @@ char *convertDtoB32(int decimal_number) {
     index = 0;
 
     while (decimal_number > 0) {
-      remainder = decimal_number % 32;
+        remainder = decimal_number % 32;
         str[index] = (base32[remainder]);
         decimal_number /= 32;
         index++;
