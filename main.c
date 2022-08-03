@@ -4,6 +4,7 @@
 #include "secondStep.h"
 #include "writeFiles.h"
 #include "free.h"
+#include "converting.h"
 
 int main(int argc, char *argv[]){
     FILE *file;
@@ -54,7 +55,8 @@ void process_file(FILE *file, char *file_name){
     if(!write_files(file_name, vars))
         printf("An error occured while processing file %s\n", file_name);
     
-    
+    printf("%s\n", convertDtoB32(50));
+    printf("%s\n", convertBtoB32(1011111));
     
     
     printf("File '%s' run successfully!\n", file_name);
