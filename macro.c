@@ -7,17 +7,15 @@ ptr_macro create_macro_node(char *macro_id){
     ptr_macro new_node;
     new_node = NULL;
     
-    if (!(new_node = (ptr_macro) malloc_with_check(sizeof(macro))))
+    if (!(new_node = (ptr_macro)malloc_with_check(sizeof(macro))))
         return NULL;
 
-    if (!(new_node->macro_id = (char *)malloc_with_check(sizeof(macro_id))))
-    { 
+    if (!(new_node->macro_id = (char *)malloc_with_check(sizeof(macro_id)))){ 
         free(new_node);
         return NULL;
     }
 
-    if (!(new_node->macro_content = (char *)calloc_with_check(MAX_LINE_LENGTH * MACRO_MAX_LINE_NUMBER, sizeof(char))))
-    { 
+    if (!(new_node->macro_content = (char *)calloc_with_check(MAX_LINE_LENGTH * MACRO_MAX_LINE_NUMBER, sizeof(char)))){ 
         free(new_node->macro_id);
         free(new_node);
         return NULL;
@@ -51,7 +49,7 @@ bool macro_exists(ptr_macro head_macro, char *macro_id) {
 void free_macro_list(ptr_macro head_macro) {
     ptr_macro temp;
 
-    while (head_macro) {
+    while (head_macro){
         temp = head_macro;
         head_macro = head_macro->next;
         free(temp->macro_content);

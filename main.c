@@ -28,7 +28,7 @@ int main(int argc, char *argv[]){
 
 
 response_type process_file(char *file_name){
-    multiVars *vars; /* TODO: Change to contextVars*/
+    multiVars *vars; 
     response_type response;
 
     vars = (multiVars *)malloc_with_check(sizeof(multiVars));
@@ -36,12 +36,13 @@ response_type process_file(char *file_name){
         return SYSTEM_ERROR;
 
     vars->head_label = NULL;
+    vars->tail_label = NULL;
     vars->head_label_apear = NULL;
     vars->tail_label_apear = NULL;
-    vars->tail_label = NULL;
     vars->data_table = NULL;
     vars->commands_table = NULL;
-    if((response = pre_assembler(file_name)) == SUCCESS) { /* can't proceed if encoutered error */
+
+    if((response = pre_assembler(file_name)) == SUCCESS) { /*Can't proceed if encoutered error */
         if(!first_step(file_name, vars))
             printf("An error occured while processing file %s\n", file_name);
         if(!second_step(vars))

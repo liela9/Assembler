@@ -110,23 +110,21 @@ void insert_command(unsigned long op_code, char *source_op, char *dest_op, multi
 /*Creates new machine code line (binary) in commandd_table*/
 void create_command_line(unsigned long op_code, long source_op_addressing, long dest_op_addressing, 
 unsigned int *commands_table){
-    realloc_check(IC++, commands_table);
+    realloc_check(IC, commands_table);
 
     *(commands_table + IC) = ~0<<2; /*Two zeros in the right*/
     *(commands_table + IC) = *(commands_table + IC)&(dest_op_addressing<<2);
     *(commands_table + IC) = *(commands_table + IC)&(source_op_addressing<<4);
     *(commands_table + IC) = *(commands_table + IC)&(op_code<<6);
-    
     IC++;
 }
 
 /*Creates new machine code line (binary) for registers*/
 void create_registers_line(int source, int dest, unsigned int *commands_table){
-    realloc_check(IC++, commands_table);
+    realloc_check(IC, commands_table);
 
     *(commands_table + IC) = *(commands_table + IC)&(convertDtoB(source)<<6);
     *(commands_table + IC) = *(commands_table + IC)&(convertDtoB(dest)<<2);
-    
     IC++;
 }
 
@@ -136,7 +134,7 @@ Gets numeric value
 And puts it as binary in new line
 */
 void create_number_line(int number, unsigned int *commands_table){
-    realloc_check(IC++, commands_table);
+    realloc_check(IC, commands_table);
     *(commands_table + IC) = convertDtoB(number);
     IC++;
 }
@@ -147,8 +145,7 @@ void create_unknown_line(unsigned int *commands_table, char *label, ptr_label_ap
     ptr_label_apearence temp_node;
     
     temp_node = NULL;
-    
-    realloc_check(++IC, commands_table);
+    realloc_check(IC, commands_table);
 
     /*Saves the location of the label/struct apearence*/
     strcpy(temp_node->name, label);
@@ -159,16 +156,17 @@ void create_unknown_line(unsigned int *commands_table, char *label, ptr_label_ap
 
     /*Fills the unknown line with the char '?' for now*/
     *(commands_table + IC) = '?'; 
-    
     IC++;
 }
 
 /*Creates new machine (binary) code line in data_table*/
-void create_data_line(char *row_content, unsigned int *data_table, char *type){
+response_type create_data_line(char *row_content, unsigned int *data_table, char *type){
     char *token;
     int number;
 
-    realloc_check(DC++, data_table);
+    if(!realloc_check(DC, data_table))
+        return SYSTEM_ERROR;
+
     token = strtok(row_content, " ,\t\r");
 
     if(!strcmp(type, ".data")){
@@ -181,8 +179,8 @@ void create_data_line(char *row_content, unsigned int *data_table, char *type){
 
     if(!strcmp(type, ".string")){
         int i;
-
-        for(i = 1; i < sizeof(token)-1; i++){/*Reads between the ""*/
+        
+        for(i = 1; i < strlen(token)-1; i++){/*Reads between the ""*/
             *(data_table + DC) = convertDtoB(token[i]);/*Converts the ASCII code of the letter to binary*/
             DC++;
         }
@@ -208,14 +206,15 @@ void create_data_line(char *row_content, unsigned int *data_table, char *type){
         create_zero_line(data_table);
         DC++;
     }
+    return SUCCESS;
 }
 
 
 /*Create zero line for '\0' at the end of string*/
 void create_zero_line(unsigned int *data_table){
-    realloc_check(DC++, data_table);
-
+    realloc_check(DC, data_table);
     *(data_table + DC) = convertDtoB(0);
+    DC++;
 }
 
 

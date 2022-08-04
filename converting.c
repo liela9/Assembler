@@ -1,6 +1,7 @@
 #include "constants.h"
 #include "constants.c"
 #include "converting.h"
+#include "utils.h"
 
 #define BIN_MACHINE_CODE_LENGTH 10
 #define TEN_BITS_OF_ONE 1023
@@ -61,35 +62,13 @@ int convertBtoD(unsigned long bin_number){
 }
 
 
-/* Revers the string */
-char *reverstr(char str[], int index){
-	int local_index;
-	char *rstr;
-	
-    local_index = 0;
-    rstr = (char *)malloc(BIN_MACHINE_CODE_LENGTH * sizeof(char));
-    if(!rstr){
-        printf("System Error: Memory allocation failed!\n");
-        return NULL;
-    }
-
-	/* Ignore the '\0' */
-	index -= 1;
-	while(index > -1){
-        *(rstr + local_index) = str[index--];
-		local_index++;
-	}
-	return rstr;
-}
-
-
 /* Converts decimal number to base32 */
 char *convertDtoB32(int decimal_number) {
     int remainder, index;
-    char str[BIN_MACHINE_CODE_LENGTH];
-    char *revers_str;
-
+    char str[LENGTH_OF_32_ITEM];
+    
     index = 0;
+    reset_array(str);
 
     while (decimal_number > 0) {
         remainder = decimal_number % 32;
@@ -98,19 +77,18 @@ char *convertDtoB32(int decimal_number) {
         index++;
     }
 
-    revers_str = reverstr(str, index);
-    return revers_str;
+    return reverstr(str);
 }
 
 /* Converts binary number to base32 */
 char* convertBtoB32(unsigned long binary_number) {
     int remainder, index;
     int decimal_number;
-    char str[BIN_MACHINE_CODE_LENGTH];
-    char *revers_str;
+    char str[LENGTH_OF_32_ITEM];
     
-    decimal_number = convertBtoD(binary_number);
     index = 0;
+    reset_array(str);
+    decimal_number = convertBtoD(binary_number);
 
     while (decimal_number > 0) {
         remainder = decimal_number % 32;
@@ -119,6 +97,18 @@ char* convertBtoB32(unsigned long binary_number) {
         index++;
     }
 
-    revers_str = reverstr(str, index);
-    return revers_str;
+    return reverstr(str);
 }
+
+
+/* Revers the string */
+char *reverstr(char str[]){
+	char temp;
+	
+    temp = str[0];
+    str[0] = str[1];
+    str[1] = temp;
+
+	return str;
+}
+
