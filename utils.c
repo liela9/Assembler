@@ -30,18 +30,7 @@ char** is_struct(char *op){
     return *struct_val;
 }
 
-
-/*Tries to do realoc*/
-unsigned int * realloc_check(int index, unsigned int *table){
-    unsigned int *ptr;
-    
-    ptr = (unsigned int*)realloc(table, ++index * sizeof(unsigned int));
-    if(!ptr){
-        printf("System Error: Memory allocation faild!\n");
-        return NULL;
-    }
-    return ptr;
-}    
+  
 
 /*Checks if it is a saved word of the system*/
 bool is_saved_words(char *name){ 
@@ -68,8 +57,20 @@ bool is_saved_words(char *name){
     return false;
 }
 
+
+unsigned int * realloc_with_check(int index, unsigned int *table){
+    unsigned int *ptr;
+    
+    ptr = (unsigned int*)realloc(table, ++index * sizeof(unsigned int));
+    if(!ptr){
+        printf("System Error: Memory allocation faild!\n");
+        return NULL;
+    }
+    return ptr;
+}  
+
+
 void *calloc_with_check(long units_num, long unit_size) {
-    /* TODO: split to malloc_with_check and calloc_with_check */
 	void *ptr = calloc(units_num, unit_size);
 	if (ptr == NULL)
 		printf("System Error: memory allocation failed\n");
@@ -77,7 +78,6 @@ void *calloc_with_check(long units_num, long unit_size) {
 }
 
 void *malloc_with_check(long size) {
-    /* TODO: split to malloc_with_check and calloc_with_check */
 	void *ptr = malloc(size);
 	if (ptr == NULL)
 		printf("System Error: memory allocation failed\n");

@@ -35,7 +35,7 @@ bool write_ob_file(char *file_name, multiVars *vars){
     IC   DC 
     */
     
-	fputs("convertDtoB32(5)", file);
+	fputs(convertDtoB32(IC), file);
     fputc('\t', file);
     fputs(convertDtoB32(DC), file);
     fputc('\n', file);
