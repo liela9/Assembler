@@ -34,17 +34,18 @@ bool write_ob_file(char *file_name, multiVars *vars){
     The first row_content => 
     IC   DC 
     */
-	fputs(convertDtoB32(IC), file);
+    
+	fputs("convertDtoB32(5)", file);
     fputc('\t', file);
     fputs(convertDtoB32(DC), file);
     fputc('\n', file);
 	
 
-    for(index = 0; index < sizeof(vars->commands_table)/8; index++)/*TODO : change the sizeof*/
+    for(index = 0; index < IC; index++)
         add_line_to_ob(index + FIRST_MEMORY_CELL ,vars->commands_table[index], file);
     
     
-    for(index = 0; index < sizeof(vars->data_table)/8; index++)/*TODO : change the sizeof*/
+    for(index = 0; index < DC; index++)
         add_line_to_ob(index + FIRST_MEMORY_CELL ,vars->data_table[index], file);
 		
 

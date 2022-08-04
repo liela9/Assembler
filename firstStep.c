@@ -3,6 +3,7 @@
 #include "converting.h"
 #include "lines.h"
 #include "label.h"
+#include "utils.h"
 
 /*The first step of the Assembler*/
 bool first_step(char *file_name, multiVars *vars){
@@ -12,12 +13,14 @@ bool first_step(char *file_name, multiVars *vars){
     char new_file_name[FILENAME_MAX];
     int op_code_index;
     bool there_is_error_flag;
-    
-	row_content	= NULL;
-	first_word = NULL;
-	second_word = NULL;
+    response_type response;
 
     there_is_error_flag = false;
+
+	row_content = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
+    first_word = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
+    second_word = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
+    entry_word = (char *)calloc_with_check(MAX_LABEL_LENGTH, sizeof(char));
 
     strcpy(new_file_name, file_name);
     strcat(new_file_name, AM_EXTENSION);/*Add the extension ".am" to the name of the file*/
@@ -47,15 +50,14 @@ bool first_step(char *file_name, multiVars *vars){
                 /*If the first word is extern*/
                 if(!strcmp(first_word, ".extern")){
                     printf("Warning: %s is extern\n", second_word);
-                    if(!insert_new_label(second_word, EXTERNAL, DC, vars))
-                        there_is_error_flag = true;
+                    if((response = insert_new_label(second_word, EXTERNAL, DC, vars)) != SUCCESS)
+                        break;
                 }
                 
                 /*If the first word is data/string/struct */
-                else if(!strcmp(first_word, ".data") || 
-                    !strcmp(first_word, ".string") ||!strcmp(first_word, ".struct"))
-                    create_data_line(row_content, vars->data_table, first_word);
-
+                else if(!strcmp(first_word, ".data") || !strcmp(first_word, ".string") ||!strcmp(first_word, ".struct"))
+                    if((response = create_data_line(row_content, vars->data_table, first_word)) != SUCCESS)
+                        break;
                     
                 /*If the first word is opcode*/    
                 else if((op_code_index = find_opcode(first_word)) != -1)
@@ -72,9 +74,9 @@ bool first_step(char *file_name, multiVars *vars){
                         if(entry_word)
                             insert_new_label(first_word, ENTRY, DC, vars);   
 
-                        else if(insert_new_label(first_word, DATA, DC, vars))
-                            vars->there_is_error_flag = true;
-                            
+                        else if((response = insert_new_label(first_word, DATA, DC, vars)) != SUCCESS)
+                            break;
+                        
                         create_data_line(row_content, vars->data_table, second_word);
                     }
 
@@ -85,14 +87,19 @@ bool first_step(char *file_name, multiVars *vars){
                 }
                 else{
                     /*The first word is not label\opcode\data\extern\entry*/ 
-                    printf("Error: %s is illegal\n", first_word);
-                    there_is_error_flag = true;
+                    printf("User Error: %s is illegal\n", first_word);
+                    response = USER_ERROR;
+                    break;
                 }
             }
         }
     }
+    free(row_content);
+    free(first_word);
+    free(second_word);
+    free(entry_word);
     fclose(file);
-    return !there_is_error_flag;
+    return response;
 }
 
 

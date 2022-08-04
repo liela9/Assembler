@@ -35,7 +35,7 @@ char** is_struct(char *op){
 unsigned int * realloc_check(int index, unsigned int *table){
     unsigned int *ptr;
     
-    ptr = (unsigned int*)realloc(table, index * sizeof(unsigned int));
+    ptr = (unsigned int*)realloc(table, ++index * sizeof(unsigned int));
     if(!ptr){
         printf("System Error: Memory allocation faild!\n");
         return NULL;
@@ -82,4 +82,11 @@ void *malloc_with_check(long size) {
 	if (ptr == NULL)
 		printf("System Error: memory allocation failed\n");
 	return ptr;
+}
+
+void reset_array(char *array){
+    int i;
+
+    for(i = 0; i < strlen(array); ++i)
+        array[i] = '\0';
 }
