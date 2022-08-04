@@ -15,9 +15,7 @@ response_type insert_new_label(char name[], int type, int address, multiVars *va
     
     new_node = NULL;
 
-    /* TODO: check if putting \0 manualy doesn't screw up "free" */
     name[strlen(name)-1] = '\0'; /*Remove the char ':' */
-
 
     if(label_exists(name, vars->head_label) || !valid_label_name(name)){
         printf("User Error: Illegal label name: %s!\n", name);

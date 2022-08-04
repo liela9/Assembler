@@ -6,22 +6,21 @@
 #include "utils.h"
 
 /*The first step of the Assembler*/
-bool first_step(char *file_name, multiVars *vars){
+response_type first_step(char *file_name, multiVars *vars){
     
     FILE *file;
     char *row_content, *first_word, *second_word, *entry_word;
     char new_file_name[FILENAME_MAX];
     int op_code_index;
-    bool there_is_error_flag;
     response_type response;
-
-    there_is_error_flag = false;
+    int line_counter = 0;
 
 	row_content = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
     first_word = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
     second_word = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
     entry_word = (char *)calloc_with_check(MAX_LABEL_LENGTH, sizeof(char));
 
+    reset_array(new_file_name);
     strcpy(new_file_name, file_name);
     strcat(new_file_name, AM_EXTENSION);/*Add the extension ".am" to the name of the file*/
     
@@ -29,6 +28,7 @@ bool first_step(char *file_name, multiVars *vars){
 
     /*Reads a line*/
     while(fgets(row_content, MAX_LINE_LENGTH, file)){
+        line_counter++;
         entry_word = NULL;
 
         /*Reads the first word of the line*/
@@ -49,15 +49,16 @@ bool first_step(char *file_name, multiVars *vars){
                 
                 /*If the first word is extern*/
                 if(!strcmp(first_word, ".extern")){
-                    printf("Warning: %s is extern\n", second_word);
+                    printf("Warning in %s line %d : %s is extern\n",file_name, line_counter, second_word);
                     if((response = insert_new_label(second_word, EXTERNAL, DC, vars)) != SUCCESS)
                         break;
                 }
                 
                 /*If the first word is data/string/struct */
-                else if(!strcmp(first_word, ".data") || !strcmp(first_word, ".string") ||!strcmp(first_word, ".struct"))
+                else if(!strcmp(first_word, ".data") || !strcmp(first_word, ".string") ||!strcmp(first_word, ".struct")){
                     if((response = create_data_line(row_content, vars->data_table, first_word)) != SUCCESS)
                         break;
+                }
                     
                 /*If the first word is opcode*/    
                 else if((op_code_index = find_opcode(first_word)) != -1)
@@ -87,7 +88,7 @@ bool first_step(char *file_name, multiVars *vars){
                 }
                 else{
                     /*The first word is not label\opcode\data\extern\entry*/ 
-                    printf("User Error: %s is illegal\n", first_word);
+                    printf("User Error in %s line %d : %s is illegal\n", file_name, line_counter, first_word);
                     response = USER_ERROR;
                     break;
                 }

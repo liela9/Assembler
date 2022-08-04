@@ -3,7 +3,7 @@
 
 
 /*Functions of file 'firsStep.c'*/
-bool first_step(char *, multiVars *);
+response_type first_step(char *, multiVars *);
 int find_opcode(char *);
 void find_group( int , multiVars *);
 
