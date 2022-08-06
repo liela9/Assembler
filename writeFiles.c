@@ -8,7 +8,7 @@
 #define FIRST_MEMORY_CELL 100
 
 
-/*Calls the functions of writing the three files*/
+/*Calls the functions for writing the three files*/
 bool write_files(char *file_name, multiVars *vars){
     
     return (write_ob_file(file_name, vars) && write_ext_ent_files(file_name, vars));
@@ -34,7 +34,6 @@ bool write_ob_file(char *file_name, multiVars *vars){
     The first row_content => 
     IC   DC 
     */
-    
 	fputs(convertDtoB32(IC), file);
     fputc('\t', file);
     fputs(convertDtoB32(DC), file);

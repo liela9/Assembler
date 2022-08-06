@@ -8,51 +8,27 @@
 response_type pre_assembler(char *file_name){
     FILE *file_to_read, *file_to_write;
     char line[MAX_LINE_LENGTH], copy_line[MAX_LINE_LENGTH];
-    char *current_word, new_file_name[FILENAME_MAX];
-    ptr_macro head_macro, current_macro, new_macro;
-    bool in_macro_flag;
-    response_type response;
+    ptr_macro new_macro, head_macro = NULL, current_macro = NULL;
+    bool in_macro_flag = false;
+    response_type response = SUCCESS;
     int line_counter = 0;
+    char *current_word = NULL;
 
-
-    file_to_read = fopen(file_name, "r");
-    if(!file_to_read) {
-        printf("User Error: Could not open file: %s\n", file_name);
+    if (!(file_to_read = open_file_with_extension(file_name, AS_EXTENSION, "r")) || 
+            !(file_to_write = open_file_with_extension(file_name, AM_EXTENSION, "w")))
         return USER_ERROR;
-    }
 
-    strcpy(new_file_name, file_name);
-    strcat(new_file_name, AM_EXTENSION); /*Linking the extension .am to the file's name*/
-    file_to_write = fopen(new_file_name, "w");
-    if(!file_to_write){
-        printf("System Error: Could not create file: %s\n", new_file_name);
-        fclose(file_to_read);
-        return SYSTEM_ERROR;
-    }
-    
-    in_macro_flag = false;
-    response = SUCCESS;
-    head_macro = NULL;
-    current_macro = NULL;
-
-    current_word = calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
-
-    reset_array(line);
     /*Reads a line*/
     while(fgets(line, MAX_LINE_LENGTH, file_to_read)){
         line_counter++;
-        reset_array(copy_line);
         strcpy(copy_line, line);
 
-        reset_array(current_word);
-        strcpy(current_word, strtok(copy_line, " \t\n"));
+        current_word = strtok(copy_line, " \t\n");
 
         if (!in_macro_flag) {
             /*If the current word is "macro"*/
             if(!strcmp(current_word, MACRO_WORD)){
-                reset_array(current_word);
-                strcpy(current_word, strtok(NULL, " \t\n"));
-
+                current_word = strtok(NULL, " \t\n");
                 if(!current_word ){
                     printf("User Error in %s: line %d : macro must have a name\n", file_name, line_counter);
                     response = USER_ERROR;
@@ -62,9 +38,7 @@ response_type pre_assembler(char *file_name){
                     response = USER_ERROR;
                 }
                 else {
-                    reset_array(current_word);
-                    strcpy(current_word, strtok(NULL, " \t\n"));
-                    if(current_word){
+                    if(strtok(NULL, " \t\n")){
                         printf("User Error in %s: line %d : extra content after macro name!\n", file_name, line_counter);
                         response = USER_ERROR;
                     }
@@ -100,16 +74,13 @@ response_type pre_assembler(char *file_name){
                 strcat(current_macro->macro_content, line);
                 /*Add the content (the line) to the variable "macro_content"*/
             else{
-                reset_array(current_word);
-                strcpy(current_word, strtok(NULL, " \t\n"));
-                if(current_word){
+                if(strtok(NULL, " \t\n")){
                     printf("User Error in %s: line %d : extra content after 'endmacro'!\n", file_name, line_counter);
                     response = USER_ERROR;
                 }
                 in_macro_flag = false;
             }
         }
-        reset_array(line);
     }
 
     fclose(file_to_write);

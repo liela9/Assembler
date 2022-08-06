@@ -1,6 +1,7 @@
 #include "constants.h"
 #include "macro.h"
 #include "utils.h"
+#include "free.h"
 
 /*Insert new macro to the list*/
 ptr_macro create_macro_node(char *macro_id){
