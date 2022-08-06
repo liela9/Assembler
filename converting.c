@@ -1,7 +1,10 @@
+#include <math.h>
+#include <string.h> 
 #include "constants.h"
 #include "constants.c"
 #include "converting.h"
 #include "utils.h"
+
 
 #define BIN_MACHINE_CODE_LENGTH 10
 #define TEN_BITS_OF_ONE 1023
@@ -44,71 +47,37 @@ unsigned long convertDtoB(int decimal_number){
 }
 
 
-/* Converts binary number to decimal */
-int convertBtoD(unsigned long bin_number){
-    int decimal_number, remainder, index;
+int convertBtoD(unsigned long bin_number)  
+{  
+    int decimal_num = 0, temp = 0, reminder;
 
-    decimal_number = 0;
-    index = 1;
-
-    while(bin_number > 0){
-        remainder = bin_number % BIN_MACHINE_CODE_LENGTH;
-        bin_number /= BIN_MACHINE_CODE_LENGTH;
-        decimal_number += remainder * index;
-        index *= 2;
-    }
-
-    return decimal_number;
-}
+    while (bin_number != 0)  
+    {  
+        reminder = bin_number % 10;
+        bin_number = bin_number / 10;
+        decimal_num = decimal_num + reminder * pow(2, temp);
+        temp++;  
+    }  
+    return decimal_num;  
+}  
 
 
 /* Converts decimal number to base32 */
 char *convertDtoB32(int decimal_number) {
-    int remainder, index;
     char str[LENGTH_OF_32_ITEM];
+    int remainder, i;
     
-    index = 0;
-    reset_array(str);
-
-    while (decimal_number > 0) {
+    for (i=0; i < LENGTH_OF_32_ITEM; ++i) {
         remainder = decimal_number % 32;
-        str[index] = (base32[remainder]);
+        str[i] = (base32[remainder]);
         decimal_number /= 32;
-        index++;
     }
 
-    return reverstr(str);
+    return strrev(str);
 }
 
 /* Converts binary number to base32 */
 char* convertBtoB32(unsigned long binary_number) {
-    int remainder, index;
-    int decimal_number;
-    char str[LENGTH_OF_32_ITEM];
-    
-    index = 0;
-    reset_array(str);
-    decimal_number = convertBtoD(binary_number);
-
-    while (decimal_number > 0) {
-        remainder = decimal_number % 32;
-        str[index] = (base32[remainder]);
-        decimal_number /= 32;
-        index++;
-    }
-
-    return reverstr(str);
-}
-
-
-/* Revers the string */
-char *reverstr(char str[]){
-	char temp;
-	
-    temp = str[0];
-    str[0] = str[1];
-    str[1] = temp;
-
-	return str;
+    return convertDtoB32(convertBtoD(binary_number));
 }
 

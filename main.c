@@ -8,7 +8,7 @@
 #include "utils.h"
 
 int main(int argc, char *argv[]){
-    int index;
+    int i;
 
     if(argc == 1){/*If there are no names of files in the command line*/
         printf("User Error: Missing name of file/s\n");
@@ -16,8 +16,8 @@ int main(int argc, char *argv[]){
     }
     
 
-    for(index = 1; index < argc; index++){
-        if (process_file(argv[index]) == SYSTEM_ERROR) {
+    for(i = 1; i < argc; i++){
+        if (process_file(argv[i]) == SYSTEM_ERROR) {
             printf("Program encountered internal error. Shutting down\n");
             return (1);
         }
@@ -39,8 +39,8 @@ response_type process_file(char *file_name){
     vars->tail_label = NULL;
     vars->head_label_apear = NULL;
     vars->tail_label_apear = NULL;
-    vars->data_table = NULL;
-    vars->commands_table = NULL;
+    vars->head_data = NULL;
+    vars->head_commands = NULL;
 
     if((response = pre_assembler(file_name)) == SUCCESS) { /*Can't proceed if encoutered error */
         if(!first_step(file_name, vars))

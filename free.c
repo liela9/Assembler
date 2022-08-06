@@ -2,69 +2,26 @@
 #include "free.h"
 
 
-/*
-#define FREE(type, head)    type temp;\
-                            while (head) {\
-                                temp = head;\
-                                head = head->next;\
-                                free(temp);\
-                            }
-                  
-
-
-Free all the lists in the project
 void free_lists(multiVars *vars){
-
-    FREE(ptr_label, vars->head_label)
-    FREE(ptr_label_apearence, vars->head_label_apear)
-    free(vars->data_table);
-    free(vars->commands_table);
-}
-*/
-
-/*
-void free_label_list(ptr_label head){
-    ptr_label temp;
-
-    while (head) {
-        temp = head;
-        head = head->next;
-        free(temp);
-    }
-}
-*/   
-
-void free_lists(multiVars *vars){
-
     free_label_list(vars->head_label);
-    free_labelApearence_list(vars->head_label_apear);
-    
-    if (vars->data_table)
-        free(vars->data_table);
-    if (vars->commands_table)
-        free(vars->commands_table);
+    free_label_apearence_list(vars->head_label_apear);
+    free_data_list(vars->head_data);
+    free_commands_list(vars->head_commands);
 }
-
 
 void free_label_list(ptr_label head){
-    ptr_label temp;
-
-    while (head) {
-        temp = head;
-        head = head->next;
-        free(temp);
-    }
+    FREE_LIST(ptr_label, head)
 }
 
-void free_labelApearence_list(ptr_label_apearence head){
-    ptr_label_apearence temp;
-
-    while (head) {
-        temp = head;
-        head = head->next;
-        free(temp);
-    }
+void free_label_apearence_list(ptr_label_apearence head){
+    FREE_LIST(ptr_label_apearence, head)
 }
 
+void free_data_list(ptr_data head){
+    FREE_LIST(ptr_data, head)
+}
 
+void free_commands_list(ptr_commands head){
+    FREE_LIST(ptr_commands, head)
+}
 

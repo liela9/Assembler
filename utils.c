@@ -58,17 +58,6 @@ bool is_saved_words(char *name){
 }
 
 
-unsigned int * realloc_with_check(int index, unsigned int *table){
-    unsigned int *ptr;
-    
-    ptr = (unsigned int*)realloc(table, ++index * sizeof(unsigned int));
-    if(!ptr){
-        printf("System Error: Memory allocation faild!\n");
-        return NULL;
-    }
-    return ptr;
-}  
-
 
 void *calloc_with_check(long units_num, long unit_size) {
 	void *ptr = calloc(units_num, unit_size);
@@ -89,4 +78,17 @@ void reset_array(char *array){
 
     for(i = 0; i < strlen(array); ++i)
         array[i] = '\0';
+}
+
+FILE *open_file_with_extension(char *file_name, char *extension, char *mode) {
+    char new_file_name[FILENAME_MAX]; /* TODO: Find out if can use it */
+    FILE *ret_file;
+
+    strcpy(new_file_name, file_name);
+    strcat(new_file_name, AM_EXTENSION); /*Linking the extension to the file's name*/
+    
+    ret_file = fopen(new_file_name, mode);
+    if(!ret_file)
+        printf("User Error: Could not open file: %s\n", new_file_name);
+    return ret_file;
 }

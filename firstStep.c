@@ -4,32 +4,34 @@
 #include "lines.h"
 #include "label.h"
 #include "utils.h"
+#include "dataList.h"
+
 
 /*The first step of the Assembler*/
 response_type first_step(char *file_name, multiVars *vars){
     
     FILE *file;
-    char *row_content, *first_word, *second_word, *entry_word;
-    char new_file_name[FILENAME_MAX];
+    char *row_content, *first_word, *second_word;
     int op_code_index;
-    response_type response;
+    bool entry_word_flag;
+    response_type response = SUCCESS;
     int line_counter = 0;
 
-	row_content = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
-    first_word = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
-    second_word = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
-    entry_word = (char *)calloc_with_check(MAX_LABEL_LENGTH, sizeof(char));
+    if (!(file = open_file_with_extension(file_name, AM_EXTENSION, "r")))
+        return SYSTEM_ERROR;
 
-    reset_array(new_file_name);
-    strcpy(new_file_name, file_name);
-    strcat(new_file_name, AM_EXTENSION);/*Add the extension ".am" to the name of the file*/
+
+
+
+	row_content = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
+    /*first_word = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
+    second_word = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));*/
     
-    file = fopen(new_file_name, "r");
 
     /*Reads a line*/
     while(fgets(row_content, MAX_LINE_LENGTH, file)){
         line_counter++;
-        entry_word = NULL;
+        entry_word_flag = false;
 
         /*Reads the first word of the line*/
         if((first_word = strtok(row_content, " \t\r"))){
@@ -38,9 +40,9 @@ response_type first_step(char *file_name, multiVars *vars){
                 continue;/*Continue to the next line*/
             
             /*If it is entry*/
-            else if(!strcmp(first_word, ".entry")){
+            else if(!strcmp(first_word, ENTRY_WORD)){
                 /*Save the entry label name locally and continue to the next line*/
-                entry_word = strtok(NULL, " \t\r");
+                entry_word_flag = true;
                 continue;
             }
 
@@ -48,15 +50,15 @@ response_type first_step(char *file_name, multiVars *vars){
             if((second_word = strtok(NULL, " \t\r"))){
                 
                 /*If the first word is extern*/
-                if(!strcmp(first_word, ".extern")){
+                if(!strcmp(first_word, EXTERN_WORD)){
                     printf("Warning in %s line %d : %s is extern\n",file_name, line_counter, second_word);
                     if((response = insert_new_label(second_word, EXTERNAL, DC, vars)) != SUCCESS)
                         break;
                 }
                 
                 /*If the first word is data/string/struct */
-                else if(!strcmp(first_word, ".data") || !strcmp(first_word, ".string") ||!strcmp(first_word, ".struct")){
-                    if((response = create_data_line(row_content, vars->data_table, first_word)) != SUCCESS)
+                else if(!strcmp(first_word, DATA_WORD) || !strcmp(first_word, STRING_WORD) ||!strcmp(first_word, STRUCT_WORD)){
+                    if((response = create_data_line(row_content, first_word)) != SUCCESS)
                         break;
                 }
                     
@@ -68,17 +70,17 @@ response_type first_step(char *file_name, multiVars *vars){
                 else if(strlen(first_word) > 1 && first_word[strlen(first_word)-1] == ':'){
                     
                     /*If the second word is data/string/struct */
-                    if(!strcmp(second_word, ".data") ||
-                       !strcmp(second_word, ".string") ||
-                       !strcmp(second_word, ".struct")){
+                    if(!strcmp(second_word, DATA_WORD) ||
+                       !strcmp(second_word, STRING_WORD) ||
+                       !strcmp(second_word, STRUCT_WORD)){
                         
-                        if(entry_word)
+                        if(entry_word_flag)
                             insert_new_label(first_word, ENTRY, DC, vars);   
 
                         else if((response = insert_new_label(first_word, DATA, DC, vars)) != SUCCESS)
                             break;
                         
-                        create_data_line(row_content, vars->data_table, second_word);
+                        create_data_line(row_content, second_word);
                     }
 
                     /*If the second word is opcode*/
@@ -98,7 +100,6 @@ response_type first_step(char *file_name, multiVars *vars){
     free(row_content);
     free(first_word);
     free(second_word);
-    free(entry_word);
     fclose(file);
     return response;
 }
