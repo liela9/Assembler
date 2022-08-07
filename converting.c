@@ -1,13 +1,14 @@
 #include <math.h>
-#include <string.h> 
 #include "constants.h"
-#include "constants.c"
 #include "converting.h"
 #include "utils.h"
 
 
 #define BIN_MACHINE_CODE_LENGTH 10
 #define TEN_BITS_OF_ONE 1023
+
+const char base32[BASE_LENGTH] = {'!', '@', '#', '$', '%', '^', '&', '*', '<', '>', 'a', 'b', 
+'c', 'd', 'e', 'f', 'g','h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v'};
 
 
 /* Converts decimal number to binary with the Two's complement method */
@@ -73,11 +74,22 @@ char *convertDtoB32(int decimal_number) {
         decimal_number /= 32;
     }
 
-    return strrev(str);
+    return reverse_str(str);
 }
 
 /* Converts binary number to base32 */
 char* convertBtoB32(unsigned long binary_number) {
     return convertDtoB32(convertBtoD(binary_number));
+}
+
+char *reverse_str(char *str){
+    char c, *front, *back;
+
+    if(!str || !*str)
+        return str;
+    for(front=str,back=str+strlen(str)-1;front < back;front++,back--){
+        c=*front;*front=*back;*back=c;
+    }
+    return str;
 }
 

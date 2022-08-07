@@ -21,9 +21,7 @@ response_type first_step(char *file_name, multiVars *vars){
         return SYSTEM_ERROR;
 
 
-
-
-	row_content = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
+    row_content = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
     /*first_word = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
     second_word = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));*/
     
@@ -34,7 +32,7 @@ response_type first_step(char *file_name, multiVars *vars){
         entry_word_flag = false;
 
         /*Reads the first word of the line*/
-        if((first_word = strtok(row_content, " \t\r"))){
+        if((first_word = strtok(row_content, " ,\t\r"))){
             /*If it is comment or empty line*/
             if(!strcmp(first_word, ";") || first_word == NULL)
                 continue;/*Continue to the next line*/
@@ -47,12 +45,12 @@ response_type first_step(char *file_name, multiVars *vars){
             }
 
             /*Reads the second word of the line*/
-            if((second_word = strtok(NULL, " \t\r"))){
+            if((second_word = strtok(NULL, " ,\t\r"))){
                 
                 /*If the first word is extern*/
                 if(!strcmp(first_word, EXTERN_WORD)){
                     printf("Warning in %s line %d : %s is extern\n",file_name, line_counter, second_word);
-                    if((response = insert_new_label(second_word, EXTERNAL, DC, vars)) != SUCCESS)
+                    if((response = create_label_node(second_word, EXTERNAL, DC, vars)) != SUCCESS)
                         break;
                 }
                 
@@ -75,17 +73,17 @@ response_type first_step(char *file_name, multiVars *vars){
                        !strcmp(second_word, STRUCT_WORD)){
                         
                         if(entry_word_flag)
-                            insert_new_label(first_word, ENTRY, DC, vars);   
-
-                        else if((response = insert_new_label(first_word, DATA, DC, vars)) != SUCCESS)
-                            break;
-                        
-                        create_data_line(row_content, second_word);
+                            create_label_node(first_word, ENTRY, DC, vars);   
                     }
 
                     /*If the second word is opcode*/
-                    else if((op_code_index = find_opcode(second_word)) != -1)
+                    if((op_code_index = find_opcode(second_word)) != -1)
                         find_group(op_code_index, vars);
+
+                    else if((response = create_label_node(first_word, DATA, DC, vars)) != SUCCESS)
+                        break;
+
+                    else create_data_line(row_content, second_word);
                 
                 }
                 else{
@@ -102,18 +100,6 @@ response_type first_step(char *file_name, multiVars *vars){
     free(second_word);
     fclose(file);
     return response;
-}
-
-
-/*Finds opcode index by opcode name*/
-int find_opcode(char *str){
-    int i;
-
-    for(i = 0; i < OPCODE_LENGTH; i++)
-        if(!strcmp(str, opcode[i]))
-            return i;
-    
-    return -1;
 }
 
 /*Finds the group of the opcode by it's index.

@@ -6,24 +6,23 @@
 
 /*The second step of the Assembler*/
 bool second_step(multiVars *vars){
-	int index;
 	char label_name[MAX_LABEL_LENGTH];
-	ptr_label_apearence temp_label_apear;
-	ptr_label temp_label;
-
-	temp_label = vars->head_label;
-	temp_label_apear = vars->head_label_apear;
+	int index = 0;
+	ptr_label_apearence temp_label_apear = vars->head_label_apear;
+	ptr_label temp_label= vars->head_label;
+	ptr_commands temp_commands = vars->head_commands;
 	
 	/*While it is not the end of the list*/
-	for(index = 0; sizeof(vars->commands_table[index])/8; index++){
+	while(temp_commands){
+		index++;
 		/*Finds the lines without binary code*/
-		if(vars->commands_table[index] == '?'){
+		if(temp_commands->code == '?'){
 		
 			temp_label_apear = vars->head_label_apear;
 
-			/* Finds the name of label */
+			/* Finds the name of the label */
 			while (temp_label_apear){
-				if((temp_label_apear->index_in_commands_table) == index){
+				if((temp_label_apear->index_in_commands_list) == index){
 					reset_array(label_name);
 					strcpy(label_name, temp_label_apear->name);
 					continue;
@@ -36,16 +35,16 @@ bool second_step(multiVars *vars){
             /* Finds the address of the label and replace the '?' by it*/
 			while(temp_label){
 				if(!strcmp(temp_label->name, label_name))
-      				vars->commands_table[index] = convertDtoB(temp_label->dec_address);
+      				temp_commands->code = convertDtoB(temp_label->dec_address);
       				continue;
       			temp_label = temp_label->next;
       		}
 		}
+		temp_commands = temp_commands->next;
 	}
-
 	free(temp_label);
 	free(temp_label_apear);
+	free(temp_commands);
 	return true;
 }
-
 

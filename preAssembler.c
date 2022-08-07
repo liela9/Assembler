@@ -1,7 +1,7 @@
 #include "constants.h"
-#include "preAssembler.h"
 #include "macro.h"
 #include "utils.h"
+#include "preAssembler.h"
 
 
 /*Copeis the input file and pastes the macros*/
@@ -33,7 +33,7 @@ response_type pre_assembler(char *file_name){
                     printf("User Error in %s: line %d : macro must have a name\n", file_name, line_counter);
                     response = USER_ERROR;
                 }
-                else if((macro_exists(head_macro, current_word)) || is_saved_words(current_word)){
+                else if((macro_exists(head_macro, current_word)) || is_reserved_word(current_word)){
                     printf("User Error: can't add new macro '%s'.\n", current_word);
                     response = USER_ERROR;
                 }

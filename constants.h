@@ -4,20 +4,18 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <errno.h>
 
 #define BASE_LENGTH 32
 #define NUM_OF_REGISTERS 8
-#define OPCODE_LENGTH 16
-#define NUM_OF_SAVED_WORDS 7
+#define NUM_OF_OPCODES 16
+#define NUM_OF_RESERVED_WORDS 7
 #define MAX_LINE_LENGTH 81
 #define MAX_LABEL_LENGTH 30
 #define AM_EXTENSION ".am"
 
 const char base32[BASE_LENGTH];
 const char registers[NUM_OF_REGISTERS][2];
-const char opcode[OPCODE_LENGTH][3]; 
-const char* saved_words[NUM_OF_SAVED_WORDS];
+const char opcode[NUM_OF_OPCODES][3];
 
 int IC; /*Instruction counter*/
 int DC;/*Data counter*/
@@ -35,7 +33,7 @@ A linked list of macros.
 typedef struct macro *ptr_macro;
 typedef struct macro{
     
-    char *macro_id; /*Name of the macro*/
+    char macro_id[MAX_LABEL_LENGTH]; /*Name of the macro*/
     char *macro_content; /*Content of the macro*/
     ptr_macro next;
 }macro;
@@ -43,7 +41,7 @@ typedef struct macro{
 
 
 /*
-
+A linked list of data code lines.
 */
 typedef struct data *ptr_data;
 typedef struct data{
@@ -55,7 +53,7 @@ typedef struct data{
 
 
 /*
-
+A linked list of commands code lines.
 */
 typedef struct commands *ptr_commands;
 typedef struct commands{
@@ -79,14 +77,14 @@ typedef struct label{
 
 
 /*
-A linked list of unknown labels in the commands_table.
-Assists to complete the commands_table in second step.
+A linked list of unknown labels in the commands list.
+Assists to complete the commands list in second step.
 */
 typedef struct labelApearance *ptr_label_apearence;
 typedef struct labelApearance{
     
     char name[MAX_LABEL_LENGTH];/*Label name*/
-    int index_in_commands_table;
+    int index_in_commands_list;
     /*Contains the index of unknown label line at the first step*/
     ptr_label_apearence next;
 }labelApearance;
@@ -105,7 +103,6 @@ typedef struct multiVars{
     ptr_data head_data;
     ptr_commands head_commands;
 }multiVars;
-
 
 
 #endif 
