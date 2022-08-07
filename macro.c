@@ -6,17 +6,13 @@
 /*Insert new macro to the list*/
 ptr_macro create_macro_node(char *macro_id){
     ptr_macro new_node;
-    new_node = NULL;
-    
-    if (!(new_node = (ptr_macro)malloc_with_check(sizeof(macro))))
+
+    new_node = (ptr_macro)calloc_with_check(1, sizeof(macro));
+    if (!new_node)
         return NULL;
 
-    if (!(new_node->macro_id = (char *)malloc_with_check(sizeof(macro_id)))){ 
-        free(new_node);
-        return NULL;
-    }
-
-    if (!(new_node->macro_content = (char *)calloc_with_check(MAX_LINE_LENGTH * MACRO_MAX_LINE_NUMBER, sizeof(char)))){ 
+    new_node->macro_content = (char *)calloc_with_check(MAX_LINE_LENGTH * MACRO_MAX_LINE_NUMBER, sizeof(char));
+    if (!new_node->macro_content){ 
         free(new_node->macro_id);
         free(new_node);
         return NULL;
@@ -54,7 +50,6 @@ void free_macro_list(ptr_macro head_macro) {
         temp = head_macro;
         head_macro = head_macro->next;
         free(temp->macro_content);
-        free(temp->macro_id);
         free(temp);
     }
 }

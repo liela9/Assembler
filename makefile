@@ -1,5 +1,5 @@
-project : main.o preAssembler.o firstStep.o secondStep.o macro.o converting.o label.o lines.o writeFiles.o utils.o free.o
-	gcc -g -Wall -ansi -pedantic main.o preAssembler.o firstStep.o secondStep.o macro.o converting.o label.o lines.o writeFiles.o utils.o free.o -o project
+project : main.o preAssembler.o firstStep.o secondStep.o macro.o converting.o label.o lines.o writeFiles.o utils.o free.o dataList.o commandsList.o
+	gcc -g -Wall -ansi -pedantic main.o preAssembler.o firstStep.o secondStep.o macro.o converting.o label.o lines.o writeFiles.o utils.o free.o dataList.o commandsList.o -o project
 
 main.o : main.c constants.h
 	gcc -g -Wall -ansi -pedantic -c main.c -o main.o
@@ -34,3 +34,8 @@ utils.o : utils.c constants.h utils.h
 free.o : free.c constants.h free.h
 	gcc -g -Wall -ansi -pedantic -c free.c -o free.o
 
+dataList.o : dataList.c constants.h dataList.h 
+	gcc -g -Wall -ansi -pedantic -c dataList.c -o dataList.o
+	
+commandsList.o : commandsList.c constants.h commandsList.h
+	gcc -g -Wall -ansi -pedantic -c commandsList.c -o commandsList.o

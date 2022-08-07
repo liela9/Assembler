@@ -10,10 +10,8 @@
 
 
 /*Inserts new label to the labels list*/
-response_type insert_new_label(char name[], int type, int address, multiVars *vars){
+response_type create_label_node(char *name, int type, int address, multiVars *vars){
     ptr_label new_node;
-    
-    new_node = NULL;
 
     name[strlen(name)-1] = '\0'; /*Remove the char ':' */
 
@@ -22,27 +20,24 @@ response_type insert_new_label(char name[], int type, int address, multiVars *va
         return USER_ERROR;
     }
 
-    else{
-        new_node = (ptr_label) malloc_with_check(sizeof(label));
-        if(!new_node)
-            return SYSTEM_ERROR;
+    new_node = (ptr_label) calloc_with_check(1, sizeof(label));
+    if(!new_node)
+        return SYSTEM_ERROR;
+    
+    /*Fills the values*/
+    strcpy(new_node->name, name);
+    new_node->type = type;
+    new_node->dec_address = address;
+    new_node->next = NULL;
 
-        reset_array(new_node->name);
-        
-        /*Fills the values*/
-        strcpy(new_node->name, name);
-        new_node->type = type;
-        new_node->dec_address = address;
-        new_node->next = NULL;
-
-        if(!(vars->head_label)){
-            vars->head_label = new_node;
-            vars->tail_label = new_node;
-        }
-        
-        vars->tail_label->next = new_node;
-        *vars->tail_label = *new_node;
+    if(!(vars->head_label)){
+        vars->head_label = new_node;
+        vars->tail_label = new_node;
     }
+    
+    vars->tail_label->next = new_node;
+    *vars->tail_label = *new_node;
+    
     return SUCCESS;   
 }
 
@@ -76,7 +71,7 @@ bool valid_label_name(char *name){
             return false;
     }
 
-	return name[0] && len <= MAX_LABEL_LENGTH && !is_saved_words(name);
+	return name[0] && len <= MAX_LABEL_LENGTH && !is_reserved_word(name);
 }
 
 

@@ -1,77 +1,85 @@
 #include "constants.h"
 #include "utils.h"
 
+const char registers[NUM_OF_REGISTERS][2] = {"r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"};
+
+const char opcode[NUM_OF_OPCODES][3] = {"mov", "cmp", "add", "sub", "not", "clr", "lea", "inc", 
+"dec", "jmp", "bne", "get", "prn", "jsr", "rts", "hlt"}; 
+
+static const char *reserved_words[NUM_OF_RESERVED_WORDS] = {"data", "string", "struct", "entry", "extern", "macro", "endmacro"};
+
+bool is_reserved_word(char *word) {
+    int i;
+
+    /*Checks if it is a name of register*/
+    for(i = 0; i < NUM_OF_REGISTERS; ++i){
+        if(!strcmp(word, registers[i]))
+            return true;
+    }
+
+    /*Checks if it is a name of opcode*/
+    for(i = 0; i < NUM_OF_OPCODES; ++i){
+        if(!strcmp(word, opcode[i]))
+            return true;
+    }
+        /*Checks if it is a guidance word*/
+    for(i = 0; i < NUM_OF_RESERVED_WORDS; ++i){
+        if(!strcmp(word, reserved_words[i]))
+            return true;
+    }
+    return false;
+}
+
+
+/*Finds opcode index by opcode name*/
+int find_opcode(char *str){
+    int i;
+
+    for(i = 0; i < NUM_OF_OPCODES; ++i)
+        if(!strcmp(str, opcode[i]))
+            return i;
+    
+    return -1;
+}
 
 /*Checks if the operand is register*/
-int is_register(char *op){
+int is_register(char *operand){
     
     int i;
-    for(i = 0; i < NUM_OF_REGISTERS; i++){
-        if(strcmp(op, registers[i]))
+    for(i = 0; i < NUM_OF_REGISTERS; ++i){
+        if(!strcmp(operand, registers[i]))
             return i;
     }
     return -1;
 }
 
 
-/*Splits the name of struct and the index after the point*/
-char** is_struct(char *op){
+/*Splits the name of the struct and the index after the point*/
+char** is_struct(char *operand){
     char **struct_val[2];
     
     struct_val[0] = NULL;
     struct_val[1] = NULL;
 
-    while (op){
-        if(*op == '.'){
-            (*struct_val)[0] = strtok(op, ".");
+    while (operand){
+        if(*operand == '.'){
+            (*struct_val)[0] = strtok(operand, ".");
             (*struct_val)[1] = strtok(NULL, ".");
         }
     }
     return *struct_val;
 }
 
-  
-
-/*Checks if it is a saved word of the system*/
-bool is_saved_words(char *name){ 
-    int index;
-    
-    /*Checks if it is a name of register*/
-    for(index = 0; index < NUM_OF_REGISTERS; index++){
-        if(!strcmp(name, registers[index]))
-            return true;
-    }
-
-    /*Checks if it is a name of opcode*/
-    for(index = 0; index < OPCODE_LENGTH; index++){
-        if(!strcmp(name, opcode[index]))
-            return true;
-    }
-
-    /*Checks if it is a guidance word*/
-    for(index = 0; index < NUM_OF_SAVED_WORDS; index++){
-        if(!strcmp(name, saved_words[index]))
-            return true;
-    }
-
-    return false;
-}
-
 
 
 void *calloc_with_check(long units_num, long unit_size) {
 	void *ptr = calloc(units_num, unit_size);
-	if (ptr == NULL)
+	
+    if (!ptr)
 		printf("System Error: memory allocation failed\n");
 	return ptr;
 }
 
-void *malloc_with_check(long size) {
-	void *ptr = malloc(size);
-	if (ptr == NULL)
-		printf("System Error: memory allocation failed\n");
-	return ptr;
-}
 
 void reset_array(char *array){
     int i;
@@ -80,12 +88,13 @@ void reset_array(char *array){
         array[i] = '\0';
 }
 
+
 FILE *open_file_with_extension(char *file_name, char *extension, char *mode) {
     char new_file_name[FILENAME_MAX]; /* TODO: Find out if can use it */
     FILE *ret_file;
 
     strcpy(new_file_name, file_name);
-    strcat(new_file_name, AM_EXTENSION); /*Linking the extension to the file's name*/
+    strcat(new_file_name, extension); /*Linking the extension to the file's name*/
     
     ret_file = fopen(new_file_name, mode);
     if(!ret_file)

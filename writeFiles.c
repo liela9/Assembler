@@ -2,11 +2,6 @@
 #include "writeFiles.h"
 #include "converting.h"
 
-#define ENT_FILE ".ent"
-#define EXT_FILE ".ext"
-#define OB_FILE ".ob"
-#define FIRST_MEMORY_CELL 100
-
 
 /*Calls the functions for writing the three files*/
 bool write_files(char *file_name, multiVars *vars){
@@ -18,11 +13,13 @@ bool write_files(char *file_name, multiVars *vars){
 /*Creates and writes the .ob file*/
 bool write_ob_file(char *file_name, multiVars *vars){
     FILE *file;
-    int index;
 	char new_file_name[FILENAME_MAX];
+    int index = 0;
+    ptr_commands temp_commands = vars->head_commands;
+    ptr_data temp_data = vars->head_data;
 
 	strcpy(new_file_name, file_name);
-    strcat(new_file_name, OB_FILE);/*Linking the extention .ob to the file's name*/
+    strcat(new_file_name, OB_EXTENSION);/*Linking the extention .ob to the file's name*/
 
     file = fopen(new_file_name, "w");
     if(!file){
@@ -40,13 +37,15 @@ bool write_ob_file(char *file_name, multiVars *vars){
     fputc('\n', file);
 	
 
-    for(index = 0; index < IC; index++)
-        add_line_to_ob(index + FIRST_MEMORY_CELL ,vars->commands_table[index], file);
+    while(temp_commands){
+        add_line_to_ob(index + FIRST_MEMORY_CELL, temp_commands->code, file);
+        index++;
+    }
     
-    
-    for(index = 0; index < DC; index++)
-        add_line_to_ob(index + FIRST_MEMORY_CELL ,vars->data_table[index], file);
-		
+    while(temp_data){
+        add_line_to_ob(index + FIRST_MEMORY_CELL, temp_data->code, file);
+        index++;
+    }
 
     fclose(file);
     return true;
@@ -73,8 +72,8 @@ bool write_ext_ent_files(char *file_name, multiVars *vars){
 	strcpy(ent_name, file_name);
 
     /*Linking the extention .ext .ent to the file's name*/
-    strcat(ext_name, EXT_FILE);
-    strcat(ent_name, ENT_FILE);
+    strcat(ext_name, EXT_EXTENSION);
+    strcat(ent_name, ENT_EXTENSION);
 
     fext = fopen(ext_name, "w");
     fent = fopen(ent_name, "w");

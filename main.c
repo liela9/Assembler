@@ -8,6 +8,7 @@
 #include "utils.h"
 
 int main(int argc, char *argv[]){
+
     int i;
 
     if(argc == 1){/*If there are no names of files in the command line*/
@@ -15,8 +16,7 @@ int main(int argc, char *argv[]){
         return(1);
     }
     
-
-    for(i = 1; i < argc; i++){
+    for(i = 1; i < argc; ++i){
         if (process_file(argv[i]) == SYSTEM_ERROR) {
             printf("Program encountered internal error. Shutting down\n");
             return (1);
@@ -31,7 +31,7 @@ response_type process_file(char *file_name){
     multiVars *vars; 
     response_type response;
 
-    vars = (multiVars *)malloc_with_check(sizeof(multiVars));
+    vars = (multiVars *)calloc_with_check(1, sizeof(multiVars));
     if (!vars)
         return SYSTEM_ERROR;
 

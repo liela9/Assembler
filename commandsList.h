@@ -1,7 +1,6 @@
-#ifndef MACRO_H
-#define MACRO_H
+#ifndef COMMANDS_H
+#define COMMANDS_H
 
-/*Functions of file 'dataList.c'*/
 ptr_commands create_commands_node(unsigned long );
 
 #endif

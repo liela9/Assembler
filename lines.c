@@ -134,7 +134,7 @@ void create_unknown_line(char *label, ptr_label_apearence tail_label_apear){
 
     /*Saves the location of the label/struct apearence*/
     strcpy(temp_node->name, label);
-    temp_node-> index_in_commands_table = IC; 
+    temp_node-> index_in_commands_list = IC; 
     temp_node->next = NULL;
     tail_label_apear->next = temp_node;
     tail_label_apear = temp_node;
@@ -170,7 +170,7 @@ response_type create_data_line(char *row_content, char *type){
     if(!strcmp(type, STRING_WORD)){
         int i;
         
-        for(i = 1; i < strlen(token)-1; i++){/*Reads between the ""*/
+        for(i = 1; i < strlen(token)-1; ++i){/*Reads between the ""*/
             create_data_node(convertDtoB(token[i])) ;/*Converts the ASCII code of the letter to binary*/
             DC++;
         }
@@ -188,7 +188,7 @@ response_type create_data_line(char *row_content, char *type){
         create_data_node(convertDtoB(number));
         DC++;
 
-        for(i = 1; i < strlen(token)-1; i++){/*Reads between the ""*/
+        for(i = 1; i < strlen(token)-1; ++i){/*Reads between the ""*/
             create_data_node(convertDtoB(token[i]));/*Converts the ASCII code of the letter to binary*/
             DC++;
         }
