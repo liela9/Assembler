@@ -2,15 +2,14 @@
 #include "lines.h"
 #include "utils.h"
 #include "converting.h"
-#include "label.h"
-#include "dataList.h"
-#include "commandsList.h"
+#include "lists.h"
 
 
 
 responseType create_two_operands_command(unsigned long op_code, char *source_op, char *dest_op, multiVars *vars){
     int index_of_source_struct, index_of_dest_struct;
     int source, dest;
+    responseType response = SUCCESS;
     
     /*
     Finds the addressing type. 
@@ -34,7 +33,7 @@ responseType create_two_operands_command(unsigned long op_code, char *source_op,
                     create_command_line(op_code, convertDtoB(3), convertDtoB(2), vars->tail_commands, vars->head_commands);
                     create_registers_line(source, 0, vars->tail_commands, vars->head_commands);
                     create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
-                    create_number_line(index_of_dest_struct, vars->tail_data, vars->head_commands);
+                    create_number_line(index_of_dest_struct, vars->tail_commands, vars->head_commands);
                 }
     }
         
@@ -48,7 +47,7 @@ responseType create_two_operands_command(unsigned long op_code, char *source_op,
                 create_command_line(op_code, convertDtoB(1), convertDtoB(2), vars->tail_commands, vars->head_commands);
                 create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
                 create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
-                create_number_line(index_of_dest_struct, vars, vars->head_commands);
+                create_number_line(index_of_dest_struct, vars->tail_commands, vars->head_commands);
             }
             else if(label_exists(dest_op, vars->head_label)){/*Label and label*/
                     create_command_line(op_code, convertDtoB(1), convertDtoB(1) , vars->tail_commands, vars->head_commands);
@@ -100,7 +99,7 @@ responseType create_two_operands_command(unsigned long op_code, char *source_op,
             create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
         }
     }
-
+    return response;
 }
 
 responseType create_no_operands_command(unsigned long op_code, multiVars *vars){
@@ -109,21 +108,25 @@ responseType create_no_operands_command(unsigned long op_code, multiVars *vars){
 }
 
 responseType create_one_operand_command(unsigned long op_code, char *operand, multiVars *vars){
-    bool operand_type;
-    responseType response;
+    int register_num, struct_index;
+    responseType response = SUCCESS;
 
     IC++;
     if(create_commands_node(op_code, vars->tail_commands, vars->head_commands) != SUCCESS)
         return SYSTEM_ERROR;
 
-    if((operand_type = is_register(operand)) != -1)
-        response = create_registers_line(operand, 0 , vars->tail_commands, vars->head_commands);
+    if((register_num = is_register(operand)) != -1)
+        response = create_registers_line(register_num, 0 , vars->tail_commands, vars->head_commands);
 
-    if(operand_type = is_struct(operand))
-        response = create_unknown_line(strtok(operand, "."), vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+    if((struct_index = is_struct(operand))){
+        response = create_unknown_line(strtok(operand, "."), vars->tail_label_apear, 
+        vars->tail_commands, vars->head_commands);
+        response = create_number_line(struct_index, vars->tail_commands, vars->head_commands);
+    }
 
-    if(operand_type = label_exists(operand, vars->head_label))
-        response = create_unknown_line(operand, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+    if(label_exists(operand, vars->head_label))
+        response = create_unknown_line(operand, vars->tail_label_apear, vars->tail_commands, 
+        vars->head_commands);
 
     return response;
 }
@@ -131,8 +134,8 @@ responseType create_one_operand_command(unsigned long op_code, char *operand, mu
 
 
 /*Creates new machine code line (binary) in commandd_table*/
-responseType create_command_line(unsigned long op_code, long source_op_addressing, 
-long dest_op_addressing, ptrCommand tail_commands, ptrCommand head_commands){
+responseType create_command_line(unsigned long op_code, int source_op_addressing, 
+int dest_op_addressing, ptrCommand tail_commands, ptrCommand head_commands){
     IC++;
     return create_commands_node((op_code<<6) & (source_op_addressing<<4) & 
     (dest_op_addressing<<2) & (convertDtoB(~0)<<2), tail_commands, head_commands);

@@ -2,9 +2,8 @@
 #include "firstStep.h"
 #include "converting.h"
 #include "lines.h"
-#include "label.h"
+#include "lists.h"
 #include "utils.h"
-#include "dataList.h"
 
 
 /*The first step of the Assembler*/
@@ -107,7 +106,6 @@ responseType extern_entry_validate(char *file_name, int line_number, multiVars *
     return create_label_node(current_word, type, -1, vars);
 }
 
-
 responseType insert_data_label(char* label_name, int address, multiVars *vars) {
     if (label_name)
         return create_label_node(label_name, DATA, address, vars);
@@ -160,7 +158,6 @@ responseType insert_struct_line(char* file_name, int line_number, char *label_na
 
     return insert_data_label(label_name, current_dc, vars);
 }
-
 
 responseType insert_opcode_line(char* file_name, int line_number, char *label_name, char* line, multiVars *vars) {
     int op_code_index, current_ic = IC;

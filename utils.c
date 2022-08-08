@@ -9,7 +9,7 @@ const char *opcode[NUM_OF_OPCODES] = {
     "mov", "cmp", "add", "sub", "not", "clr", "lea", "inc", 
     "dec", "jmp", "bne", "get", "prn", "jsr", "rts", "hlt"}; 
 
-static const char *reserved_words[NUM_OF_RESERVED_WORDS] = {
+const char *reserved_words[NUM_OF_RESERVED_WORDS] = {
     "data", "string", "struct", "entry", "extern", "macro", "endmacro"};
 
 bool is_reserved_word(char *word) {
@@ -103,4 +103,61 @@ FILE *open_file_with_extension(char *file_name, char *extension, char *mode) {
     if(!ret_file)
         printf("User Error: Could not open file: %s\n", new_file_name);
     return ret_file;
+}
+
+
+void free_lists(multiVars *vars){
+    free_label_list(vars->head_label);
+    free_label_apearence_list(vars->head_label_apear);
+    free_data_list(vars->head_data);
+    free_commands_list(vars->head_commands);
+}
+
+void free_label_list(ptrlabel head){
+    FREE_LIST(ptrlabel, head)
+}
+
+void free_label_apearence_list(ptrLabelApearence head){
+    FREE_LIST(ptrLabelApearence, head)
+}
+
+void free_data_list(ptrData head){
+    FREE_LIST(ptrData, head)
+}
+
+void free_commands_list(ptrCommand head){
+    FREE_LIST(ptrCommand, head)
+}
+
+
+/*Checks if this label exists in this file*/
+bool label_exists(char *name, ptrlabel head_label){
+    ptrlabel temp_label;
+
+    temp_label = head_label;
+
+    while(temp_label){
+        if(!strcmp(temp_label->name, name))
+            return true;
+        temp_label = temp_label->next;
+    }
+    return false;
+}
+
+
+/*Checks if it is a valid label name*/
+bool valid_label_name(char *name){
+	/* Checks: 
+        the length is at most 30
+        the first char is alpha 
+        all the others are alphanumeric, and not saved word */
+    int index, len;
+    len = strlen(name);
+
+    for (index = 0; index < len; ++index) {
+        if (!isalnum(name[index]))
+            return false;
+    }
+
+	return name[0] && len <= MAX_LABEL_LENGTH && !is_reserved_word(name);
 }
