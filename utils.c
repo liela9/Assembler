@@ -1,12 +1,16 @@
 #include "constants.h"
 #include "utils.h"
+#include "lines.h"
 
-const char registers[NUM_OF_REGISTERS][2] = {"r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"};
+const char registers[NUM_OF_REGISTERS][3] = {
+    "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"};
 
-const char opcode[NUM_OF_OPCODES][3] = {"mov", "cmp", "add", "sub", "not", "clr", "lea", "inc", 
-"dec", "jmp", "bne", "get", "prn", "jsr", "rts", "hlt"}; 
+const char *opcode[NUM_OF_OPCODES] = {
+    "mov", "cmp", "add", "sub", "not", "clr", "lea", "inc", 
+    "dec", "jmp", "bne", "get", "prn", "jsr", "rts", "hlt"}; 
 
-static const char *reserved_words[NUM_OF_RESERVED_WORDS] = {"data", "string", "struct", "entry", "extern", "macro", "endmacro"};
+static const char *reserved_words[NUM_OF_RESERVED_WORDS] = {
+    "data", "string", "struct", "entry", "extern", "macro", "endmacro"};
 
 bool is_reserved_word(char *word) {
     int i;
@@ -54,20 +58,19 @@ int is_register(char *operand){
 }
 
 
-/*Splits the name of the struct and the index after the point*/
-char** is_struct(char *operand){
-    char **struct_val[2];
-    
-    struct_val[0] = NULL;
-    struct_val[1] = NULL;
+/*Returns the index of the struct operand in case of struct*/
+int is_struct(char *operand){
+    char *index;
 
-    while (operand){
-        if(*operand == '.'){
-            (*struct_val)[0] = strtok(operand, ".");
-            (*struct_val)[1] = strtok(NULL, ".");
-        }
+    if((index = strstr(operand,"."))){
+        if(index[1] == '1')
+            return 1;
+        if(index[1] == '2')
+            return 2;
     }
-    return *struct_val;
+    
+    /*If it is not struct, there is no "." ==> return 0*/
+    return 0;
 }
 
 

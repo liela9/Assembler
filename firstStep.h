@@ -5,9 +5,15 @@
 #define EXTERN_WORD ".extern"
 
 /*Functions of file 'firsStep.c'*/
-response_type first_step(char *, multiVars *);
-int find_opcode(char *);
-void find_group( int , multiVars *);
+responseType first_step(char *, multiVars *vrs);
+responseType handle_line(char *, char *, char *, int , multiVars *);
+responseType extern_entry_validate(char *, int , multiVars *, labelType , char *);
+responseType insert_data_label(char* , int , multiVars *);
+responseType insert_string_line(char* , int , char *, char* , multiVars *);
+responseType insert_struct_line(char* , int , char *, char* , multiVars *);
+responseType insert_opcode_line(char* , int , char *, char* , multiVars *);
+responseType insert_data_line(char* , int , char *, char* , multiVars *);
+
 
 #endif
 

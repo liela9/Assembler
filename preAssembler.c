@@ -5,12 +5,12 @@
 
 
 /*Copeis the input file and pastes the macros*/
-response_type pre_assembler(char *file_name){
+responseType pre_assembler(char *file_name){
     FILE *file_to_read, *file_to_write;
     char line[MAX_LINE_LENGTH], copy_line[MAX_LINE_LENGTH];
-    ptr_macro new_macro, head_macro = NULL, current_macro = NULL;
+    ptrMacro new_macro, head_macro = NULL, current_macro = NULL;
     bool in_macro_flag = false;
-    response_type response = SUCCESS;
+    responseType response = SUCCESS;
     int line_counter = 0;
     char *current_word = NULL;
 
@@ -58,7 +58,7 @@ response_type pre_assembler(char *file_name){
                 }
             }
             else{
-                ptr_macro lookup_macro = NULL;
+                ptrMacro lookup_macro = NULL;
                 if(!(lookup_macro = get_macro_by_id(head_macro, current_word))){
                     fputs(line, file_to_write);
                 }

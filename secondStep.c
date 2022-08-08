@@ -8,9 +8,9 @@
 bool second_step(multiVars *vars){
 	char label_name[MAX_LABEL_LENGTH];
 	int index = 0;
-	ptr_label_apearence temp_label_apear = vars->head_label_apear;
-	ptr_label temp_label= vars->head_label;
-	ptr_commands temp_commands = vars->head_commands;
+	ptrLabelApearence temp_label_apear = vars->head_label_apear;
+	ptrlabel temp_label= vars->head_label;
+	ptrCommand temp_commands = vars->head_commands;
 	
 	/*While it is not the end of the list*/
 	while(temp_commands){

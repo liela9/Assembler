@@ -6,9 +6,9 @@
 #define ENDMACRO_WORD "endmacro"
 
 /*Functions of file 'macro.c'*/
-ptr_macro create_macro_node(char *);
-ptr_macro get_macro_by_id(ptr_macro, char *);
-bool macro_exists(ptr_macro, char *);
-void free_macro_list(ptr_macro);
+ptrMacro create_macro_node(char *);
+ptrMacro get_macro_by_id(ptrMacro, char *);
+bool macro_exists(ptrMacro, char *);
+void free_macro_list(ptrMacro);
 
 #endif

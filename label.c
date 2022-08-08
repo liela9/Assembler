@@ -10,17 +10,16 @@
 
 
 /*Inserts new label to the labels list*/
-response_type create_label_node(char *name, int type, int address, multiVars *vars){
-    ptr_label new_node;
-
-    name[strlen(name)-1] = '\0'; /*Remove the char ':' */
+responseType create_label_node(char *name, labelType type, int address, multiVars *vars){
+    ptrlabel new_node;    
 
     if(label_exists(name, vars->head_label) || !valid_label_name(name)){
+        /* TODO: check if need to remove the label which alread exists */
         printf("User Error: Illegal label name: %s!\n", name);
         return USER_ERROR;
     }
 
-    new_node = (ptr_label) calloc_with_check(1, sizeof(label));
+    new_node = (ptrlabel) calloc_with_check(1, sizeof(label));
     if(!new_node)
         return SYSTEM_ERROR;
     
@@ -43,8 +42,8 @@ response_type create_label_node(char *name, int type, int address, multiVars *va
 
 
 /*Checks if this label exists in this file*/
-bool label_exists(char *name, ptr_label head_label){
-    ptr_label temp_label;
+bool label_exists(char *name, ptrlabel head_label){
+    ptrlabel temp_label;
 
     temp_label = head_label;
 
