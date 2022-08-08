@@ -7,14 +7,14 @@
 #include "commandsList.h"
 
 
-/*Gets information about the line and classify it's parts*/
-void insert_command(unsigned long op_code, char *source_op, char *dest_op, multiVars *vars){
-    char **first_struct_access, **second_struct_access;/*Access to a struct*/
-    int source = 0, dest = 0;/*Default value for missing operand is zero*/
+
+responseType create_two_operands_command(unsigned long op_code, char *source_op, char *dest_op, multiVars *vars){
+    int index_of_source_struct, index_of_dest_struct;
+    int source, dest;
     
     /*
     Finds the addressing type. 
-    Examples-
+    Examples
         Label: X, STR
         Struct: S.1
         register: r1, r2
@@ -22,38 +22,38 @@ void insert_command(unsigned long op_code, char *source_op, char *dest_op, multi
     */
     if((source = is_register(source_op)) != -1){
         if((dest = is_register(dest_op)) != -1){/*Two registers*/
-            create_command_line(op_code, convertDtoB(3), convertDtoB(3) );
-            create_registers_line(source, dest );
+            create_command_line(op_code, convertDtoB(3), convertDtoB(3), vars->tail_commands, vars->head_commands);
+            create_registers_line(source, dest, vars->tail_commands, vars->head_commands);
         }
         else if(label_exists(dest_op, vars->head_label)){/*Register and label*/
-                create_command_line(op_code, convertDtoB(3), convertDtoB(1) );
-                create_registers_line(source, 0 );
-                create_unknown_line( dest_op, vars->tail_label_apear);
+                create_command_line(op_code, convertDtoB(3), convertDtoB(1), vars->tail_commands, vars->head_commands);
+                create_registers_line(source, 0, vars->tail_commands, vars->head_commands);
+                create_unknown_line( dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
             }
-            else if((first_struct_access = is_struct(dest_op))){/*Register and struct*/
-                    create_command_line(op_code, convertDtoB(3), convertDtoB(2) );
-                    create_registers_line(source, 0 );
-                    create_unknown_line(dest_op, vars->tail_label_apear);
-                    create_number_line(atoi(first_struct_access[1]) );
+            else if((index_of_dest_struct = is_struct(dest_op))){/*Register and struct*/
+                    create_command_line(op_code, convertDtoB(3), convertDtoB(2), vars->tail_commands, vars->head_commands);
+                    create_registers_line(source, 0, vars->tail_commands, vars->head_commands);
+                    create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+                    create_number_line(index_of_dest_struct, vars->tail_data, vars->head_commands);
                 }
     }
         
     else if(label_exists(source_op, vars->head_label)){
         if((dest = is_register(dest_op)) != -1){/*Label and register*/
-            create_command_line(op_code, convertDtoB(1), convertDtoB(3) );
-            create_unknown_line(dest_op, vars->tail_label_apear);
-            create_registers_line(0, dest );
+            create_command_line(op_code, convertDtoB(1), convertDtoB(3), vars->tail_commands, vars->head_commands);
+            create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+            create_registers_line(0, dest, vars->tail_commands, vars->head_commands);
         }
-        else if((first_struct_access = is_struct(dest_op))){/*Label and struct*/
-                create_command_line(op_code, convertDtoB(1), convertDtoB(2) );
-                create_unknown_line(dest_op, vars->tail_label_apear);
-                create_unknown_line(dest_op, vars->tail_label_apear);
-                create_number_line(atoi(first_struct_access[1]) );
+        else if((index_of_dest_struct = is_struct(dest_op))){/*Label and struct*/
+                create_command_line(op_code, convertDtoB(1), convertDtoB(2), vars->tail_commands, vars->head_commands);
+                create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+                create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+                create_number_line(index_of_dest_struct, vars, vars->head_commands);
             }
             else if(label_exists(dest_op, vars->head_label)){/*Label and label*/
-                    create_command_line(op_code, convertDtoB(1), convertDtoB(1) );
-                    create_unknown_line(dest_op, vars->tail_label_apear);
-                    create_unknown_line(dest_op, vars->tail_label_apear);
+                    create_command_line(op_code, convertDtoB(1), convertDtoB(1) , vars->tail_commands, vars->head_commands);
+                    create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+                    create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
                 }
     }
         
@@ -61,149 +61,182 @@ void insert_command(unsigned long op_code, char *source_op, char *dest_op, multi
         source_op[0] = '\0'; /*Removes the charactar # */
 
         if((dest = is_register(dest_op)) != -1){/*Value and register*/
-            create_command_line(op_code, convertDtoB(0), convertDtoB(3) );
-            create_number_line(atoi(source_op) );
-            create_registers_line(0, dest );
+            create_command_line(op_code, convertDtoB(0), convertDtoB(3), vars->tail_commands, vars->head_commands);
+            create_number_line(atoi(source_op), vars->tail_commands, vars->head_commands);
+            create_registers_line(0, dest, vars->tail_commands, vars->head_commands);
         }
         else if(label_exists(dest_op, vars->head_label)){/*Value and label*/
-                create_command_line(op_code, convertDtoB(0), convertDtoB(1) );
-                create_number_line(atoi(source_op) );
-                create_unknown_line(dest_op, vars->tail_label_apear);
+                create_command_line(op_code, convertDtoB(0), convertDtoB(1), vars->tail_commands, vars->head_commands);
+                create_number_line(atoi(source_op), vars->tail_commands, vars->head_commands);
+                create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
             }
-            else if((first_struct_access = is_struct(dest_op))){/*Value and struct*/
-                    create_command_line(op_code, convertDtoB(0), convertDtoB(2) );
-                    create_number_line(atoi(source_op) );
-                    create_unknown_line(dest_op, vars->tail_label_apear);
-                    create_number_line(atoi(first_struct_access[1]) );
+            else if((index_of_dest_struct = is_struct(dest_op))){/*Value and struct*/
+                    create_command_line(op_code, convertDtoB(0), convertDtoB(2), vars->tail_commands, vars->head_commands);
+                    create_number_line(atoi(source_op) , vars->tail_commands, vars->head_commands);
+                    create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+                    create_number_line(index_of_dest_struct, vars->tail_commands, vars->head_commands);
                 }
     }
         
     
-    else if((first_struct_access = is_struct(source_op))){
+    else if((index_of_source_struct = is_struct(source_op))){
         if((dest = is_register(dest_op)) != -1){/*Struct and register*/
-            create_command_line(op_code, convertDtoB(2), convertDtoB(3) );
-            create_unknown_line(dest_op, vars->tail_label_apear);
-            create_number_line(atoi(first_struct_access[1]) );
-            create_registers_line(0, dest );
+            create_command_line(op_code, convertDtoB(2), convertDtoB(3), vars->tail_commands, vars->head_commands);
+            create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+            create_number_line(index_of_source_struct, vars->tail_commands, vars->head_commands);
+            create_registers_line(0, dest , vars->tail_commands, vars->head_commands);
         }
-        else if(label_exists(dest_op, vars->head_label)){/*Struct and label*/
-                create_command_line(op_code, convertDtoB(2), convertDtoB(1) );
-                create_unknown_line(dest_op, vars->tail_label_apear);
-                create_number_line(atoi(first_struct_access[1]) );
-                create_unknown_line(dest_op, vars->tail_label_apear);
-            }
-            else if((second_struct_access = is_struct(dest_op))){/*Struct and struct*/
-                    create_command_line(op_code, convertDtoB(2), convertDtoB(2) );
-                    create_unknown_line(dest_op, vars->tail_label_apear);
-                    create_number_line(atoi(first_struct_access[1]) );
-                    create_unknown_line(dest_op, vars->tail_label_apear);
-                    create_number_line(atoi(second_struct_access[1]) );
-                }
+        else if((index_of_dest_struct = is_struct(dest_op))){/*Struct and struct*/
+                create_command_line(op_code, convertDtoB(2), convertDtoB(2), vars->tail_commands, vars->head_commands);
+                create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+                create_number_line(index_of_source_struct, vars->tail_commands, vars->head_commands);
+                create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+                create_number_line(index_of_dest_struct, vars->tail_commands, vars->head_commands);
+        }
+        else{/*Struct and label*/
+            create_command_line(op_code, convertDtoB(2), convertDtoB(1), vars->tail_commands, vars->head_commands);
+            create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+            create_number_line(index_of_source_struct, vars->tail_commands, vars->head_commands);
+            create_unknown_line(dest_op, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+        }
     }
+
 }
+
+responseType create_no_operands_command(unsigned long op_code, multiVars *vars){
+    IC++;
+    return create_commands_node(op_code, vars->tail_commands, vars->head_commands);
+}
+
+responseType create_one_operand_command(unsigned long op_code, char *operand, multiVars *vars){
+    bool operand_type;
+    responseType response;
+
+    IC++;
+    if(create_commands_node(op_code, vars->tail_commands, vars->head_commands) != SUCCESS)
+        return SYSTEM_ERROR;
+
+    if((operand_type = is_register(operand)) != -1)
+        response = create_registers_line(operand, 0 , vars->tail_commands, vars->head_commands);
+
+    if(operand_type = is_struct(operand))
+        response = create_unknown_line(strtok(operand, "."), vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+
+    if(operand_type = label_exists(operand, vars->head_label))
+        response = create_unknown_line(operand, vars->tail_label_apear, vars->tail_commands, vars->head_commands);
+
+    return response;
+}
+
 
 
 /*Creates new machine code line (binary) in commandd_table*/
-void create_command_line(unsigned long op_code, long source_op_addressing, long dest_op_addressing){
-
-    create_commands_node((~0<<2) & (dest_op_addressing<<2) & (source_op_addressing<<4) & (op_code<<6));
+responseType create_command_line(unsigned long op_code, long source_op_addressing, 
+long dest_op_addressing, ptrCommand tail_commands, ptrCommand head_commands){
     IC++;
+    return create_commands_node((op_code<<6) & (source_op_addressing<<4) & 
+    (dest_op_addressing<<2) & (convertDtoB(~0)<<2), tail_commands, head_commands);
 }
 
-/*Creates new machine code line (binary) for registers*/
-void create_registers_line(int source, int dest){
 
-    create_commands_node(~0 & (convertDtoB(source)<<6) & (convertDtoB(dest)<<2));
+/*Creates new machine code line (binary) for registers*/
+responseType create_registers_line(int source, int dest, ptrCommand tail_commands, 
+ptrCommand head_commands){
     IC++;
+    return create_commands_node((convertDtoB(source)<<6) & 
+    (convertDtoB(dest)<<2) & (convertDtoB(~0)<<2), tail_commands, head_commands);
 }
 
 
 /*
 Gets numeric value
-And puts it as binary in new line
+And insert it as binary to the commands list
 */
-void create_number_line(int number){
-    create_commands_node(convertDtoB(number));
+responseType create_number_line(int number, ptrCommand tail_commands, ptrCommand head_commands){
     IC++;
+    return create_commands_node(convertDtoB(number), tail_commands, head_commands);
 }
 
 
 /*At this point, the address of the label (data type) is unknown*/
-void create_unknown_line(char *label, ptr_label_apearence tail_label_apear){
-    ptr_label_apearence temp_node = NULL;
+responseType create_unknown_line(char *label_name, ptrLabelApearence tail_label_apear, 
+ptrCommand tail_commands, ptrCommand head_commands){
+    ptrLabelApearence temp_node;
+
+    IC++;
+    temp_node = (ptrLabelApearence)calloc_with_check(1, sizeof(labelApearance));
+    if(!temp_node)
+        return SYSTEM_ERROR;
 
     /*Saves the location of the label/struct apearence*/
-    strcpy(temp_node->name, label);
+    strcpy(temp_node->name, label_name);
     temp_node-> index_in_commands_list = IC; 
     temp_node->next = NULL;
-    tail_label_apear->next = temp_node;
-    tail_label_apear = temp_node;
 
     /*Fills the unknown line with the char '?' for now*/
-    create_commands_node('?'); 
-    IC++;
+    return create_commands_node('?', tail_commands, head_commands);
 }
 
 
 /*Creates new machine (binary) code line in data_table*/
-response_type create_data_line(char *row_content, char *type){
-    char *token;
-    int number;
+responseType create_data_line(char *line, char *type, ptrData tail_data, ptrData head_data){
+    char *token = NULL;
 
-    token = calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
-    if(!token)
-        return SYSTEM_ERROR;
+    strcpy(token, strtok(line, " ,\t\r"));
 
-    strcpy(token, strtok(row_content, " ,\t\r"));
-
+    /*The type is ".data"*/
     if(!strcmp(type, DATA_WORD)){
         while (token){
-            number = atoi(token);
-            create_data_node(convertDtoB(number));
-            DC++;
-
-            reset_array(token);
-            strcpy(token, strtok(row_content, " ,\t\r"));
+            if(create_data_node(convertDtoB(atoi(token)), tail_data, head_data) == SUCCESS){
+                DC++;
+                strcpy(token, strtok(NULL, " ,\t\r"));
+            }
+            else return SYSTEM_ERROR;
         }
     }
 
+    /*The type is ".string"*/
     if(!strcmp(type, STRING_WORD)){
         int i;
         
         for(i = 1; i < strlen(token)-1; ++i){/*Reads between the ""*/
-            create_data_node(convertDtoB(token[i])) ;/*Converts the ASCII code of the letter to binary*/
-            DC++;
+            /*Converts the ASCII code of the letter to binary*/
+            if(create_data_node(convertDtoB(token[i]), tail_data, head_data) == SUCCESS)
+                DC++;
+            else return SYSTEM_ERROR;
         }
 
-        create_zero_line();
         DC++;
+        return create_zero_line(tail_data, head_data);
     }
 
+    /*The type is ".struct"*/
     if(!strcmp(type, STRUCT_WORD)){
         int i;
 
-        number = atoi(token);
-        reset_array(token);
         strcpy(token, strtok(NULL, " ,\t\r"));
-        create_data_node(convertDtoB(number));
-        DC++;
+        if(create_data_node(convertDtoB(atoi(token)), tail_data, head_data) == SUCCESS)
+            DC++;
+        else return SYSTEM_ERROR;
 
         for(i = 1; i < strlen(token)-1; ++i){/*Reads between the ""*/
-            create_data_node(convertDtoB(token[i]));/*Converts the ASCII code of the letter to binary*/
-            DC++;
+            if(create_data_node(convertDtoB(token[i]), tail_data, head_data) == SUCCESS)
+                DC++;
+            else return SYSTEM_ERROR;
         }
-
-        create_zero_line();
-        DC++;
+        
+        if(create_zero_line(tail_data, head_data) == SUCCESS)
+            DC++;
+        else return SYSTEM_ERROR;
     }
     return SUCCESS;
 }
 
 
 /*Creates zero line for '\0' at the end of a string*/
-void create_zero_line(){
-    create_data_node(convertDtoB(0));
+responseType create_zero_line(ptrData tail_data, ptrData head_data){
     DC++;
+    return create_data_node(convertDtoB(0), tail_data, head_data);
 }
 
 

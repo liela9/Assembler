@@ -4,10 +4,10 @@
 #include "free.h"
 
 /*Insert new macro to the list*/
-ptr_macro create_macro_node(char *macro_id){
-    ptr_macro new_node;
+ptrMacro create_macro_node(char *macro_id){
+    ptrMacro new_node;
 
-    new_node = (ptr_macro)calloc_with_check(1, sizeof(macro));
+    new_node = (ptrMacro)calloc_with_check(1, sizeof(macro));
     if (!new_node)
         return NULL;
 
@@ -24,8 +24,8 @@ ptr_macro create_macro_node(char *macro_id){
 }
 
 /*Finds macro by it's id and return it's pointer*/
-ptr_macro get_macro_by_id(ptr_macro head_macro, char *macro_id){
-    ptr_macro ptr;
+ptrMacro get_macro_by_id(ptrMacro head_macro, char *macro_id){
+    ptrMacro ptr;
     ptr = head_macro;
 
     while (ptr){
@@ -38,13 +38,13 @@ ptr_macro get_macro_by_id(ptr_macro head_macro, char *macro_id){
 }
 
 
-bool macro_exists(ptr_macro head_macro, char *macro_id) {
+bool macro_exists(ptrMacro head_macro, char *macro_id) {
     return (get_macro_by_id(head_macro, macro_id) != NULL);
 }
 
 /*Free the macro's list*/
-void free_macro_list(ptr_macro head_macro) {
-    ptr_macro temp;
+void free_macro_list(ptrMacro head_macro) {
+    ptrMacro temp;
 
     while (head_macro){
         temp = head_macro;

@@ -7,8 +7,10 @@
 #define BIN_MACHINE_CODE_LENGTH 10
 #define TEN_BITS_OF_ONE 1023
 
-const char base32[BASE_LENGTH] = {'!', '@', '#', '$', '%', '^', '&', '*', '<', '>', 'a', 'b', 
-'c', 'd', 'e', 'f', 'g','h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v'};
+static const char base32[BASE_LENGTH] = {
+    '!', '@', '#', '$', '%', '^', '&', '*', '<', '>', 'a', 
+    'b', 'c', 'd', 'e', 'f', 'g','h', 'i', 'j', 'k', 'l', 
+    'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v'};
 
 
 /* Converts decimal number to binary with the Two's complement method */

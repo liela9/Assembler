@@ -10,10 +10,10 @@
 
 
 void free_lists(multiVars *);
-void free_label_list(ptr_label );
-void free_label_apearence_list(ptr_label_apearence );
-void free_data_list(ptr_data );
-void free_commands_list(ptr_commands );
+void free_label_list(ptrlabel );
+void free_label_apearence_list(ptrLabelApearence );
+void free_data_list(ptrData );
+void free_commands_list(ptrCommand );
 
 
 #endif

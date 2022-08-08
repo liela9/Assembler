@@ -27,9 +27,9 @@ int main(int argc, char *argv[]){
 }
 
 
-response_type process_file(char *file_name){
+responseType process_file(char *file_name){
     multiVars *vars; 
-    response_type response;
+    responseType response;
 
     vars = (multiVars *)calloc_with_check(1, sizeof(multiVars));
     if (!vars)

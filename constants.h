@@ -13,29 +13,26 @@
 #define MAX_LABEL_LENGTH 30
 #define AM_EXTENSION ".am"
 
-const char base32[BASE_LENGTH];
-const char registers[NUM_OF_REGISTERS][2];
-const char opcode[NUM_OF_OPCODES][3];
 
 int IC; /*Instruction counter*/
 int DC;/*Data counter*/
 
 
 /*Uses for the labels table*/
-enum {ENTRY, EXTERNAL, DATA};
+typedef enum {NONE, ENTRY, EXTERNAL, DATA} labelType;
 typedef enum {false, true} bool;
-typedef enum {SUCCESS, SYSTEM_ERROR, USER_ERROR} response_type;
+typedef enum {SUCCESS, SYSTEM_ERROR, USER_ERROR} responseType;
 
 
 /*
 A linked list of macros.
 */
-typedef struct macro *ptr_macro;
+typedef struct macro *ptrMacro;
 typedef struct macro{
     
     char macro_id[MAX_LABEL_LENGTH]; /*Name of the macro*/
     char *macro_content; /*Content of the macro*/
-    ptr_macro next;
+    ptrMacro next;
 }macro;
 
 
@@ -43,11 +40,11 @@ typedef struct macro{
 /*
 A linked list of data code lines.
 */
-typedef struct data *ptr_data;
+typedef struct data *ptrData;
 typedef struct data{
     
     unsigned long code;
-    ptr_data next;
+    ptrData next;
 }data;
 
 
@@ -55,24 +52,24 @@ typedef struct data{
 /*
 A linked list of commands code lines.
 */
-typedef struct commands *ptr_commands;
+typedef struct commands *ptrCommand;
 typedef struct commands{
     
     unsigned long code;
-    ptr_commands next;
+    ptrCommand next;
 }commands;
 
 
 /*
 A linked list of labels.
 */
-typedef struct label *ptr_label;
+typedef struct label *ptrlabel;
 typedef struct label{
     
     char name[MAX_LABEL_LENGTH];/*Label name*/
-    int type; /*Options: 0 == ENTRY, 1 == EXTERNAL, 2 == DATA*/
+    labelType type;
     int dec_address; /*Decimal address*/
-    ptr_label next;
+    ptrlabel next;
 }label;
 
 
@@ -80,13 +77,13 @@ typedef struct label{
 A linked list of unknown labels in the commands list.
 Assists to complete the commands list in second step.
 */
-typedef struct labelApearance *ptr_label_apearence;
+typedef struct labelApearance *ptrLabelApearence;
 typedef struct labelApearance{
     
     char name[MAX_LABEL_LENGTH];/*Label name*/
     int index_in_commands_list;
     /*Contains the index of unknown label line at the first step*/
-    ptr_label_apearence next;
+    ptrLabelApearence next;
 }labelApearance;
 
 
@@ -96,14 +93,22 @@ Assists to save and move variables from first step to second step.
 */
 typedef struct multiVars{
     
-    ptr_label head_label;
-    ptr_label tail_label;
-    ptr_label_apearence head_label_apear;
-    ptr_label_apearence tail_label_apear;
-    ptr_data head_data;
-    ptr_commands head_commands;
+    ptrlabel head_label;
+    ptrlabel tail_label;
+    ptrLabelApearence head_label_apear;
+    ptrLabelApearence tail_label_apear;
+    ptrData head_data;
+    ptrData tail_data;
+    ptrCommand head_commands;
+    ptrCommand tail_commands;
 }multiVars;
 
+
+typedef struct struct_access{
+    
+    char label_name[MAX_LABEL_LENGTH];
+    int index;
+}struct_access;
 
 #endif 
 

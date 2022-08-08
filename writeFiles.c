@@ -15,8 +15,8 @@ bool write_ob_file(char *file_name, multiVars *vars){
     FILE *file;
 	char new_file_name[FILENAME_MAX];
     int index = 0;
-    ptr_commands temp_commands = vars->head_commands;
-    ptr_data temp_data = vars->head_data;
+    ptrCommand temp_commands = vars->head_commands;
+    ptrData temp_data = vars->head_data;
 
 	strcpy(new_file_name, file_name);
     strcat(new_file_name, OB_EXTENSION);/*Linking the extention .ob to the file's name*/
@@ -28,7 +28,7 @@ bool write_ob_file(char *file_name, multiVars *vars){
     }
 
     /*
-    The first row_content => 
+    The first line => 
     IC   DC 
     */
 	fputs(convertDtoB32(IC), file);
@@ -54,8 +54,8 @@ bool write_ob_file(char *file_name, multiVars *vars){
 
 /*Creates and writes the .ent and .ext files*/
 bool write_ext_ent_files(char *file_name, multiVars *vars){
-    ptr_label h_label;
-    ptr_label_apearence h_label_apear;
+    ptrlabel h_label;
+    ptrLabelApearence h_label_apear;
     FILE *fext, *fent;
     int count_ext, count_ent;
     char ext_name[FILENAME_MAX], ent_name[FILENAME_MAX];
