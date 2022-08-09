@@ -4,7 +4,6 @@
 #define ENT_EXTENSION ".ent"
 #define EXT_EXTENSION ".ext"
 #define OB_EXTENSION ".ob"
-#define FIRST_MEMORY_CELL 100
 
 /*Functions of file 'writeFiles.c'*/
 bool write_files(char *, multiVars *);

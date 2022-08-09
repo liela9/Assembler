@@ -3,10 +3,6 @@
 #include "converting.h"
 #include "utils.h"
 
-
-#define BIN_MACHINE_CODE_LENGTH 10
-#define TEN_BITS_OF_ONE 1023
-
 static const char base32[BASE_LENGTH] = {
     '!', '@', '#', '$', '%', '^', '&', '*', '<', '>', 'a', 
     'b', 'c', 'd', 'e', 'f', 'g','h', 'i', 'j', 'k', 'l', 
@@ -28,7 +24,7 @@ unsigned long convertDtoB(int decimal_number){
     /* Bit conversion */
     decimal_number = decimal_number ^ TEN_BITS_OF_ONE;
     
-    while (decimal_number != 0){
+    while (decimal_number != 0 && num_of_bits < BIN_MACHINE_CODE_LENGTH){
         num_of_bits++;
         remainder = decimal_number % 2;
         decimal_number /= 2;
@@ -54,7 +50,7 @@ int convertBtoD(unsigned long bin_number)
 {  
     int decimal_num = 0, temp = 0, reminder;
 
-    while (bin_number != 0)  
+    while (bin_number != 0 && temp < BIN_MACHINE_CODE_LENGTH)  
     {  
         reminder = bin_number % 10;
         bin_number = bin_number / 10;

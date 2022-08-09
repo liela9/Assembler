@@ -12,6 +12,7 @@ responseType first_step(char *file_name, multiVars *vars){
     FILE *file;
     char *line, *copy_line;
     responseType response = SUCCESS;
+    bool user_error_flag = false;
     int line_counter = 0;
 
     if (!(file = open_file_with_extension(file_name, AM_EXTENSION, "r")))
@@ -35,21 +36,28 @@ responseType first_step(char *file_name, multiVars *vars){
         switch(response) {
             case SYSTEM_ERROR:
                 break;
+            case SUCCESS:
+                continue;
+            case USER_ERROR:{
+                    user_error_flag = true;
+                    continue;
+                }
         }
     }
     free(line);
     free(copy_line);
     fclose(file);
+    
+    if(user_error_flag)
+        return USER_ERROR;
     return response;
 }
 
 
 responseType handle_line(char* file_name, char* line, char * line_copy, int line_number, multiVars *vars) {
-    int op_code_index;
-    char *current_word, *second_word, *label_name;
-    responseType response = SUCCESS;
+    char *current_word, *label_name;
 
-    if(!(current_word = strtok(line, " \t\r")) || (!strcmp(current_word[0], ";")))
+    if(!(current_word = strtok(line, " \t\r")) || ((current_word[0] == ';')))
         /*If it is comment or empty line*/
         return SUCCESS;
 
@@ -84,11 +92,11 @@ responseType handle_line(char* file_name, char* line, char * line_copy, int line
         return insert_string_line(file_name, line_number, label_name, strstr(line_copy, strtok(NULL, " ,\t\r")), vars);
 
     if(label_name)
-        return insert_opcode_line(file_name, line_number, label_name, strstr(line_copy, strtok(NULL, " ,\t\r")), vars);
+        return insert_opcode_line(file_name, line_number, label_name, strstr(line_copy, current_word), vars);
 
     return insert_opcode_line(file_name, line_number, label_name, line_copy, vars);
 
-
+    return SUCCESS;
 }
 
 responseType extern_entry_validate(char *file_name, int line_number, multiVars *vars, labelType type, char *line){
@@ -103,76 +111,82 @@ responseType extern_entry_validate(char *file_name, int line_number, multiVars *
         printf("User Error: in %s.am line %d : extra contect in .extern line\n", file_name, line_number);
         return USER_ERROR;
     }
-    return create_label_node(current_word, type, -1, vars);
+    return create_label_node(current_word, type, vars);
 }
 
 responseType insert_data_label(char* label_name, int address, multiVars *vars) {
     if (label_name)
-        return create_label_node(label_name, DATA, address, vars);
+        return create_label_node(label_name, DATA, vars);
     return SUCCESS;
 }
 
 responseType insert_string_line(char* file_name, int line_number, char *label_name, char* line, multiVars *vars) {
     int i, current_dc = DC;
-    char *token = NULL;
 
-    strcpy(token, strtok(line, " ,\t\r"));
-    for(i = 1; i < strlen(token)-1; ++i){/*Reads between the ""*/
+    if(insert_data_label(label_name, current_dc, vars) == SYSTEM_ERROR)
+        return SYSTEM_ERROR;
+
+    strtok(line, "\"");
+    for(i = 1; i < strlen(line); ++i){/*Reads between the ""*/
         /*Converts the ASCII code of the letter to binary*/
-        if(create_data_node(convertDtoB(token[i]), vars->tail_data, vars->head_data) == SUCCESS)
-            DC++;
-        else return SYSTEM_ERROR;
+        if(create_data_node(line[i], vars) != SUCCESS)
+            return SYSTEM_ERROR;
     }
 
-    if(create_zero_line(vars->tail_data, vars->head_data) != SUCCESS)
+    if(create_zero_line(vars) != SUCCESS)
         return SYSTEM_ERROR;
-    DC++;
 
-    return insert_data_label(label_name, current_dc, vars);
+    return SUCCESS;
 }
 
 responseType insert_struct_line(char* file_name, int line_number, char *label_name, char* line, multiVars *vars) {
     int i, number, current_dc = DC;
-    char *token = NULL;
+    char token[MAX_LINE_LENGTH];
+    char *string_part = NULL;
 
+    if(insert_data_label(label_name, current_dc, vars) == SYSTEM_ERROR)
+        return SYSTEM_ERROR;
+
+    string_part = strstr(line, "\"");
     /*The firt argument is data(number)*/
     strcpy(token, strtok(line, " ,\t\r"));
     if ((number = atoi(token)) == 0 && strcmp(token, "0")) {
             printf("User Error in %s.am line %d : illegal data argument\n", file_name, line_number);
             return USER_ERROR;
     }
-    if(create_data_node(convertDtoB(atoi(token)), vars->tail_data, vars->head_data) == SUCCESS)
-        DC++;
-    else return SYSTEM_ERROR;
+    if(create_data_node(atoi(token), vars) != SUCCESS)
+        return SYSTEM_ERROR;
 
+    strtok(string_part, "\"");
     /*The second argument is string*/
-    for(i = 1; i < strlen(token)-1; ++i){/*Reads between the ""*/
-        if(create_data_node(convertDtoB(token[i]), vars->tail_data, vars->head_data) == SUCCESS)
-            DC++;
-        else return SYSTEM_ERROR;
+    for(i = 1; i < strlen(string_part); ++i){/*Reads between the ""*/
+        if(create_data_node(string_part[i], vars) != SUCCESS)
+            return SYSTEM_ERROR;
     }
     
-    if(create_zero_line(vars->tail_data, vars->head_data) == SUCCESS)
-        DC++;
-    else return SYSTEM_ERROR;
+    if(create_zero_line(vars) != SUCCESS)
+        return SYSTEM_ERROR;
 
-    return insert_data_label(label_name, current_dc, vars);
+    return SUCCESS;
 }
 
 responseType insert_opcode_line(char* file_name, int line_number, char *label_name, char* line, multiVars *vars) {
-    int op_code_index, current_ic = IC;
+    int op_code_index;
     char *op_code = NULL, *first_operand = NULL, *second_operand = NULL;
 
-    op_code = strtok(line, " ,\t\r");
-    first_operand = strtok(NULL, " ,\t\r");
-    second_operand = strtok(NULL, " ,\t\r");
+    if (label_name && (create_label_node(label_name, CODE, vars) == SYSTEM_ERROR))
+        return SYSTEM_ERROR;
+
+    op_code = strtok(line, " ,\t\r\n");
+    first_operand = strtok(NULL, " ,\t\r\n");
+    second_operand = strtok(NULL, " ,\t\r\n");
 
     if((op_code_index = find_opcode(op_code)) != -1){
 
         /*If there are two arguments after opcode word*/
         if(first_operand && second_operand){
             if((0 <= op_code_index && op_code_index <= 3) || op_code_index == 6)
-                create_two_operands_command(convertDtoB(op_code_index), first_operand, second_operand, vars);
+                create_two_operands_command(op_code_index, first_operand, second_operand, vars);
             else{
                 printf("User Error: in %s.am line %d : extra operands for opcode '%s'\n", file_name, line_number, op_code);
                 return USER_ERROR;
@@ -180,10 +194,10 @@ responseType insert_opcode_line(char* file_name, int line_number, char *label_na
         }
     
         /*If there are no arguments after opcode word*/
-        if(!first_operand && !second_operand){
+        else if(!first_operand && !second_operand){
             
             if(op_code_index == 14 || op_code_index == 15)
-                create_no_operands_command(convertDtoB(op_code_index), vars);
+                create_no_operands_command(op_code_index, vars);
             else{
                 printf("User Error: in %s.am line %d : missing operands for opcode '%s'\n", file_name, line_number, op_code);
                 return USER_ERROR;
@@ -191,48 +205,45 @@ responseType insert_opcode_line(char* file_name, int line_number, char *label_na
         }
         
         /*If there is one argument after opcode word*/
-        if(first_operand && !second_operand){
+        else if(first_operand && !second_operand){
             if((4 <= op_code_index && op_code_index <= 5) || (7 <= op_code_index && op_code_index <= 13))
-                create_one_operand_command(convertDtoB(op_code_index), first_operand, vars);
+                create_one_operand_command(op_code_index, first_operand, vars);
             else{
                 printf("User Error: in %s.am line %d : too many or too few operands for opcode '%s'\n", file_name, line_number, op_code);
                 return USER_ERROR;
             }
         }
-
     }
     else{
         printf("User Error: in %s.am line %d : illegal opcode '%s'\n", file_name, line_number, op_code);
         return USER_ERROR;
     }
 
-    if (label_name)
-        return create_label_node(label_name, NONE, current_ic, vars);
     return SUCCESS;
 }
 
 responseType insert_data_line(char* file_name, int line_number, char *label_name, char* line, multiVars *vars) {
     char *token = NULL;
     int number;
-    int current_dc = DC;
 
-    strcpy(token, strtok(line, " ,\t\r"));
-    if (!token){
+    if(create_label_node(label_name, DATA, vars) == SYSTEM_ERROR)
+        return SYSTEM_ERROR;
+
+    if (!line){
         printf("User Error in %s.am line %d : missing data arguments\n", file_name, line_number);
         return USER_ERROR;
     }
     
+    token = strtok(line, " ,\t\r\n");
     while (token){
         if ((number = atoi(token)) == 0 && strcmp(token, "0")) {
             printf("User Error in %s.am line %d : illegal data argument\n", file_name, line_number);
             return USER_ERROR;
         }
-        if(create_data_node(convertDtoB(number), vars->tail_data, vars->head_data) == SUCCESS){
-            DC++;
-            strcpy(token, strtok(NULL, " ,\t\r"));
+        if(create_data_node(number, vars) == SUCCESS){
+            token = strtok(NULL, " ,\t\r\n");
         }
         else return SYSTEM_ERROR;
     }
-
-    return insert_data_label(label_name, current_dc, vars);
+    return SUCCESS;
 }

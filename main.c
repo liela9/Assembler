@@ -39,13 +39,39 @@ responseType process_file(char *file_name){
     vars->head_label_apear = NULL;
     vars->tail_label_apear = NULL;
     vars->head_data = NULL;
+    vars->tail_data = NULL;
     vars->head_commands = NULL;
+    vars->tail_commands = NULL;
 
     if((response = pre_assembler(file_name)) == SUCCESS) { /*Can't proceed if encoutered error */
         if(!first_step(file_name, vars))
             printf("An error occured while processing file %s\n", file_name);
+
+        /*while(vars->head_label_apear){
+            printf("%s\t", vars->head_label_apear->name);
+            printf("%d\n", vars->head_label_apear->index_in_commands_list);
+            vars->head_label_apear = vars->head_label_apear->next;
+        }*/
+
+        /*while(vars->head_label){
+            printf("%s\t", vars->head_label->name);
+            printf("%d\n", vars->head_label->dec_address);
+            vars->head_label = vars->head_label->next;
+        }*/
+
+        /*while(vars->head_data){
+            printf("%lu\n", vars->head_data->code);
+            vars->head_data = vars->head_data->next;
+        }*/
+
+        /*while(vars->head_commands){
+            printf("%lu\n", vars->head_commands->code);
+            vars->head_commands = vars->head_commands->next;
+        }*/
+
         if(!second_step(vars))
             printf("An error occured while processing file %s\n", file_name);
+        
         if(!write_files(file_name, vars))
             printf("An error occured while processing file %s\n", file_name);
     

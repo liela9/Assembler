@@ -135,14 +135,15 @@ bool label_exists(char *name, ptrlabel head_label){
     ptrlabel temp_label;
 
     temp_label = head_label;
-
     while(temp_label){
-        if(!strcmp(temp_label->name, name))
+        if(!strcmp(temp_label->name, name)){
             return true;
+        }
         temp_label = temp_label->next;
     }
     return false;
 }
+
 
 
 /*Checks if it is a valid label name*/

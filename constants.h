@@ -12,14 +12,14 @@
 #define MAX_LINE_LENGTH 81
 #define MAX_LABEL_LENGTH 30
 #define AM_EXTENSION ".am"
-
+#define FIRST_MEMORY_CELL 100
 
 int IC; /*Instruction counter*/
 int DC;/*Data counter*/
 
 
 /*Uses for the labels table*/
-typedef enum {NONE, ENTRY, EXTERNAL, DATA} labelType;
+typedef enum {CODE, ENTRY, EXTERNAL, DATA} labelType;
 typedef enum {false, true} bool;
 typedef enum {SUCCESS, SYSTEM_ERROR, USER_ERROR} responseType;
 
