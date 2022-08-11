@@ -44,7 +44,8 @@ responseType process_file(char *file_name){
     vars->tail_commands = NULL;
 
     if((response = pre_assembler(file_name)) == SUCCESS) { /*Can't proceed if encoutered error */
-        if(!first_step(file_name, vars))
+    
+        if(first_step(file_name, vars) != SUCCESS)
             printf("An error occured while processing file %s\n", file_name);
 
         /*while(vars->head_label_apear){
@@ -72,9 +73,9 @@ responseType process_file(char *file_name){
         if(!second_step(vars))
             printf("An error occured while processing file %s\n", file_name);
         
-        if(!write_files(file_name, vars))
+        /*if(!write_files(file_name, vars))
             printf("An error occured while processing file %s\n", file_name);
-    
+        */
         printf("File '%s' compiled successfully!\n", file_name);
         free_lists(vars);
     }

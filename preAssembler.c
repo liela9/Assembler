@@ -14,8 +14,7 @@ responseType pre_assembler(char *file_name){
     int line_counter = 0;
     char *current_word = NULL;
 
-    if (!(file_to_read = open_file_with_extension(file_name, AS_EXTENSION, "r")) || 
-            !(file_to_write = open_file_with_extension(file_name, AM_EXTENSION, "w")))
+    if (!(file_to_read = open_file_with_extension(file_name, AS_EXTENSION, "r")) || !(file_to_write = open_file_with_extension(file_name, AM_EXTENSION, "w")))
         return USER_ERROR;
 
     /*Reads a line*/

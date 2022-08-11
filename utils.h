@@ -1,6 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <ctype.h>
+
 #define FREE_LIST(type, head)   type temp;\
                                 while (head) {\
                                     temp = head;\
