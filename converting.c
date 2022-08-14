@@ -3,20 +3,11 @@
 #include "converting.h"
 #include "utils.h"
 
-static const char base32[BASE_LENGTH] = {
-    '!', '@', '#', '$', '%', '^', '&', '*', '<', '>', 'a', 
-    'b', 'c', 'd', 'e', 'f', 'g','h', 'i', 'j', 'k', 'l', 
-    'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v'};
-
 
 /* Converts decimal number to binary with the Two's complement method */
 unsigned long convertDtoB(int decimal_number){
-    unsigned long bin_number;
-    int remainder, index, num_of_bits;
-
-    bin_number = 0;
-    index = 1;
-    num_of_bits = 0;
+    unsigned long bin_number = 0;
+    int remainder, index = 1, num_of_bits = 0;
 
     if(decimal_number < 0){
     decimal_number = -decimal_number;
@@ -63,31 +54,15 @@ int convertBtoD(unsigned long bin_number)
 
 /* Converts decimal number to base32 */
 char *convertDtoB32(int decimal_number) {
-    char str[LENGTH_OF_32_ITEM];
-    int remainder, i;
+    static char str[LENGTH_OF_32_ITEM];
     
-    for (i=0; i < LENGTH_OF_32_ITEM; ++i) {
-        remainder = decimal_number % 32;
-        str[i] = (base32[remainder]);
-        decimal_number /= 32;
-    }
+    str[0] = base32[decimal_number / 32];
+    str[1] = base32[decimal_number % 32];
 
-    return reverse_str(str);
-}
-
-/* Converts binary number to base32 */
-char* convertBtoB32(unsigned long binary_number) {
-    return convertDtoB32(convertBtoD(binary_number));
-}
-
-char *reverse_str(char *str){
-    char c, *front, *back;
-
-    if(!str || !*str)
-        return str;
-    for(front=str,back=str+strlen(str)-1;front < back;front++,back--){
-        c=*front;*front=*back;*back=c;
-    }
     return str;
 }
 
+/* Converts binary number to base32 */
+char *convertBtoB32(unsigned long binary_number) {
+    return convertDtoB32(convertBtoD(binary_number));
+}

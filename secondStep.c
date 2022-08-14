@@ -43,9 +43,12 @@ bool second_step(multiVars *vars){
 		temp_commands = temp_commands->next;
 		index++;
 	}
-	free(temp_label);
-	free(temp_label_apear);
-	free(temp_commands);
+
+	while(temp_label)
+		temp_label = temp_label->next;
+	while(temp_label_apear)
+		temp_label_apear = temp_label_apear->next;
+
 	return true;
 }
 

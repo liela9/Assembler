@@ -101,7 +101,7 @@ FILE *open_file_with_extension(char *file_name, char *extension, char *mode) {
     
     ret_file = fopen(new_file_name, mode);
     if(!ret_file)
-        printf("User Error: Could not open file: %s\n", new_file_name);
+        printf("Error: Could not open file: %s\n", new_file_name);
     return ret_file;
 }
 

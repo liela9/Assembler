@@ -1,7 +1,7 @@
 #include "constants.h"
 #include "writeFiles.h"
 #include "converting.h"
-
+#include "utils.h"
 
 /*Calls the functions for writing the three files*/
 bool write_files(char *file_name, multiVars *vars){
@@ -9,29 +9,24 @@ bool write_files(char *file_name, multiVars *vars){
     return (write_ob_file(file_name, vars) && write_ext_ent_files(file_name, vars));
 }
 
-
 /*Creates and writes the .ob file*/
 bool write_ob_file(char *file_name, multiVars *vars){
     FILE *file;
-	char new_file_name[FILENAME_MAX];
     int index = 0;
     ptrCommand temp_commands = vars->head_commands;
     ptrData temp_data = vars->head_data;
+    char *c;
 
-	strcpy(new_file_name, file_name);
-    strcat(new_file_name, OB_EXTENSION);/*Linking the extention .ob to the file's name*/
-
-    file = fopen(new_file_name, "w");
-    if(!file){
-        printf("System Error: Could not create new file!\n");
+    file = open_file_with_extension(file_name, OB_EXTENSION, "w");
+    if(!file)
         return false;
-    }
 
     /*
     The first line => 
     IC   DC 
     */
-	fputs(convertDtoB32(IC), file);
+    c = convertDtoB32(IC);
+	fputs(c, file);
     fputc('\t', file);
     fputs(convertDtoB32(DC), file);
     fputc('\n', file);
@@ -40,11 +35,13 @@ bool write_ob_file(char *file_name, multiVars *vars){
     while(temp_commands){
         add_line_to_ob(index + FIRST_MEMORY_CELL, temp_commands->code, file);
         index++;
+        temp_commands = temp_commands->next;
     }
     
     while(temp_data){
         add_line_to_ob(index + FIRST_MEMORY_CELL, temp_data->code, file);
         index++;
+        temp_data = temp_data->next;
     }
 
     fclose(file);
@@ -85,6 +82,7 @@ bool write_ext_ent_files(char *file_name, multiVars *vars){
 
     
     while (h_label){
+        h_label_apear = vars->head_label_apear;
         while(h_label_apear){
             /*If h_label->name equals to h_label_apear->name*/
             if(!strcmp(h_label->name, h_label_apear->name)){

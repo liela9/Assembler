@@ -14,16 +14,17 @@ responseType pre_assembler(char *file_name){
     int line_counter = 0;
     char *current_word = NULL;
 
-    if (!(file_to_read = open_file_with_extension(file_name, AS_EXTENSION, "r")) || !(file_to_write = open_file_with_extension(file_name, AM_EXTENSION, "w")))
+    if (!(file_to_read = open_file_with_extension(file_name, AS_EXTENSION, "r")) || !(file_to_write = open_file_with_extension(file_name, AM_EXTENSION, "w+b")))
         return USER_ERROR;
 
     /*Reads a line*/
     while(fgets(line, MAX_LINE_LENGTH, file_to_read)){
+        printf("%s\n", line);
         line_counter++;
         strcpy(copy_line, line);
 
         current_word = strtok(copy_line, " \t\n");
-
+        
         if (!in_macro_flag) {
             /*If the current word is "macro"*/
             if(!strcmp(current_word, MACRO_WORD)){
@@ -82,8 +83,19 @@ responseType pre_assembler(char *file_name){
         }
     }
 
+
     fclose(file_to_write);
     fclose(file_to_read);
     free_macro_list(head_macro);
     return response;
 }
+
+
+/*int c = fgetc(file_to_write);
+    In case of zero macros
+    if(c == EOF){
+        char ch;
+        Copy the .as file to .am file
+        while((ch = fgetc(file_to_read)) != EOF)
+            fputc(ch, file_to_write);
+    }*/

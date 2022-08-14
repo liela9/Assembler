@@ -14,7 +14,7 @@ int main(int argc, char *argv[]){
         printf("User Error: Missing name of file/s\n");
         return(1);
     }
-    
+
     for(i = 1; i < argc; ++i){
         if (process_file(argv[i]) == SYSTEM_ERROR) {
             printf("Program encountered internal error. Shutting down\n");
@@ -44,15 +44,12 @@ responseType process_file(char *file_name){
     vars->tail_commands = NULL;
 
     if((response = pre_assembler(file_name)) == SUCCESS) { /*Can't proceed if encoutered error */
-    
+
+        
         if(first_step(file_name, vars) != SUCCESS)
             printf("An error occured while processing file %s\n", file_name);
 
-        /*while(vars->head_label_apear){
-            printf("%s\t", vars->head_label_apear->name);
-            printf("%d\n", vars->head_label_apear->index_in_commands_list);
-            vars->head_label_apear = vars->head_label_apear->next;
-        }*/
+        
 
         /*while(vars->head_label){
             printf("%s\t", vars->head_label->name);
@@ -69,13 +66,22 @@ responseType process_file(char *file_name){
             printf("%lu\n", vars->head_commands->code);
             vars->head_commands = vars->head_commands->next;
         }*/
+        
 
         if(!second_step(vars))
             printf("An error occured while processing file %s\n", file_name);
-        
-        /*if(!write_files(file_name, vars))
+
+
+        /*while(vars->head_label_apear){
+            printf("%s\t", vars->head_label_apear->name);
+            printf("%d\n", vars->head_label_apear->index_in_commands_list);
+            vars->head_label_apear = vars->head_label_apear->next;
+        }*/
+
+
+        if(!write_files(file_name, vars))
             printf("An error occured while processing file %s\n", file_name);
-        */
+        
         printf("File '%s' compiled successfully!\n", file_name);
         free_lists(vars);
     }
