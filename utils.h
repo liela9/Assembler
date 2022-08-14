@@ -24,6 +24,7 @@ bool is_reserved_word(char *);
 int find_opcode(char *);
 void free_lists(multiVars *);
 void free_label_list(ptrlabel );
+void free_extern_label_list(ptrExternLabel );
 void free_label_apearence_list(ptrLabelApearence );
 void free_data_list(ptrData );
 void free_commands_list(ptrCommand );

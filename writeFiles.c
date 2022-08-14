@@ -6,7 +6,7 @@
 /*Calls the functions for writing the three files*/
 bool write_files(char *file_name, multiVars *vars){
     
-    return (write_ob_file(file_name, vars) && write_ext_ent_files(file_name, vars));
+    return (write_ob_file(file_name, vars) && write_ext_file(file_name, vars) && write_ent_file(file_name, vars));
 }
 
 /*Creates and writes the .ob file*/
@@ -48,72 +48,96 @@ bool write_ob_file(char *file_name, multiVars *vars){
     return true;
 }
 
-
-/*Creates and writes the .ent and .ext files*/
-bool write_ext_ent_files(char *file_name, multiVars *vars){
-    ptrlabel h_label;
+bool write_ext_file(char *file_name, multiVars *vars){
+    FILE *fext = NULL;
     ptrLabelApearence h_label_apear;
-    FILE *fext, *fent;
-    int count_ext, count_ent;
-    char ext_name[FILENAME_MAX], ent_name[FILENAME_MAX];
-    
-    count_ext = 0;
-    count_ent = 0;
-    fext = NULL;
-    fent = NULL;
+    int count_ext = 0;
+    char ext_name[FILENAME_MAX];
+    ptrExternLabel h_extern_label;
 
-    h_label = vars->head_label;
-    h_label_apear = vars->head_label_apear;
-    
-	strcpy(ext_name, file_name);
-	strcpy(ent_name, file_name);
-
-    /*Linking the extention .ext .ent to the file's name*/
-    strcat(ext_name, EXT_EXTENSION);
-    strcat(ent_name, ENT_EXTENSION);
+    strcpy(ext_name, file_name);
+    strcat(ext_name, EXT_EXTENSION);/*Linking the extention .ext to the file's name*/
 
     fext = fopen(ext_name, "w");
-    fent = fopen(ent_name, "w");
-
-    if(!fext || !fent){
+    if(!fext){
         printf("System Error: Could not create new file!\n");
         return false;
     }
 
+    h_extern_label = vars->head_extern_label;
+
+    while(h_extern_label){
+        h_label_apear = vars->head_label_apear;
+        while(h_label_apear){
+            /*If h_label->name equals to h_label_apear->name*/
+            if(!strcmp(h_extern_label->name, h_label_apear->name)){
+                
+                count_ext++;
+                fputs(h_extern_label->name, fext);
+                fputc('\t', fext); 
+                fputs(convertDtoB32(h_label_apear->index_in_commands_list + FIRST_MEMORY_CELL), fext);
+                fputc('\n', fext);
+            }
+            h_label_apear = h_label_apear->next;
+        }
+        h_extern_label = h_extern_label->next;
+    }
+
+    if(count_ext == 0)
+        remove(ext_name);
+    else
+        fclose(fext);
+    return true; 
+}
+
+/*Creates and writes the .ent and .ext files*/
+bool write_ent_file(char *file_name, multiVars *vars){
+    ptrlabel h_label;
+    ptrLabelApearence h_label_apear;
+    FILE *fent = NULL;
+    int count_ent = 0;
+    char ent_name[FILENAME_MAX];
+
+    h_label = vars->head_label;
+	
+	strcpy(ent_name, file_name);
+    /*Linking the extention .ent to the file's name*/
+    strcat(ent_name, ENT_EXTENSION);
     
+    fent = fopen(ent_name, "w");
+
+    if(!fent){
+        printf("System Error: Could not create new file!\n");
+        return false;
+    }
+
     while (h_label){
+        if(h_label->type != ENTRY){
+            h_label = h_label->next;
+            continue;
+        }
+
         h_label_apear = vars->head_label_apear;
         while(h_label_apear){
             /*If h_label->name equals to h_label_apear->name*/
             if(!strcmp(h_label->name, h_label_apear->name)){
-                if(h_label->type == EXTERNAL){
-                    count_ext++;
-                    fputs(h_label->name, fext);
-                    fputc('\t', fext); 
-                    fputs(convertDtoB32(h_label->dec_address), fext);
-                    fputc('\n', fext);
-                }
-                else if(h_label->type == ENTRY){
-                    count_ent++;
-                    fputs(h_label->name, fent);
-                    fputc('\t', fent);
-                    fputs(convertDtoB32(h_label->dec_address), fent);
-                    fputc('\n', fent);
-                }
+
+                count_ent++;
+                fputs(h_label->name, fent);
+                fputc('\t', fent);
+                fputs(convertDtoB32(h_label->dec_address), fent);
+                fputc('\n', fent);
+
             }
             h_label_apear = h_label_apear->next;
         }
         h_label = h_label->next;
     }
-
-    if(count_ext == 0)
-        remove(ext_name);
+    
     if(count_ent == 0)
         remove(ent_name);
-    else{
-        fclose(fext);
+    else
         fclose(fent);
-    }
     return true; 
 }
 
@@ -126,5 +150,6 @@ void add_line_to_ob(int first_item, unsigned long second_item, FILE *file){
     fputs(convertBtoB32(second_item), file);
     fputc('\n', file);
 }
+
 
 

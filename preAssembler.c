@@ -19,16 +19,17 @@ responseType pre_assembler(char *file_name){
 
     /*Reads a line*/
     while(fgets(line, MAX_LINE_LENGTH, file_to_read)){
-        printf("%s\n", line);
         line_counter++;
         strcpy(copy_line, line);
 
         current_word = strtok(copy_line, " \t\n");
-        
+        if(!current_word)/*If it is empty line*/
+            continue;
+            
         if (!in_macro_flag) {
             /*If the current word is "macro"*/
             if(!strcmp(current_word, MACRO_WORD)){
-                current_word = strtok(NULL, " \t\n");
+                current_word = strtok(NULL, " \t\r\n");
                 if(!current_word ){
                     printf("User Error in %s: line %d : macro must have a name\n", file_name, line_counter);
                     response = USER_ERROR;
@@ -38,7 +39,7 @@ responseType pre_assembler(char *file_name){
                     response = USER_ERROR;
                 }
                 else {
-                    if(strtok(NULL, " \t\n")){
+                    if(strtok(NULL, " \t\r\n")){
                         printf("User Error in %s: line %d : extra content after macro name!\n", file_name, line_counter);
                         response = USER_ERROR;
                     }
@@ -69,12 +70,13 @@ responseType pre_assembler(char *file_name){
 
         /*If we're in the middle of a macro*/
         else{
+        
             /*If the current word is not "endmacro"*/
             if(strcmp(current_word, ENDMACRO_WORD))
                 strcat(current_macro->macro_content, line);
                 /*Add the content (the line) to the variable "macro_content"*/
             else{
-                if(strtok(NULL, " \t\n")){
+                if(strtok(NULL, " \t\r\n")){
                     printf("User Error in %s: line %d : extra content after 'endmacro'!\n", file_name, line_counter);
                     response = USER_ERROR;
                 }

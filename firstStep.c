@@ -77,10 +77,10 @@ responseType handle_line(char* file_name, char* line, char * line_copy, int line
         if so, check inside "create_label_node" if all code lists are null*/
 
     if(!strcmp(current_word, ENTRY_WORD)) 
-        return extern_entry_validate(file_name, line_number, vars, ENTRY, strstr(line_copy, strtok(NULL, " ,\t\r")));
+        return extern_entry_validate(file_name, ENTRY, vars, line_number, strstr(line_copy, strtok(NULL, " ,\t\r")));
     
     if(!strcmp(current_word, EXTERN_WORD)) 
-        return extern_entry_validate(file_name, line_number, vars, EXTERNAL, strstr(line_copy, strtok(NULL, " ,\t\r")));
+        return extern_entry_validate(file_name, EXTERNAL, vars, line_number, strstr(line_copy, strtok(NULL, " ,\t\r")));
     
     if(!strcmp(current_word, DATA_WORD))
         return insert_data_line(file_name, line_number, label_name, strstr(line_copy, strtok(NULL, " ,\t\r")), vars);
@@ -99,7 +99,7 @@ responseType handle_line(char* file_name, char* line, char * line_copy, int line
     return SUCCESS;
 }
 
-responseType extern_entry_validate(char *file_name, int line_number, multiVars *vars, labelType type, char *line){
+responseType extern_entry_validate(char *file_name, labelType type, multiVars *vars, int line_number, char *line){
     char *current_word;
 
     current_word =  strtok(line, " ,\t\r");
@@ -108,10 +108,13 @@ responseType extern_entry_validate(char *file_name, int line_number, multiVars *
         return USER_ERROR;
     }
     if (!strtok(NULL, " ,\t\r")) { /* not empty line after the label name*/
-        printf("User Error: in %s.am line %d : extra contect in .extern line\n", file_name, line_number);
+        printf("User Error: in %s.am line %d : extra contect in .extern or .entry line\n", file_name, line_number);
         return USER_ERROR;
     }
-    return create_label_node(current_word, type, vars);
+    if(type == EXTERNAL)
+        return create_extern_label_node(current_word, vars);
+    
+    return SUCCESS;
 }
 
 responseType insert_data_label(char* label_name, int address, multiVars *vars) {

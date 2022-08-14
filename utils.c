@@ -117,6 +117,10 @@ void free_label_list(ptrlabel head){
     FREE_LIST(ptrlabel, head)
 }
 
+void free_extern_label_list(ptrExternLabel head){
+    FREE_LIST(ptrExternLabel, head)
+}
+
 void free_label_apearence_list(ptrLabelApearence head){
     FREE_LIST(ptrLabelApearence, head)
 }

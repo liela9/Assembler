@@ -12,6 +12,8 @@
 #define MAX_LINE_LENGTH 81
 #define MAX_LABEL_LENGTH 30
 #define AM_EXTENSION ".am"
+#define ENTRY_WORD ".entry"
+#define EXTERN_WORD ".extern"
 #define FIRST_MEMORY_CELL 100
 
 int IC; /*Instruction counter*/
@@ -88,6 +90,17 @@ typedef struct labelApearance{
 
 
 /*
+A linked list of external labels.
+*/
+typedef struct externLabel *ptrExternLabel;
+typedef struct externLabel{
+    
+    char name[MAX_LABEL_LENGTH];/*Label name*/
+    ptrExternLabel next;
+}externLabel;
+
+
+/*
 A structure of multiple types of variables.
 Assists to save and move variables from first step to second step.
 */
@@ -101,6 +114,8 @@ typedef struct multiVars{
     ptrData tail_data;
     ptrCommand head_commands;
     ptrCommand tail_commands;
+    ptrExternLabel head_extern_label;
+    ptrExternLabel tail_extern_label;
 }multiVars;
 
 

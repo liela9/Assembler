@@ -42,6 +42,8 @@ responseType process_file(char *file_name){
     vars->tail_data = NULL;
     vars->head_commands = NULL;
     vars->tail_commands = NULL;
+    vars->head_extern_label = NULL;
+    vars->tail_extern_label = NULL;
 
     if((response = pre_assembler(file_name)) == SUCCESS) { /*Can't proceed if encoutered error */
 
@@ -49,40 +51,32 @@ responseType process_file(char *file_name){
         if(first_step(file_name, vars) != SUCCESS)
             printf("An error occured while processing file %s\n", file_name);
 
-        
-
-        /*while(vars->head_label){
-            printf("%s\t", vars->head_label->name);
-            printf("%d\n", vars->head_label->dec_address);
-            vars->head_label = vars->head_label->next;
-        }*/
-
-        /*while(vars->head_data){
-            printf("%lu\n", vars->head_data->code);
-            vars->head_data = vars->head_data->next;
-        }*/
-
-        /*while(vars->head_commands){
-            printf("%lu\n", vars->head_commands->code);
-            vars->head_commands = vars->head_commands->next;
+        /*while(vars->head_extern_label){
+            printf("%s\n", vars->head_extern_label->name);
+            vars->head_extern_label = vars->head_extern_label->next;
         }*/
         
 
-        if(!second_step(vars))
+        if(second_step(file_name, vars) != SUCCESS)
             printf("An error occured while processing file %s\n", file_name);
-
-
+        
+        
         /*while(vars->head_label_apear){
             printf("%s\t", vars->head_label_apear->name);
             printf("%d\n", vars->head_label_apear->index_in_commands_list);
             vars->head_label_apear = vars->head_label_apear->next;
         }*/
 
-
+        /*while(vars->head_label){
+            printf("%s\t", vars->head_label->name);
+            printf("%d\n", vars->head_label->type);
+            vars->head_label = vars->head_label->next;
+        }*/
+       
         if(!write_files(file_name, vars))
             printf("An error occured while processing file %s\n", file_name);
         
-        printf("File '%s' compiled successfully!\n", file_name);
+        printf("File '%s' successfully compiled !\n", file_name);
         free_lists(vars);
     }
     free(vars);

@@ -23,9 +23,11 @@ responseType create_label_node(char *name, labelType type, multiVars *vars){
         return SYSTEM_ERROR;
     
     /*Fills the values*/
+    if(type == EXTERNAL)
+        new_node->dec_address = -1;/*Dummy value*/
+    else new_node->dec_address = DC + IC + FIRST_MEMORY_CELL;
     strcpy(new_node->name, name);
     new_node->type = type;
-    new_node->dec_address = DC + IC + FIRST_MEMORY_CELL;
     new_node->next = NULL;
 
     if(!(vars->tail_label)){
@@ -38,6 +40,31 @@ responseType create_label_node(char *name, labelType type, multiVars *vars){
     }
     
     return SUCCESS;   
+}
+
+
+/*Inserts new external label to the list*/
+responseType create_extern_label_node(char *name, multiVars *vars){
+    ptrExternLabel new_node;  
+
+    new_node = (ptrExternLabel) calloc_with_check(1, sizeof(externLabel));
+    if(!new_node)
+        return SYSTEM_ERROR;
+    
+    /*Fills the value*/
+    strcpy(new_node->name, name);
+    new_node->next = NULL;
+
+    if(!(vars->tail_extern_label)){
+        vars->head_extern_label = new_node;
+        vars->tail_extern_label = new_node;
+    }
+    else{
+        vars->tail_extern_label->next = new_node;
+        vars->tail_extern_label = new_node;
+    }
+    
+    return SUCCESS;
 }
 
 
@@ -65,6 +92,25 @@ responseType create_commands_node(int code, multiVars *vars){
     IC++;
     return SUCCESS;
 }
+
+ptrlabel get_label_by_name(char *name, ptrlabel head){
+    ptrlabel temp = head;
+     
+    while(temp){
+        if(!strcmp(name, temp->name))
+            return temp;
+        temp = temp->next;
+    }
+    return NULL;
+}
+
+
+
+
+
+
+
+
 
 /*Insert new node to the data list*/
 responseType create_data_node(int code, multiVars *vars){
