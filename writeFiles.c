@@ -51,9 +51,9 @@ bool write_ob_file(char *file_name, multiVars *vars){
 bool write_ext_file(char *file_name, multiVars *vars){
     FILE *fext = NULL;
     ptrLabelApearence h_label_apear;
+    ptrExternLabel h_extern_label;
     int count_ext = 0;
     char ext_name[FILENAME_MAX];
-    ptrExternLabel h_extern_label;
 
     strcpy(ext_name, file_name);
     strcat(ext_name, EXT_EXTENSION);/*Linking the extention .ext to the file's name*/
@@ -93,11 +93,10 @@ bool write_ext_file(char *file_name, multiVars *vars){
 /*Creates and writes the .ent and .ext files*/
 bool write_ent_file(char *file_name, multiVars *vars){
     ptrlabel h_label;
-    ptrLabelApearence h_label_apear;
     FILE *fent = NULL;
     int count_ent = 0;
     char ent_name[FILENAME_MAX];
-
+    
     h_label = vars->head_label;
 	
 	strcpy(ent_name, file_name);
@@ -112,26 +111,14 @@ bool write_ent_file(char *file_name, multiVars *vars){
     }
 
     while (h_label){
-        if(h_label->type != ENTRY){
-            h_label = h_label->next;
-            continue;
+        if(h_label->type == ENTRY){
+            count_ent++;
+            fputs(h_label->name, fent);
+            fputc('\t', fent);
+            fputs(convertDtoB32(h_label->dec_address), fent);
+            fputc('\n', fent);
         }
-
-        h_label_apear = vars->head_label_apear;
-        while(h_label_apear){
-            /*If h_label->name equals to h_label_apear->name*/
-            if(!strcmp(h_label->name, h_label_apear->name)){
-
-                count_ent++;
-                fputs(h_label->name, fent);
-                fputc('\t', fent);
-                fputs(convertDtoB32(h_label->dec_address), fent);
-                fputc('\n', fent);
-
-            }
-            h_label_apear = h_label_apear->next;
-        }
-        h_label = h_label->next;
+        h_label = h_label->next;    
     }
     
     if(count_ent == 0)
@@ -150,6 +137,7 @@ void add_line_to_ob(int first_item, unsigned long second_item, FILE *file){
     fputs(convertBtoB32(second_item), file);
     fputc('\n', file);
 }
+
 
 
 

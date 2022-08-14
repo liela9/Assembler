@@ -51,28 +51,11 @@ responseType process_file(char *file_name){
         if(first_step(file_name, vars) != SUCCESS)
             printf("An error occured while processing file %s\n", file_name);
 
-        /*while(vars->head_extern_label){
-            printf("%s\n", vars->head_extern_label->name);
-            vars->head_extern_label = vars->head_extern_label->next;
-        }*/
-        
 
         if(second_step(file_name, vars) != SUCCESS)
             printf("An error occured while processing file %s\n", file_name);
         
-        
-        /*while(vars->head_label_apear){
-            printf("%s\t", vars->head_label_apear->name);
-            printf("%d\n", vars->head_label_apear->index_in_commands_list);
-            vars->head_label_apear = vars->head_label_apear->next;
-        }*/
 
-        /*while(vars->head_label){
-            printf("%s\t", vars->head_label->name);
-            printf("%d\n", vars->head_label->type);
-            vars->head_label = vars->head_label->next;
-        }*/
-       
         if(!write_files(file_name, vars))
             printf("An error occured while processing file %s\n", file_name);
         
