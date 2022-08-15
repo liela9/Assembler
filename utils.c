@@ -152,11 +152,15 @@ bool label_exists(char *name, ptrlabel head_label){
 
 /*Checks if it is a valid label name*/
 bool valid_label_name(char *name){
+    int index, len;
 	/* Checks: 
         the length is at most 30
         the first char is alpha 
         all the others are alphanumeric, and not saved word */
-    int index, len;
+
+    if(!name)
+        return false;
+        
     len = strlen(name);
 
     for (index = 0; index < len; ++index) {
@@ -165,4 +169,26 @@ bool valid_label_name(char *name){
     }
 
 	return name[0] && len <= MAX_LABEL_LENGTH && !is_reserved_word(name);
+}
+
+
+char *clear_white_spaces(char *string){
+    int i, j = 0;
+    char *new;
+
+    if (!string)
+        return NULL;
+
+    new = (char *)calloc_with_check(strlen(string), sizeof(char));
+    for(i = 0; i < strlen(string); ++i){
+        if(!isspace(string[i])){
+            new[j] = string[i];
+            j++;
+        }
+    }
+    if (strlen(new) == 0) {
+        free(new);
+        return NULL;
+    }
+    return new;
 }

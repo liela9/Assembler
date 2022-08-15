@@ -30,5 +30,6 @@ void free_data_list(ptrData );
 void free_commands_list(ptrCommand );
 bool label_exists(char *, ptrlabel);
 bool valid_label_name(char *);
+char *clear_white_spaces(char *);
 
 #endif

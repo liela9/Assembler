@@ -4,7 +4,7 @@
 #include "converting.h"
 #include "lists.h"
 
-
+#define CHECK_RESPONSE(response) if(response != SUCCESS) return response;
 
 responseType create_two_operands_command(int op_code, char *source_op, char *dest_op, multiVars *vars){
     int index_of_source_struct, index_of_dest_struct;
@@ -23,19 +23,19 @@ responseType create_two_operands_command(int op_code, char *source_op, char *des
     if((source = is_register(source_op)) != -1){
 
         if((dest = is_register(dest_op)) != -1){/*Two registers*/
-            create_command_line(op_code, 3, 3, vars);
-            create_registers_line(source, dest, vars);
+            CHECK_RESPONSE(create_command_line(op_code, 3, 3, vars))
+            CHECK_RESPONSE(create_registers_line(source, dest, vars))
         }
         else if((index_of_dest_struct = is_struct(dest_op))){/*Register and struct*/
-            create_command_line(op_code, 3, 2, vars);
-            create_registers_line(source, 0, vars);
-            create_unknown_line(dest_op, vars);
-            create_number_line(index_of_dest_struct, vars);
+            CHECK_RESPONSE(create_command_line(op_code, 3, 2, vars))
+            CHECK_RESPONSE(create_registers_line(source, 0, vars))
+            CHECK_RESPONSE(create_unknown_line(dest_op, vars))
+            CHECK_RESPONSE(create_number_line(index_of_dest_struct, vars))
         }
         else {/*Register and label*/
-            create_command_line(op_code, 3, 1, vars);
-            create_registers_line(source, 0, vars);
-            create_unknown_line(dest_op, vars);
+            CHECK_RESPONSE(create_command_line(op_code, 3, 1, vars))
+            CHECK_RESPONSE(create_registers_line(source, 0, vars))
+            CHECK_RESPONSE(create_unknown_line(dest_op, vars))
         }
     }
         
@@ -43,62 +43,62 @@ responseType create_two_operands_command(int op_code, char *source_op, char *des
         source_op[0] = '\0'; /*Removes the charactar # */
 
         if((dest = is_register(dest_op)) != -1){/*Value and register*/
-            create_command_line(op_code, 0, 3, vars);
-            create_number_line(atoi(source_op), vars);
-            create_registers_line(0, dest, vars);
+            CHECK_RESPONSE(create_command_line(op_code, 0, 3, vars))
+            CHECK_RESPONSE(create_number_line(atoi(source_op), vars))
+            CHECK_RESPONSE(create_registers_line(0, dest, vars))
         }
         else if((index_of_dest_struct = is_struct(dest_op))){/*Value and struct*/
-            create_command_line(op_code, 0, 2, vars);
-            create_number_line(atoi(source_op) , vars);
-            create_unknown_line(dest_op, vars);
-            create_number_line(index_of_dest_struct, vars);
+            CHECK_RESPONSE(create_command_line(op_code, 0, 2, vars))
+            CHECK_RESPONSE(create_number_line(atoi(source_op) , vars))
+            CHECK_RESPONSE(create_unknown_line(dest_op, vars))
+            CHECK_RESPONSE(create_number_line(index_of_dest_struct, vars))
         }
         else{/*Value and label*/
-            create_command_line(op_code, 0, 1, vars);
-            create_number_line(atoi(source_op), vars);
-            create_unknown_line(dest_op, vars);
+            CHECK_RESPONSE(create_command_line(op_code, 0, 1, vars))
+            CHECK_RESPONSE(create_number_line(atoi(source_op), vars))
+            CHECK_RESPONSE(create_unknown_line(dest_op, vars))
         }
     }
 
     else if((index_of_source_struct = is_struct(source_op))){
         if((dest = is_register(dest_op)) != -1){/*Struct and register*/
-            create_command_line(op_code, 2, 3, vars);
-            create_unknown_line(source_op, vars);
-            create_number_line(index_of_source_struct, vars);
-            create_registers_line(0, dest, vars);
+            CHECK_RESPONSE(create_command_line(op_code, 2, 3, vars))
+            CHECK_RESPONSE(create_unknown_line(source_op, vars))
+            CHECK_RESPONSE(create_number_line(index_of_source_struct, vars))
+            CHECK_RESPONSE(create_registers_line(0, dest, vars))
         }
         else if((index_of_dest_struct = is_struct(dest_op))){/*Struct and struct*/
-            create_command_line(op_code, 2, 2, vars);
-            create_unknown_line(source_op, vars);
-            create_number_line(index_of_source_struct, vars);
-            create_unknown_line(dest_op, vars);
-            create_number_line(index_of_dest_struct, vars);
+            CHECK_RESPONSE(create_command_line(op_code, 2, 2, vars))
+            CHECK_RESPONSE(create_unknown_line(source_op, vars))
+            CHECK_RESPONSE(create_number_line(index_of_source_struct, vars))
+            CHECK_RESPONSE(create_unknown_line(dest_op, vars))
+            CHECK_RESPONSE(create_number_line(index_of_dest_struct, vars))
         }
         else{/*Struct and label*/
-            create_command_line(op_code, 2, 1, vars);
-            create_unknown_line(source_op, vars);
-            create_number_line(index_of_source_struct, vars);
-            create_unknown_line(dest_op, vars);
+            CHECK_RESPONSE(create_command_line(op_code, 2, 1, vars))
+            CHECK_RESPONSE(create_unknown_line(source_op, vars))
+            CHECK_RESPONSE(create_number_line(index_of_source_struct, vars))
+            CHECK_RESPONSE(create_unknown_line(dest_op, vars))
             
         }
     }
 
     else {/*The source operand is label*/
         if((dest = is_register(dest_op)) != -1){/*Label and register*/
-            create_command_line(op_code, 1, 3, vars);
-            create_unknown_line(source_op, vars);
-            create_registers_line(0, dest, vars);
+            CHECK_RESPONSE(create_command_line(op_code, 1, 3, vars))
+            CHECK_RESPONSE(create_unknown_line(source_op, vars))
+            CHECK_RESPONSE(create_registers_line(0, dest, vars))
         }
         else if((index_of_dest_struct = is_struct(dest_op))){/*Label and struct*/
-            create_command_line(op_code, 1, 2, vars);
-            create_unknown_line(source_op, vars);
-            create_unknown_line(dest_op, vars);
-            create_number_line(index_of_dest_struct, vars);
+            CHECK_RESPONSE(create_command_line(op_code, 1, 2, vars))
+            CHECK_RESPONSE(create_unknown_line(source_op, vars))
+            CHECK_RESPONSE(create_unknown_line(dest_op, vars))
+            CHECK_RESPONSE(create_number_line(index_of_dest_struct, vars))
         }
         else {/*Label and label*/
-            create_command_line(op_code, 1, 1 , vars);
-            create_unknown_line(source_op, vars);
-            create_unknown_line(dest_op, vars);
+            CHECK_RESPONSE(create_command_line(op_code, 1, 1 , vars))
+            CHECK_RESPONSE(create_unknown_line(source_op, vars))
+            CHECK_RESPONSE(create_unknown_line(dest_op, vars))
             
         }
     }
@@ -179,6 +179,11 @@ responseType create_number_line(int number, multiVars *vars){
 responseType create_unknown_line(char *label_name, multiVars *vars){
     ptrLabelApearence new_node;
     char *token = NULL;
+
+    if(!valid_label_name(label_name)) {
+        /*printf("User Error: in %s.am line %d : '%s' is illegal label name'\n", vars->file_name, vars->line_number, label_name);*/
+        return USER_ERROR;
+    }
 
     new_node = (ptrLabelApearence)calloc_with_check(1, sizeof(labelApearance));
     if(!new_node)

@@ -228,15 +228,27 @@ responseType insert_opcode_line(char* file_name, int line_number, char *label_na
     if(label_name && (response = create_label_node(label_name, CODE, vars)) != SUCCESS)
         return response;
 
-    op_code = strtok(line, " ,\t\r\n");
-    first_operand = strtok(NULL, " ,\t\r\n");
-    second_operand = strtok(NULL, " ,\t\r\n");
-    rest_line = strtok(NULL, " ,\t\r\n");
-    
-    if(rest_line){/*If not null*/
-        printf("User Error: in %s.am line %d : extra operands for opcode '%s'\n", file_name, line_number, op_code);
-        return USER_ERROR;
+    op_code = strtok(line, " \t\r\n");
+    rest_line = strtok(NULL, ""); 
+    if (rest_line) {
+        first_operand = strtok(rest_line, ",");
+        second_operand = strtok(NULL, "");
     }
+    if (first_operand) {
+        first_operand = strtok(first_operand, " \t\r\n");
+        if (strtok(NULL, " \t\r\n")) {
+            printf("User Error: in %s.am line %d : illegal first oprand\n", file_name, line_number);
+            return USER_ERROR;
+        }
+    }
+    if (second_operand) {
+        second_operand = strtok(second_operand, " \t\r\n");
+        if (strtok(NULL, " \t\r\n")) {
+            printf("User Error: in %s.am line %d : illegal second oprand\n", file_name, line_number);
+            return USER_ERROR;
+        }
+    }
+
     if((op_code_index = find_opcode(op_code)) != -1){
 
         /*If there are two arguments after opcode word*/
@@ -274,7 +286,7 @@ responseType insert_opcode_line(char* file_name, int line_number, char *label_na
         printf("User Error: in %s.am line %d : illegal item '%s'\n", file_name, line_number, op_code);
         return USER_ERROR;
     }
-
+    free(first_operand);
     return response;
 }
 
@@ -286,14 +298,15 @@ responseType insert_data_line(char* file_name, int line_number, char *label_name
     if((response = create_label_node(label_name, DATA, vars)) != SUCCESS)
         return response;
     
-    token = strtok(line, " ,\t\r\n");
+    token = strtok(line, " ,\n\t\r");
+    
     while (token){
         if ((number = atoi(token)) == 0 && strcmp(token, "0")) {
             printf("User Error in %s.am line %d : illegal data argument\n", file_name, line_number);
             return USER_ERROR;
         }
         if(create_data_node(number, vars) == SUCCESS){
-            token = strtok(NULL, " ,\t\r\n");
+            token = strtok(NULL, " ,\n\t\r");
         }
         else return SYSTEM_ERROR;
     }
