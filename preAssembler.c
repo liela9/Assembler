@@ -34,10 +34,15 @@ responseType pre_assembler(char *file_name){
                     printf("User Error in %s: line %d : macro must have a name\n", file_name, line_counter);
                     response = USER_ERROR;
                 }
-                else if((macro_exists(head_macro, current_word)) || is_reserved_word(current_word)){
-                    printf("User Error: can't add new macro '%s'.\n", current_word);
+                else if(is_reserved_word(current_word)){
+                    printf("User Error: can't use reserved word '%s' as macro name.\n", current_word);
+                    response = USER_ERROR;
+                }   
+                else if(macro_exists(head_macro, current_word)){
+                    printf("User Error: macro name '%s' is already exist.\n", current_word);
                     response = USER_ERROR;
                 }
+                
                 else {
                     if(strtok(NULL, " \t\r\n")){
                         printf("User Error in %s: line %d : extra content after macro name!\n", file_name, line_counter);

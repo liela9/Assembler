@@ -7,43 +7,63 @@
 /*The second step of the Assembler*/
 responseType second_step(char *file_name, multiVars *vars){
 	FILE *file;
-	char label_name[MAX_LABEL_LENGTH], *line, *token;
-	int index = 0, line_counter = 0;
+	char *label_name, *line, *label_type;
+	int index = 0, i, line_counter = 0;
 	ptrLabelApearence temp_label_apear = vars->head_label_apear;
 	ptrlabel temp_label;
 	ptrCommand temp_commands = vars->head_commands;
 	unsigned long question_mark = convertDtoB('?');
 	responseType response = SUCCESS;
+	bool is_space_flag;
     
     if (!(file = open_file_with_extension(file_name, AM_EXTENSION, "r")))
         return SYSTEM_ERROR;
-
+     
     line = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
     if (!line)
         return SYSTEM_ERROR;
-        
+       
     while(fgets(line, MAX_LINE_LENGTH, file)){
         line_counter++;
-        token = strtok(line, " \t\n");
+        is_space_flag = true;
         
-        if(!strcmp(token, ENTRY_WORD)){
+        for(i = 0; i < strlen(line); ++i){/*Checks if the current line is "empty"*/
+            if(!isspace(line[i])){
+                is_space_flag = false;
+                break;
+            }
+        }
+        if(is_space_flag)/*If thr line is "empty" => read the next line*/
+            continue;
         
-            token = strtok(NULL, " \t\n");
-            if(!(temp_label = get_label_by_name(token, vars->head_label))){
-                printf("User Error in %s.am line %d : %s undefined\n", file_name, line_counter, token);
+        label_type = strtok(line, " \t\n\r");
+        label_name = strtok(NULL, " \t\n\r");
+        
+        if(!strcmp(label_type, ENTRY_WORD)){
+            
+            if(!(temp_label = get_label_by_name(label_name, vars->head_label))){
+                printf("User Error in %s.am line %d : %s 111undefined\n", file_name, line_counter, label_name);
                 response = USER_ERROR;
             }
-            else{
-                if(temp_label->type != EXTERNAL)
+            else if(temp_label->type != EXTERNAL)
                     temp_label->type = ENTRY;
-                else {
-                    printf("User Error in %s.am line %d : %s already defined as 'extern'\n", file_name, line_counter, token);
+            else{
+                 printf("User Error in %s.am line %d : %s already defined as 'extern'\n", file_name, line_counter, label_name);
                     response = USER_ERROR;
-                }
-            } 
-                
+            }
+        } 
+		if(!strcmp(label_type, EXTERN_WORD)){ 
+			
+            temp_label = get_label_by_name(label_name, vars->head_label);
+            if(temp_label->type != ENTRY)
+                    temp_label->type = EXTERNAL;
+            else{
+                 printf("User Error in %s.am line %d : %s already defined as 'entry'\n", file_name, line_counter, temp_label->name);
+                    response = USER_ERROR;
+            }
         }
     }
+
 
 	/*While it is not the end of the list*/
 	while(temp_commands){

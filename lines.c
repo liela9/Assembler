@@ -210,13 +210,13 @@ responseType create_unknown_line(char *label_name, multiVars *vars){
 responseType create_data_line(char *line, char *type, multiVars *vars){
     char *token = NULL;
 
-    strcpy(token, strtok(line, " ,\t\r"));
+    strcpy(token, strtok(line, " ,\t\r\n"));
 
     /*The type is ".data"*/
     if(!strcmp(type, DATA_WORD)){
         while (token){
             if(create_data_node(atoi(token), vars) == SUCCESS)
-                strcpy(token, strtok(NULL, " ,\t\r"));
+                strcpy(token, strtok(NULL, " ,\t\r\n"));
             
             else return SYSTEM_ERROR;
         }
@@ -238,7 +238,7 @@ responseType create_data_line(char *line, char *type, multiVars *vars){
     if(!strcmp(type, STRUCT_WORD)){
         int i;
 
-        strcpy(token, strtok(NULL, " ,\t\r"));
+        strcpy(token, strtok(NULL, " ,\t\r\n"));
         if(create_data_node(atoi(token), vars) != SUCCESS)
             return SYSTEM_ERROR;
 

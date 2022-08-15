@@ -55,9 +55,9 @@ responseType first_step(char *file_name, multiVars *vars){
 
 
 responseType handle_line(char* file_name, char* line, char * line_copy, int line_number, multiVars *vars) {
-    char *current_word, *label_name;
+    char *current_word, *label_name, *rest_line;
 
-    if(!(current_word = strtok(line, " \t\r")) || ((current_word[0] == ';')))
+    if(!(current_word = strtok(line, " \t\r\n")) || ((current_word[0] == ';')))
         /*If it is comment or empty line*/
         return SUCCESS;
 
@@ -68,7 +68,7 @@ responseType handle_line(char* file_name, char* line, char * line_copy, int line
         }
         label_name = current_word;
         label_name[strlen(label_name)-1] = '\0'; /*Remove the char ':' */
-        current_word =  strtok(NULL, " ,\t\r");
+        current_word =  strtok(NULL, " ,\t\r\n");
     }
     else
         label_name = NULL;
@@ -77,19 +77,36 @@ responseType handle_line(char* file_name, char* line, char * line_copy, int line
         if so, check inside "create_label_node" if all code lists are null*/
 
     if(!strcmp(current_word, ENTRY_WORD)) 
-        return extern_entry_validate(file_name, ENTRY, vars, line_number, strstr(line_copy, strtok(NULL, " ,\t\r")));
+        return extern_entry_validate(file_name, ENTRY, vars, line_number, strstr(line_copy, strtok(NULL, " \t\r\n")));
     
     if(!strcmp(current_word, EXTERN_WORD)) 
-        return extern_entry_validate(file_name, EXTERNAL, vars, line_number, strstr(line_copy, strtok(NULL, " ,\t\r")));
+        return extern_entry_validate(file_name, EXTERNAL, vars, line_number, strstr(line_copy, strtok(NULL, " \t\r\n")));
     
-    if(!strcmp(current_word, DATA_WORD))
-        return insert_data_line(file_name, line_number, label_name, strstr(line_copy, strtok(NULL, " ,\t\r")), vars);
+    rest_line = strtok(NULL, " \t\r\n");
 
-    if(!strcmp(current_word, STRUCT_WORD))
-        return insert_struct_line(file_name, line_number, label_name, strstr(line_copy, strtok(NULL, " ,\t\r")), vars);
+    if(!strcmp(current_word, DATA_WORD)){
+        if(!rest_line){
+            printf("User Error in %s.am line %d : missing data arguments\n", file_name, line_number);
+            return USER_ERROR;
+        }
+        return insert_data_line(file_name, line_number, label_name, strstr(line_copy, rest_line), vars);
+    }
 
-    if(!strcmp(current_word, STRING_WORD))
-        return insert_string_line(file_name, line_number, label_name, strstr(line_copy, strtok(NULL, " ,\t\r")), vars);
+    if(!strcmp(current_word, STRUCT_WORD)){
+        if(!rest_line){
+            printf("User Error in %s.am line %d : missing data arguments\n", file_name, line_number);
+            return USER_ERROR;
+        }
+        return insert_struct_line(file_name, line_number, label_name, strstr(line_copy, rest_line), vars);
+    }
+
+    if(!strcmp(current_word, STRING_WORD)){
+        if(!rest_line){
+            printf("User Error in %s.am line %d : missing data arguments\n", file_name, line_number);
+            return USER_ERROR;
+        }
+        return insert_string_line(file_name, line_number, label_name, strstr(line_copy, rest_line), vars);
+    }
 
     if(label_name)
         return insert_opcode_line(file_name, line_number, label_name, strstr(line_copy, current_word), vars);
@@ -102,12 +119,12 @@ responseType handle_line(char* file_name, char* line, char * line_copy, int line
 responseType extern_entry_validate(char *file_name, labelType type, multiVars *vars, int line_number, char *line){
     char *current_word;
 
-    current_word =  strtok(line, " ,\t\r");
+    current_word =  strtok(line, " ,\t\r\n");
     if (!current_word) {
         printf("User Error: in %s.am line %d : label name is empty\n", file_name, line_number);
         return USER_ERROR;
     }
-    if (!strtok(NULL, " ,\t\r")) { /* not empty line after the label name*/
+    if (!strtok(NULL, " ,\t\r\n")) { /* not empty line after the label name*/
         printf("User Error: in %s.am line %d : extra contect in .extern or .entry line\n", file_name, line_number);
         return USER_ERROR;
     }
@@ -124,17 +141,54 @@ responseType insert_data_label(char* label_name, int address, multiVars *vars) {
 }
 
 responseType insert_string_line(char* file_name, int line_number, char *label_name, char* line, multiVars *vars) {
-    int i, current_dc = DC;
+    int i, current_dc = DC, len_of_string;
+    char *string_part, *rest_line;
+    bool is_not_space_flag = false;
+
+    /*Cut the last quotation mark and the other characters after it*/
+    rest_line = strrchr(line, '\"');
+
+    if(!rest_line){
+        printf("User Error in %s.am line %d : missing quotation mark in string part\n", file_name, line_number);
+        return USER_ERROR;
+    }
+
+    /*Checs if there are not white-spaces characters after the last quotation mark*/
+    for(i = 1; i < strlen(rest_line); ++i){
+        if(!isspace(rest_line[i])){
+            is_not_space_flag = true;
+            break;
+        }
+    }
+    if(is_not_space_flag){
+        printf("User Error in %s.am line %d : illegal string argument\n", file_name, line_number);
+        return USER_ERROR;
+    }
 
     if(insert_data_label(label_name, current_dc, vars) == SYSTEM_ERROR)
         return SYSTEM_ERROR;
 
-    strtok(line, "\"");
-    for(i = 1; i < strlen(line); ++i){/*Reads between the ""*/
-        /*Converts the ASCII code of the letter to binary*/
-        if(create_data_node(line[i], vars) != SUCCESS)
-            return SYSTEM_ERROR;
+
+    len_of_string = strlen(line) - strlen(rest_line) + 1;
+    string_part = (char *)calloc_with_check(len_of_string, sizeof(char));
+    memcpy(string_part, line, len_of_string);
+    
+    if(string_part[0] != '\"'){
+        printf("User Error in %s.am line %d : missing quotation mark in string part\n", file_name, line_number);
+        free(string_part);
+        return USER_ERROR;
     }
+
+
+    for(i = 1; i < strlen(string_part)-1; ++i){/*Reads between the "" */
+        /*Converts the ASCII code of the letter to binary*/
+        if(create_data_node(string_part[i], vars) != SUCCESS){
+            free(string_part);
+            return SYSTEM_ERROR;
+        }
+    }
+
+    free(string_part);
 
     if(create_zero_line(vars) != SUCCESS)
         return SYSTEM_ERROR;
@@ -143,47 +197,46 @@ responseType insert_string_line(char* file_name, int line_number, char *label_na
 }
 
 responseType insert_struct_line(char* file_name, int line_number, char *label_name, char* line, multiVars *vars) {
-    int i, number, current_dc = DC;
-    char token[MAX_LINE_LENGTH];
-    char *string_part = NULL;
+    char *data_part = NULL, *string_part = NULL, line_copy[MAX_LINE_LENGTH];
+    int number;
 
-    if(insert_data_label(label_name, current_dc, vars) == SYSTEM_ERROR)
-        return SYSTEM_ERROR;
+    strcpy(line_copy, line);
+    data_part = strtok(line, " ,\t\r\n");
+    string_part = strstr(line_copy, strtok(NULL, " ,\t\r\n"));
 
-    string_part = strstr(line, "\"");
-    /*The firt argument is data(number)*/
-    strcpy(token, strtok(line, " ,\t\r"));
-    if ((number = atoi(token)) == 0 && strcmp(token, "0")) {
+    /*Handle the data part of the struct*/
+    while (data_part){
+        if ((number = atoi(data_part)) == 0 && strcmp(data_part, "0")) {
             printf("User Error in %s.am line %d : illegal data argument\n", file_name, line_number);
             return USER_ERROR;
+        }
+        if(create_data_node(number, vars) == SUCCESS){
+            data_part = strtok(NULL, " ,\t\r\n");
+        }
+        else return SYSTEM_ERROR;
     }
-    if(create_data_node(atoi(token), vars) != SUCCESS)
-        return SYSTEM_ERROR;
 
-    strtok(string_part, "\"");
-    /*The second argument is string*/
-    for(i = 1; i < strlen(string_part); ++i){/*Reads between the ""*/
-        if(create_data_node(string_part[i], vars) != SUCCESS)
-            return SYSTEM_ERROR;
-    }
-    
-    if(create_zero_line(vars) != SUCCESS)
-        return SYSTEM_ERROR;
-
-    return SUCCESS;
+    /*Handle the string part of the struct*/
+    return insert_string_line(file_name, line_number, label_name, string_part, vars);
 }
 
 responseType insert_opcode_line(char* file_name, int line_number, char *label_name, char* line, multiVars *vars) {
     int op_code_index;
-    char *op_code = NULL, *first_operand = NULL, *second_operand = NULL;
+    responseType response = SUCCESS;
+    char *op_code = NULL, *first_operand = NULL, *second_operand = NULL, *rest_line = NULL;
 
-    if (label_name && (create_label_node(label_name, CODE, vars) == SYSTEM_ERROR))
-        return SYSTEM_ERROR;
+    if(label_name && (response = create_label_node(label_name, CODE, vars)) != SUCCESS)
+        return response;
 
     op_code = strtok(line, " ,\t\r\n");
     first_operand = strtok(NULL, " ,\t\r\n");
     second_operand = strtok(NULL, " ,\t\r\n");
-
+    rest_line = strtok(NULL, " ,\t\r\n");
+    
+    if(rest_line){/*If not null*/
+        printf("User Error: in %s.am line %d : extra operands for opcode '%s'\n", file_name, line_number, op_code);
+        return USER_ERROR;
+    }
     if((op_code_index = find_opcode(op_code)) != -1){
 
         /*If there are two arguments after opcode word*/
@@ -195,7 +248,7 @@ responseType insert_opcode_line(char* file_name, int line_number, char *label_na
                 return USER_ERROR;
             }    
         }
-    
+
         /*If there are no arguments after opcode word*/
         else if(!first_operand && !second_operand){
             
@@ -218,24 +271,20 @@ responseType insert_opcode_line(char* file_name, int line_number, char *label_na
         }
     }
     else{
-        printf("User Error: in %s.am line %d : illegal opcode '%s'\n", file_name, line_number, op_code);
+        printf("User Error: in %s.am line %d : illegal item '%s'\n", file_name, line_number, op_code);
         return USER_ERROR;
     }
 
-    return SUCCESS;
+    return response;
 }
 
 responseType insert_data_line(char* file_name, int line_number, char *label_name, char* line, multiVars *vars) {
     char *token = NULL;
     int number;
+    responseType response;
 
-    if(create_label_node(label_name, DATA, vars) == SYSTEM_ERROR)
-        return SYSTEM_ERROR;
-
-    if (!line){
-        printf("User Error in %s.am line %d : missing data arguments\n", file_name, line_number);
-        return USER_ERROR;
-    }
+    if((response = create_label_node(label_name, DATA, vars)) != SUCCESS)
+        return response;
     
     token = strtok(line, " ,\t\r\n");
     while (token){

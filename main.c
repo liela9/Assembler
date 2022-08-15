@@ -47,21 +47,22 @@ responseType process_file(char *file_name){
 
     if((response = pre_assembler(file_name)) == SUCCESS) { /*Can't proceed if encoutered error */
 
-        
         if(first_step(file_name, vars) != SUCCESS)
-            printf("An error occured while processing file %s\n", file_name);
+            printf("An error occured while processing file %s in first step\n", file_name);
 
-
-        if(second_step(file_name, vars) != SUCCESS)
-            printf("An error occured while processing file %s\n", file_name);
         
-
-        if(!write_files(file_name, vars))
-            printf("An error occured while processing file %s\n", file_name);
-        
-        printf("File '%s' successfully compiled !\n", file_name);
-        free_lists(vars);
+        else if(second_step(file_name, vars) != SUCCESS)
+            printf("An error occured while processing file %s in second step\n", file_name);
+            
+         
+        else if(!write_files(file_name, vars))
+            printf("An error occured while processing file %s in 'write files'\n", file_name);
+            
+        else
+            printf("File '%s' successfully compiled !\n", file_name);
+            
     }
+    free_lists(vars);
     free(vars);
     return response;
 }
