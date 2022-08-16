@@ -6,6 +6,6 @@
 #define E 1
 
 /*Function of file 'secondStep.c'*/
-responseType second_step(char *, multiVars *);
+responseType second_step(multiVars *);
 
 #endif

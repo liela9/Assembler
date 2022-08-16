@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #define BASE_LENGTH 32
 #define NUM_OF_REGISTERS 8
@@ -15,6 +16,8 @@
 #define ENTRY_WORD ".entry"
 #define EXTERN_WORD ".extern"
 #define FIRST_MEMORY_CELL 100
+
+#define CHECK_RESPONSE(response) if(response != SUCCESS) return response;
 
 int IC; /*Instruction counter*/
 int DC;/*Data counter*/
@@ -116,6 +119,8 @@ typedef struct multiVars{
     ptrCommand tail_commands;
     ptrExternLabel head_extern_label;
     ptrExternLabel tail_extern_label;
+    char file_name[FILENAME_MAX];
+    int line_counter;
 }multiVars;
 
 

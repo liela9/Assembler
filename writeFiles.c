@@ -71,7 +71,6 @@ bool write_ext_file(char *file_name, multiVars *vars){
         while(h_label_apear){
             /*If h_label->name equals to h_label_apear->name*/
             if(!strcmp(h_extern_label->name, h_label_apear->name)){
-                
                 count_ext++;
                 fputs(h_extern_label->name, fext);
                 fputc('\t', fext); 
@@ -82,9 +81,12 @@ bool write_ext_file(char *file_name, multiVars *vars){
         }
         h_extern_label = h_extern_label->next;
     }
-
-    if(count_ext == 0)
+    
+    if(count_ext == 0){
+        if(vars->head_extern_label)
+            printf("NOTE: ext file was not needed, the external label was not used\n");
         remove(ext_name);
+    }
     else
         fclose(fext);
     return true; 

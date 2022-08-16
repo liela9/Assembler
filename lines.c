@@ -4,7 +4,6 @@
 #include "converting.h"
 #include "lists.h"
 
-#define CHECK_RESPONSE(response) if(response != SUCCESS) return response;
 
 responseType create_two_operands_command(int op_code, char *source_op, char *dest_op, multiVars *vars){
     int index_of_source_struct, index_of_dest_struct;
@@ -111,22 +110,22 @@ responseType create_no_operands_command(int op_code, multiVars *vars){
 
 responseType create_one_operand_command(int op_code, char *operand, multiVars *vars){
     int register_num, struct_index, dest_op_addressing = 0, source_op_addressing = 0;
-    responseType response = SUCCESS;
 
     strtok(operand, "\n");/*Remove the '\n' character*/
 
     if((register_num = is_register(operand)) != -1){
         dest_op_addressing = 3;
-        if(create_commands_node((op_code<<6) | (source_op_addressing<<4) | (dest_op_addressing<<2), vars) == SUCCESS)
-            response = create_registers_line(register_num, 0 , vars);
+        if(create_commands_node((op_code<<6) | (source_op_addressing<<4) | (dest_op_addressing<<2), vars) == SUCCESS){
+            CHECK_RESPONSE(create_registers_line(register_num, 0 , vars))
+        }
         else return SYSTEM_ERROR;
     }
 
     else if((struct_index = is_struct(operand))){
         dest_op_addressing = 2;
         if(create_commands_node((op_code<<6) | (source_op_addressing<<4) | (dest_op_addressing<<2), vars) == SUCCESS){
-            response = create_unknown_line(operand, vars);
-            response = create_number_line(struct_index, vars);
+            CHECK_RESPONSE(create_unknown_line(operand, vars))
+            CHECK_RESPONSE(create_number_line(struct_index, vars))
         }
         else return SYSTEM_ERROR;
     }
@@ -135,19 +134,20 @@ responseType create_one_operand_command(int op_code, char *operand, multiVars *v
         operand = strtok(operand, "#");
         dest_op_addressing = 0;
         if(create_commands_node((op_code<<6) | (source_op_addressing<<4) | (dest_op_addressing<<2), vars) == SUCCESS){
-            response = create_number_line(atoi(operand), vars);
+            CHECK_RESPONSE(create_number_line(atoi(operand), vars))
         }
         else return SYSTEM_ERROR;
     }
 
     else {
         dest_op_addressing = 1;
-        if(create_commands_node((op_code<<6) | (source_op_addressing<<4) | (dest_op_addressing<<2), vars) == SUCCESS)
-            response = create_unknown_line(operand, vars);
+        if(create_commands_node((op_code<<6) | (source_op_addressing<<4) | (dest_op_addressing<<2), vars) == SUCCESS){
+            CHECK_RESPONSE(create_unknown_line(operand, vars))
+        }
         else return SYSTEM_ERROR;
     }
     
-    return response;
+    return SUCCESS;
 }
 
 
@@ -155,8 +155,7 @@ responseType create_one_operand_command(int op_code, char *operand, multiVars *v
 /*Creates new machine code line (binary) in commandd_table*/
 responseType create_command_line(int op_code, int source_op_addressing, 
 int dest_op_addressing, multiVars *vars){
-    return create_commands_node((op_code<<6) | (source_op_addressing<<4) | 
-    (dest_op_addressing<<2), vars);
+    return create_commands_node((op_code<<6) | (source_op_addressing<<4) | (dest_op_addressing<<2), vars);
 }
 
 
@@ -166,10 +165,7 @@ responseType create_registers_line(int source, int dest, multiVars *vars){
 }
 
 
-/*
-Gets numeric value
-And insert it as binary to the commands list
-*/
+/*Gets numeric value and inserts it as binary to the commands list*/
 responseType create_number_line(int number, multiVars *vars){
     return create_commands_node(number<<2, vars);
 }
@@ -180,15 +176,16 @@ responseType create_unknown_line(char *label_name, multiVars *vars){
     ptrLabelApearence new_node;
     char *token = NULL;
 
+    strtok(label_name, ".");/*If there is'nt '.' => label_name will stay the same*/
+
     if(!valid_label_name(label_name)) {
-        /*printf("User Error: in %s.am line %d : '%s' is illegal label name'\n", vars->file_name, vars->line_number, label_name);*/
+        printf("User Error: in %s.am line %d : '%s' is illegal label name'\n", vars->file_name, vars->line_counter, label_name);
         return USER_ERROR;
     }
 
     new_node = (ptrLabelApearence)calloc_with_check(1, sizeof(labelApearance));
     if(!new_node)
         return SYSTEM_ERROR;
-
     
     if((token = strtok(label_name, ".")))
         strcpy(new_node->name, token);/*Saves the location of the struct apearence*/

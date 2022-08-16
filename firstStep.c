@@ -7,15 +7,15 @@
 
 
 /*The first step of the Assembler*/
-responseType first_step(char *file_name, multiVars *vars){
+responseType first_step(multiVars *vars){
     
     FILE *file;
     char *line, *copy_line;
     responseType response = SUCCESS;
     bool user_error_flag = false;
-    int line_counter = 0;
+    vars->line_counter = 0;
 
-    if (!(file = open_file_with_extension(file_name, AM_EXTENSION, "r")))
+    if (!(file = open_file_with_extension(vars->file_name, AM_EXTENSION, "r")))
         return SYSTEM_ERROR;
 
     line = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
@@ -29,10 +29,10 @@ responseType first_step(char *file_name, multiVars *vars){
 
     /*Reads a line*/
     while(fgets(line, MAX_LINE_LENGTH, file)){
-        line_counter++;
+        (vars->line_counter)++;
         strcpy(copy_line, line);
         
-        response = handle_line(file_name, line, copy_line, line_counter, vars);
+        response = handle_line(line, copy_line, vars);
         switch(response) {
             case SYSTEM_ERROR:
                 break;
@@ -54,7 +54,7 @@ responseType first_step(char *file_name, multiVars *vars){
 }
 
 
-responseType handle_line(char* file_name, char* line, char * line_copy, int line_number, multiVars *vars) {
+responseType handle_line(char *line, char *line_copy, multiVars *vars) {
     char *current_word, *label_name, *rest_line;
 
     if(!(current_word = strtok(line, " \t\r\n")) || ((current_word[0] == ';')))
@@ -63,7 +63,7 @@ responseType handle_line(char* file_name, char* line, char * line_copy, int line
 
     if(current_word[strlen(current_word)-1] == ':') {
         if (strlen(current_word) == 1) {
-            printf("User Error: in %s.am line %d : label name is empty\n", file_name, line_number);
+            printf("User Error: in %s.am line %d : label name is empty\n", vars->file_name, vars->line_counter);
             return USER_ERROR;
         }
         label_name = current_word;
@@ -77,55 +77,58 @@ responseType handle_line(char* file_name, char* line, char * line_copy, int line
         if so, check inside "create_label_node" if all code lists are null*/
 
     if(!strcmp(current_word, ENTRY_WORD)) 
-        return extern_entry_validate(file_name, ENTRY, vars, line_number, strstr(line_copy, strtok(NULL, " \t\r\n")));
+        return extern_entry_validate(ENTRY, vars, strstr(line_copy, strtok(NULL, " \t\r\n")));
     
     if(!strcmp(current_word, EXTERN_WORD)) 
-        return extern_entry_validate(file_name, EXTERNAL, vars, line_number, strstr(line_copy, strtok(NULL, " \t\r\n")));
+        return extern_entry_validate(EXTERNAL, vars, strstr(line_copy, strtok(NULL, " \t\r\n")));
     
     rest_line = strtok(NULL, " \t\r\n");
 
     if(!strcmp(current_word, DATA_WORD)){
         if(!rest_line){
-            printf("User Error in %s.am line %d : missing data arguments\n", file_name, line_number);
+            printf("User Error: in %s.am line %d : missing data arguments\n", vars->file_name, vars->line_counter);
             return USER_ERROR;
         }
-        return insert_data_line(file_name, line_number, label_name, strstr(line_copy, rest_line), vars);
+        return insert_data_line(label_name, strstr(line_copy, rest_line), vars);
     }
 
     if(!strcmp(current_word, STRUCT_WORD)){
         if(!rest_line){
-            printf("User Error in %s.am line %d : missing data arguments\n", file_name, line_number);
+            printf("User Error: in %s.am line %d : missing data arguments\n", vars->file_name, vars->line_counter);
             return USER_ERROR;
         }
-        return insert_struct_line(file_name, line_number, label_name, strstr(line_copy, rest_line), vars);
+        return insert_struct_line(label_name, strstr(line_copy, rest_line), vars);
     }
 
     if(!strcmp(current_word, STRING_WORD)){
         if(!rest_line){
-            printf("User Error in %s.am line %d : missing data arguments\n", file_name, line_number);
+            printf("User Error: in %s.am line %d : missing data arguments\n", vars->file_name, vars->line_counter);
             return USER_ERROR;
         }
-        return insert_string_line(file_name, line_number, label_name, strstr(line_copy, rest_line), vars);
+        CHECK_RESPONSE(insert_data_label(label_name, DC, vars))
+        return insert_string_line(label_name, strstr(line_copy, rest_line), vars);
     }
 
     if(label_name)
-        return insert_opcode_line(file_name, line_number, label_name, strstr(line_copy, current_word), vars);
+        return insert_opcode_line(label_name, strstr(line_copy, current_word), vars);
 
-    return insert_opcode_line(file_name, line_number, label_name, line_copy, vars);
+    return insert_opcode_line(label_name, line_copy, vars);
 
     return SUCCESS;
 }
 
-responseType extern_entry_validate(char *file_name, labelType type, multiVars *vars, int line_number, char *line){
-    char *current_word;
+responseType extern_entry_validate(labelType type, multiVars *vars, char *line){
+    char *current_word, *rest_line;
 
     current_word =  strtok(line, " ,\t\r\n");
     if (!current_word) {
-        printf("User Error: in %s.am line %d : label name is empty\n", file_name, line_number);
+        printf("User Error: in %s.am line %d : label name is empty\n", vars->file_name, vars->line_counter);
         return USER_ERROR;
     }
-    if (!strtok(NULL, " ,\t\r\n")) { /* not empty line after the label name*/
-        printf("User Error: in %s.am line %d : extra contect in .extern or .entry line\n", file_name, line_number);
+    
+    rest_line = clear_white_spaces(strtok(NULL, ""));
+    if (rest_line) { /* not empty line after the label name*/
+        printf("User Error: in %s.am line %d : extra contect in .extern or .entry line\n", vars->file_name, vars->line_counter);
         return USER_ERROR;
     }
     if(type == EXTERNAL)
@@ -140,96 +143,80 @@ responseType insert_data_label(char* label_name, int address, multiVars *vars) {
     return SUCCESS;
 }
 
-responseType insert_string_line(char* file_name, int line_number, char *label_name, char* line, multiVars *vars) {
-    int i, current_dc = DC, len_of_string;
-    char *string_part, *rest_line;
-    bool is_not_space_flag = false;
+responseType insert_string_line(char *label_name, char* line, multiVars *vars) {
+    int i, str_len;
+    char *rest_line, *string_part;
 
-    /*Cut the last quotation mark and the other characters after it*/
+    /*Pointer to the last quotation mark*/
     rest_line = strrchr(line, '\"');
+    /*Pointer to the first quotation mark*/
+    string_part = strchr(line, '\"');
 
-    if(!rest_line){
-        printf("User Error in %s.am line %d : missing quotation mark in string part\n", file_name, line_number);
+    if(!rest_line || !strcmp(string_part, rest_line)){/*if there are one or zero quotation marks*/
+        printf("User Error: in %s.am line %d : missing quotation mark in string part\n", vars->file_name, vars->line_counter);
         return USER_ERROR;
     }
 
-    /*Checs if there are not white-spaces characters after the last quotation mark*/
-    for(i = 1; i < strlen(rest_line); ++i){
-        if(!isspace(rest_line[i])){
-            is_not_space_flag = true;
-            break;
+    for(i = 0; line[i] != '\"'; i++){/*Checks if there are characters before the first quotation mark*/
+        if(!isspace(line[i])){
+            printf("User Error: in %s.am line %d : illegal string argument\n", vars->file_name, vars->line_counter);
+            return USER_ERROR;
         }
     }
-    if(is_not_space_flag){
-        printf("User Error in %s.am line %d : illegal string argument\n", file_name, line_number);
-        return USER_ERROR;
-    }
 
-    if(insert_data_label(label_name, current_dc, vars) == SYSTEM_ERROR)
-        return SYSTEM_ERROR;
-
-
-    len_of_string = strlen(line) - strlen(rest_line) + 1;
-    string_part = (char *)calloc_with_check(len_of_string, sizeof(char));
-    memcpy(string_part, line, len_of_string);
+    str_len = strlen(line) - strlen(rest_line);/*The length of string_part (quotation only)*/
+    rest_line = clear_white_spaces(rest_line);/*Remove white spaces from the rest_line*/
     
-    if(string_part[0] != '\"'){
-        printf("User Error in %s.am line %d : missing quotation mark in string part\n", file_name, line_number);
-        free(string_part);
+    if(strcmp(rest_line, "\"")){/*If they are NOT equals*/
+        printf("User Error: in %s.am line %d : illegal string argument\n", vars->file_name, vars->line_counter);
         return USER_ERROR;
     }
 
-
-    for(i = 1; i < strlen(string_part)-1; ++i){/*Reads between the "" */
+    for(i = 1; i < str_len; ++i){/*Reads between the "" */
         /*Converts the ASCII code of the letter to binary*/
-        if(create_data_node(string_part[i], vars) != SUCCESS){
-            free(string_part);
-            return SYSTEM_ERROR;
-        }
+        CHECK_RESPONSE(create_data_node(string_part[i], vars))
     }
-
-    free(string_part);
-
-    if(create_zero_line(vars) != SUCCESS)
-        return SYSTEM_ERROR;
+    CHECK_RESPONSE(create_zero_line(vars))
 
     return SUCCESS;
 }
 
-responseType insert_struct_line(char* file_name, int line_number, char *label_name, char* line, multiVars *vars) {
+responseType insert_struct_line(char *label_name, char* line, multiVars *vars) {
     char *data_part = NULL, *string_part = NULL, line_copy[MAX_LINE_LENGTH];
     int number;
 
+    CHECK_RESPONSE(insert_data_label(label_name, DC, vars))
+
     strcpy(line_copy, line);
-    data_part = strtok(line, " ,\t\r\n");
-    string_part = strstr(line_copy, strtok(NULL, " ,\t\r\n"));
+    data_part = strtok(line, ",");
+    string_part = strstr(line_copy, strtok(NULL, " \t\r\n"));
+    data_part = clear_white_spaces(data_part);
 
     /*Handle the data part of the struct*/
     while (data_part){
         if ((number = atoi(data_part)) == 0 && strcmp(data_part, "0")) {
-            printf("User Error in %s.am line %d : illegal data argument\n", file_name, line_number);
+            printf("User Error: in %s.am line %d : illegal data argument\n", vars->file_name, vars->line_counter);
             return USER_ERROR;
         }
-        if(create_data_node(number, vars) == SUCCESS){
-            data_part = strtok(NULL, " ,\t\r\n");
-        }
-        else return SYSTEM_ERROR;
+        CHECK_RESPONSE(create_data_node(number, vars))
+        data_part = strtok(NULL, " ,\t\r\n");
     }
-
+    
     /*Handle the string part of the struct*/
-    return insert_string_line(file_name, line_number, label_name, string_part, vars);
+    return insert_string_line(label_name, string_part, vars);
 }
 
-responseType insert_opcode_line(char* file_name, int line_number, char *label_name, char* line, multiVars *vars) {
+responseType insert_opcode_line(char *label_name, char* line, multiVars *vars) {
     int op_code_index;
-    responseType response = SUCCESS;
     char *op_code = NULL, *first_operand = NULL, *second_operand = NULL, *rest_line = NULL;
 
-    if(label_name && (response = create_label_node(label_name, CODE, vars)) != SUCCESS)
-        return response;
+    if(label_name){
+        CHECK_RESPONSE(create_label_node(label_name, CODE, vars))
+    }
 
     op_code = strtok(line, " \t\r\n");
     rest_line = strtok(NULL, ""); 
+
     if (rest_line) {
         first_operand = strtok(rest_line, ",");
         second_operand = strtok(NULL, "");
@@ -237,14 +224,14 @@ responseType insert_opcode_line(char* file_name, int line_number, char *label_na
     if (first_operand) {
         first_operand = strtok(first_operand, " \t\r\n");
         if (strtok(NULL, " \t\r\n")) {
-            printf("User Error: in %s.am line %d : illegal first oprand\n", file_name, line_number);
+            printf("User Error: in %s.am line %d : extra character after first oprand\n", vars->file_name, vars->line_counter);
             return USER_ERROR;
         }
     }
     if (second_operand) {
         second_operand = strtok(second_operand, " \t\r\n");
         if (strtok(NULL, " \t\r\n")) {
-            printf("User Error: in %s.am line %d : illegal second oprand\n", file_name, line_number);
+            printf("User Error: in %s.am line %d : extra character after second oprand\n", vars->file_name, vars->line_counter);
             return USER_ERROR;
         }
     }
@@ -253,10 +240,11 @@ responseType insert_opcode_line(char* file_name, int line_number, char *label_na
 
         /*If there are two arguments after opcode word*/
         if(first_operand && second_operand){
-            if((0 <= op_code_index && op_code_index <= 3) || op_code_index == 6)
-                create_two_operands_command(op_code_index, first_operand, second_operand, vars);
+            if((0 <= op_code_index && op_code_index <= 3) || op_code_index == 6){
+                CHECK_RESPONSE(create_two_operands_command(op_code_index, first_operand, second_operand, vars))
+            }
             else{
-                printf("User Error: in %s.am line %d : extra operands for opcode '%s'\n", file_name, line_number, op_code);
+                printf("User Error: in %s.am line %d : extra operands for opcode '%s'\n", vars->file_name, vars->line_counter, op_code);
                 return USER_ERROR;
             }    
         }
@@ -264,51 +252,80 @@ responseType insert_opcode_line(char* file_name, int line_number, char *label_na
         /*If there are no arguments after opcode word*/
         else if(!first_operand && !second_operand){
             
-            if(op_code_index == 14 || op_code_index == 15)
-                create_no_operands_command(op_code_index, vars);
+            if(op_code_index == 14 || op_code_index == 15){
+                CHECK_RESPONSE(create_no_operands_command(op_code_index, vars))
+            }
             else{
-                printf("User Error: in %s.am line %d : missing operands for opcode '%s'\n", file_name, line_number, op_code);
+                printf("User Error: in %s.am line %d : missing operands for opcode '%s'\n", vars->file_name, vars->line_counter, op_code);
                 return USER_ERROR;
             }
         }
         
         /*If there is one argument after opcode word*/
         else if(first_operand && !second_operand){
-            if((4 <= op_code_index && op_code_index <= 5) || (7 <= op_code_index && op_code_index <= 13))
-                create_one_operand_command(op_code_index, first_operand, vars);
+            if((4 <= op_code_index && op_code_index <= 5) || (7 <= op_code_index && op_code_index <= 13)){
+                CHECK_RESPONSE(create_one_operand_command(op_code_index, first_operand, vars))
+            }
             else{
-                printf("User Error: in %s.am line %d : too many or too few operands for opcode '%s'\n", file_name, line_number, op_code);
+                printf("User Error: in %s.am line %d : too many or too few operands for opcode '%s'\n", vars->file_name, vars->line_counter, op_code);
                 return USER_ERROR;
             }
         }
     }
     else{
-        printf("User Error: in %s.am line %d : illegal item '%s'\n", file_name, line_number, op_code);
+        printf("User Error: in %s.am line %d : illegal item '%s'\n", vars->file_name, vars->line_counter, op_code);
         return USER_ERROR;
     }
-    free(first_operand);
-    return response;
+    return SUCCESS;
 }
 
-responseType insert_data_line(char* file_name, int line_number, char *label_name, char* line, multiVars *vars) {
+responseType insert_data_line(char *label_name, char* line, multiVars *vars) {
     char *token = NULL;
-    int number;
-    responseType response;
+    int number, i = 0;
+    bool is_comma = false;
 
-    if((response = create_label_node(label_name, DATA, vars)) != SUCCESS)
-        return response;
+    CHECK_RESPONSE(create_label_node(label_name, DATA, vars))
     
-    token = strtok(line, " ,\n\t\r");
-    
-    while (token){
-        if ((number = atoi(token)) == 0 && strcmp(token, "0")) {
-            printf("User Error in %s.am line %d : illegal data argument\n", file_name, line_number);
+    while(!isdigit(line[i])){
+        if(!isspace(line[i])){
+            printf("User Error: in %s.am line %d : illegal character before data\n", vars->file_name, vars->line_counter);
             return USER_ERROR;
         }
-        if(create_data_node(number, vars) == SUCCESS){
-            token = strtok(NULL, " ,\n\t\r");
+        i++;
+    }
+
+    for(i = 0; i < strlen(line) ; ++i){/*Checks validation of the commas*/
+        if(line[i] == ','){
+            if(is_comma){
+                printf("User Error: in %s.am line %d : illegal data argument\n", vars->file_name, vars->line_counter);
+                return USER_ERROR;
+            }
+            is_comma = true;
         }
-        else return SYSTEM_ERROR;
+        else if(isdigit(line[i]) && is_comma){
+                is_comma = false;
+        }
+    }
+
+    i = strlen(line) -1;
+    while(!isdigit(line[i])){
+        if(!isspace(line[i])){
+            printf("User Error: in %s.am line %d : illegal character after data\n", vars->file_name, vars->line_counter);
+            return USER_ERROR;
+        }
+        i--;
+    }
+
+    token = strtok(line, ","); 
+    while (token){
+        if ((number = atoi(token)) == 0 && strcmp(token, "0")) {
+            printf("User Error: in %s.am line %d : extra comma\n", vars->file_name, vars->line_counter);
+            return USER_ERROR;
+        }
+
+        CHECK_RESPONSE(create_data_node(number, vars))
+        token = strtok(NULL, " ,\n\t\r");
+        
     }
     return SUCCESS;
 }

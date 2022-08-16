@@ -44,18 +44,19 @@ responseType process_file(char *file_name){
     vars->tail_commands = NULL;
     vars->head_extern_label = NULL;
     vars->tail_extern_label = NULL;
+    strcpy(vars->file_name, file_name);
 
-    if((response = pre_assembler(file_name)) == SUCCESS) { /*Can't proceed if encoutered error */
+    if((response = pre_assembler(vars)) == SUCCESS) { /*Can't proceed if encoutered error */
 
-        if(first_step(file_name, vars) != SUCCESS)
+        if(first_step(vars) != SUCCESS)
             printf("An error occured while processing file %s in first step\n", file_name);
-
         
-        else if(second_step(file_name, vars) != SUCCESS)
+        
+         if(second_step(vars) != SUCCESS)
             printf("An error occured while processing file %s in second step\n", file_name);
             
-         
-        else if(!write_files(file_name, vars))
+        
+         if(!write_files(file_name, vars))
             printf("An error occured while processing file %s in 'write files'\n", file_name);
             
         else

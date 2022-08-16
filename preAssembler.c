@@ -5,21 +5,21 @@
 
 
 /*Copeis the input file and pastes the macros*/
-responseType pre_assembler(char *file_name){
+responseType pre_assembler(multiVars *vars){
     FILE *file_to_read, *file_to_write;
     char line[MAX_LINE_LENGTH], copy_line[MAX_LINE_LENGTH];
     ptrMacro new_macro, head_macro = NULL, current_macro = NULL;
     bool in_macro_flag = false;
     responseType response = SUCCESS;
-    int line_counter = 0;
     char *current_word = NULL;
+    vars->line_counter = 0;
 
-    if (!(file_to_read = open_file_with_extension(file_name, AS_EXTENSION, "r")) || !(file_to_write = open_file_with_extension(file_name, AM_EXTENSION, "w+b")))
+    if (!(file_to_read = open_file_with_extension(vars->file_name, AS_EXTENSION, "r")) || !(file_to_write = open_file_with_extension(vars->file_name, AM_EXTENSION, "w+b")))
         return USER_ERROR;
 
     /*Reads a line*/
     while(fgets(line, MAX_LINE_LENGTH, file_to_read)){
-        line_counter++;
+        (vars->line_counter)++;
         strcpy(copy_line, line);
 
         current_word = strtok(copy_line, " \t\n");
@@ -31,7 +31,7 @@ responseType pre_assembler(char *file_name){
             if(!strcmp(current_word, MACRO_WORD)){
                 current_word = strtok(NULL, " \t\r\n");
                 if(!current_word ){
-                    printf("User Error in %s: line %d : macro must have a name\n", file_name, line_counter);
+                    printf("User Error: in %s: line %d : macro must have a name\n", vars->file_name, vars->line_counter);
                     response = USER_ERROR;
                 }
                 else if(is_reserved_word(current_word)){
@@ -45,7 +45,7 @@ responseType pre_assembler(char *file_name){
                 
                 else {
                     if(strtok(NULL, " \t\r\n")){
-                        printf("User Error in %s: line %d : extra content after macro name!\n", file_name, line_counter);
+                        printf("User Error: in %s: line %d : extra content after macro name!\n", vars->file_name, vars->line_counter);
                         response = USER_ERROR;
                     }
                     else if(!(new_macro = create_macro_node(current_word))){
@@ -82,7 +82,7 @@ responseType pre_assembler(char *file_name){
                 /*Add the content (the line) to the variable "macro_content"*/
             else{
                 if(strtok(NULL, " \t\r\n")){
-                    printf("User Error in %s: line %d : extra content after 'endmacro'!\n", file_name, line_counter);
+                    printf("User Error: in %s: line %d : extra content after 'endmacro'!\n", vars->file_name, vars->line_counter);
                     response = USER_ERROR;
                 }
                 in_macro_flag = false;
