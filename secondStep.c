@@ -9,13 +9,13 @@ responseType second_step(multiVars *vars){
 	FILE *file;
 	char *label_name, *line, *label_type;
 	int index = 0, i;
-	ptrLabelApearence temp_label_apear = vars->head_label_apear;
 	ptrlabel temp_label;
 	ptrExternLabel temp_extern_label;
+	bool is_space_flag;
+	ptrLabelApearence temp_label_apear = vars->head_label_apear;
 	ptrCommand temp_commands = vars->head_commands;
 	unsigned long question_mark = convertDtoB('?');
 	responseType response = SUCCESS;
-	bool is_space_flag;
     vars->line_counter = 0;
     
     if (!(file = open_file_with_extension(vars->file_name, AM_EXTENSION, "r")))
@@ -24,7 +24,33 @@ responseType second_step(multiVars *vars){
     line = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
     if (!line)
         return SYSTEM_ERROR;
-       
+	       
+	/*Checks if there is a match between the type of the label and its use as operand*/
+	while (temp_label_apear) {
+		vars->line_counter = vars->line_counter + 1;
+		if(temp_label_apear->is_struct) {
+			temp_label = get_label_by_name(temp_label_apear->name, vars->head_label);
+			if(temp_label && temp_label->type != STRUCT) {
+				printf("User Error: in %s.am line %d : '%s' is not a struct label\n", vars->file_name, temp_label_apear->apeared_with_point, temp_label_apear->name);
+		    	free(line);
+				return USER_ERROR;
+		    }
+		}
+		else{
+		    temp_label = get_label_by_name(temp_label_apear->name, vars->head_label);
+		    if(temp_label && temp_label->type == STRUCT) {
+		        printf("User Error: in %s.am line %d : '%s' is struct label\n", vars->file_name, vars->line_counter, temp_label_apear->name);
+		    	free(line);
+				return USER_ERROR;
+		        
+		    }
+
+		}
+		temp_label_apear = temp_label_apear->next;
+	}
+	temp_label_apear = vars->head_label_apear;
+	vars->line_counter = 0; 
+	       
     while(fgets(line, MAX_LINE_LENGTH, file)){
         (vars->line_counter)++;
         is_space_flag = true;
@@ -44,7 +70,7 @@ responseType second_step(multiVars *vars){
         if(!strcmp(label_type, ENTRY_WORD)){
             
             if(!(temp_label = get_label_by_name(label_name, vars->head_label))){
-                printf("User Error: in %s.am line %d : %s 111undefined\n", vars->file_name, vars->line_counter, label_name);
+                printf("User Error: in %s.am line %d : %s undefined\n", vars->file_name, vars->line_counter, label_name);
                 response = USER_ERROR;
             }
             else if(temp_label->type != EXTERNAL)

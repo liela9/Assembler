@@ -110,6 +110,7 @@ responseType create_no_operands_command(int op_code, multiVars *vars){
 
 responseType create_one_operand_command(int op_code, char *operand, multiVars *vars){
     int register_num, struct_index, dest_op_addressing = 0, source_op_addressing = 0;
+    responseType response;
 
     strtok(operand, "\n");/*Remove the '\n' character*/
 
@@ -174,23 +175,35 @@ responseType create_number_line(int number, multiVars *vars){
 /*At this point, the address of the label (data type) is unknown*/
 responseType create_unknown_line(char *label_name, multiVars *vars){
     ptrLabelApearence new_node;
-    char *token = NULL;
+    char *check_number_after_point = NULL;
 
-    strtok(label_name, ".");/*If there is'nt '.' => label_name will stay the same*/
+	check_number_after_point = strchr(label_name, '.');
+	strtok(label_name, "."); /*If there is'nt '.' => label_name will stay the same*/
 
     if(!valid_label_name(label_name)) {
-        printf("User Error: in %s.am line %d : '%s' is illegal label name'\n", vars->file_name, vars->line_counter, label_name);
+        printf("User Error: in %s.am line %d : '%s' is illegal label name\n", vars->file_name, vars->line_counter, label_name);
         return USER_ERROR;
     }
-
-    new_node = (ptrLabelApearence)calloc_with_check(1, sizeof(labelApearance));
+	new_node = (ptrLabelApearence)calloc_with_check(1, sizeof(labelApearance));
     if(!new_node)
         return SYSTEM_ERROR;
     
-    if((token = strtok(label_name, ".")))
-        strcpy(new_node->name, token);/*Saves the location of the struct apearence*/
-    else strcpy(new_node->name, label_name);/*Saves the location of the label apearence*/
-    
+	/* Check that there is only 1 or 2 after the '.' */
+    if(check_number_after_point) {
+    	 check_number_after_point = check_number_after_point+1;
+   
+    	if(strcmp(check_number_after_point, "1") && strcmp(check_number_after_point, "2")) {
+			printf("User Error: in %s.am line %d : '%s' is illegal char after label name'\n", vars->file_name, vars->line_counter, check_number_after_point);
+		    return USER_ERROR;
+        }
+        strcpy(new_node->name, label_name);/*Saves the location of the struct apearence*/
+        new_node->is_struct = true;/*Saves the operand as struct*/
+        new_node->apeared_with_point = vars->line_counter; /* Saves the line number it found as struct */
+    }
+    else {
+        strcpy(new_node->name, label_name);/*Saves the location of the label apearence*/
+        new_node->is_struct = false;/*Saves the operand as not struct*/
+    }
     new_node-> index_in_commands_list = IC; 
     new_node->next = NULL;
 

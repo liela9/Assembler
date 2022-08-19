@@ -16,6 +16,8 @@ int main(int argc, char *argv[]){
     }
 
     for(i = 1; i < argc; ++i){
+    
+   
         if (process_file(argv[i]) == SYSTEM_ERROR) {
             printf("Program encountered internal error. Shutting down\n");
             return (1);
@@ -47,16 +49,14 @@ responseType process_file(char *file_name){
     strcpy(vars->file_name, file_name);
 
     if((response = pre_assembler(vars)) == SUCCESS) { /*Can't proceed if encoutered error */
-
+          
         if(first_step(vars) != SUCCESS)
             printf("An error occured while processing file %s in first step\n", file_name);
-        
-        
-         if(second_step(vars) != SUCCESS)
+         
+        else if(second_step(vars) != SUCCESS)
             printf("An error occured while processing file %s in second step\n", file_name);
-            
-        
-         if(!write_files(file_name, vars))
+
+        else if(!write_files(file_name, vars))
             printf("An error occured while processing file %s in 'write files'\n", file_name);
             
         else

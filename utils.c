@@ -67,6 +67,7 @@ int is_struct(char *operand){
             return 1;
         if(index[1] == '2')
             return 2;
+        return -1;
     }
     
     /*If it is not struct, there is no "." ==> return 0*/
@@ -111,6 +112,7 @@ void free_lists(multiVars *vars){
     free_label_apearence_list(vars->head_label_apear);
     free_data_list(vars->head_data);
     free_commands_list(vars->head_commands);
+    free_extern_label_list(vars->head_extern_label);
 }
 
 void free_label_list(ptrlabel head){

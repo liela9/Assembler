@@ -17,14 +17,14 @@
 #define EXTERN_WORD ".extern"
 #define FIRST_MEMORY_CELL 100
 
-#define CHECK_RESPONSE(response) if(response != SUCCESS) return response;
+#define CHECK_RESPONSE(result) if((response = result) != SUCCESS) return response;
 
 int IC; /*Instruction counter*/
 int DC;/*Data counter*/
 
 
 /*Uses for the labels table*/
-typedef enum {CODE, ENTRY, EXTERNAL, DATA} labelType;
+typedef enum {CODE, ENTRY, EXTERNAL, DATA, STRING, STRUCT} labelType;
 typedef enum {false, true} bool;
 typedef enum {SUCCESS, SYSTEM_ERROR, USER_ERROR} responseType;
 
@@ -86,8 +86,10 @@ typedef struct labelApearance *ptrLabelApearence;
 typedef struct labelApearance{
     
     char name[MAX_LABEL_LENGTH];/*Label name*/
-    int index_in_commands_list;
-    /*Contains the index of unknown label line at the first step*/
+	/*Contains the index of unknown label line at the first step*/
+	int index_in_commands_list;
+    int apeared_with_point;
+    bool is_struct;
     ptrLabelApearence next;
 }labelApearance;
 
