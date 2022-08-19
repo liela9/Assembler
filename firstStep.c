@@ -238,14 +238,14 @@ responseType insert_opcode_line(char *label_name, char* line, multiVars *vars) {
     if (first_operand) {
         first_operand = strtok(first_operand, " \t\r\n");
         if (strtok(NULL, " \t\r\n")) {
-            printf("User Error: in %s.am line %d : extra character after first oprand\n", vars->file_name, vars->line_counter);
+            printf("User Error: in %s.am line %d : extra character near first oprand\n", vars->file_name, vars->line_counter);
             return USER_ERROR;
         }
     }
     if (second_operand) {
         second_operand = strtok(second_operand, " \t\r\n");
         if (strtok(NULL, " \t\r\n")) {
-            printf("User Error: in %s.am line %d : extra character after second oprand\n", vars->file_name, vars->line_counter);
+            printf("User Error: in %s.am line %d : extra character near second oprand\n", vars->file_name, vars->line_counter);
             return USER_ERROR;
         }
     }

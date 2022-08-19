@@ -14,7 +14,7 @@ responseType create_label_node(char *name, labelType type, multiVars *vars){
 
     if(label_exists(name, vars->head_label) || !valid_label_name(name)){
         /* TODO: check if need to remove the label which alread exists */
-        printf("User Error: Illegal label name: %s!\n", name);
+        printf("User Error: in %s.am line %d : '%s' is illegal label name\n", vars->file_name, vars->line_counter, name);
         return USER_ERROR;
     }
 
