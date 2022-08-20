@@ -1,5 +1,5 @@
-project : main.o preAssembler.o firstStep.o secondStep.o macro.o converting.o lists.o lines.o writeFiles.o utils.o 
-	gcc -g -Wall -ansi -pedantic main.o preAssembler.o firstStep.o secondStep.o macro.o converting.o lists.o lines.o writeFiles.o utils.o -o project -lm
+project : main.o preAssembler.o firstPass.o secondPass.o macro.o conversionUtils.o lists.o lines.o writeFiles.o utils.o 
+	gcc -g -Wall -ansi -pedantic main.o preAssembler.o firstPass.o secondPass.o macro.o conversionUtils.o lists.o lines.o writeFiles.o utils.o -o project -lm
 
 main.o : main.c constants.h
 	gcc -g -Wall -ansi -pedantic -c main.c -o main.o
@@ -7,17 +7,17 @@ main.o : main.c constants.h
 preAssembler.o : preAssembler.c constants.h preAssembler.h
 	gcc -g -Wall -ansi -pedantic -c preAssembler.c -o preAssembler.o
 
-firstStep.o : firstStep.c constants.h firstStep.h
-	gcc -g -Wall -ansi -pedantic -c firstStep.c -o firstStep.o
+firstPass.o : firstPass.c constants.h firstPass.h
+	gcc -g -Wall -ansi -pedantic -c firstPass.c -o firstPass.o
 
-secondStep.o : secondStep.c constants.h secondStep.h
-	gcc -g -Wall -ansi -pedantic -c secondStep.c -o secondStep.o
+secondPass.o : secondPass.c constants.h secondPass.h
+	gcc -g -Wall -ansi -pedantic -c secondPass.c -o secondPass.o
 
 macro.o : macro.c constants.h macro.h
 	gcc -g -Wall -ansi -pedantic -c macro.c -o macro.o
 
-converting.o : converting.c constants.h converting.h
-	gcc -g -Wall -ansi -pedantic -c converting.c -o converting.o
+conversionUtils.o : conversionUtils.c constants.h conversionUtils.h
+	gcc -g -Wall -ansi -pedantic -c conversionUtils.c -o conversionUtils.o
 
 lists.o : lists.c constants.h lists.h
 	gcc -g -Wall -ansi -pedantic -c lists.c -o lists.o

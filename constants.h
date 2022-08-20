@@ -1,116 +1,94 @@
 #ifndef consts_H
 #define consts_H
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#define BASE_LENGTH 32
+/* constant numbers */
 #define NUM_OF_REGISTERS 8
 #define NUM_OF_OPCODES 16
 #define NUM_OF_RESERVED_WORDS 7
 #define MAX_LINE_LENGTH 81
 #define MAX_LABEL_LENGTH 30
+#define FIRST_MEMORY_CELL 100
+
+/* reserved words */
 #define AM_EXTENSION ".am"
 #define ENTRY_WORD ".entry"
 #define EXTERN_WORD ".extern"
-#define FIRST_MEMORY_CELL 100
 
-#define CHECK_RESPONSE(result) if((response = result) != SUCCESS) return response;
+#define CHECK_RESPONSE(result) \
+    if ((response = result) != SUCCESS) return response;
 
-int IC; /*Instruction counter*/
-int DC;/*Data counter*/
+typedef enum { false, true } bool;
 
+typedef enum { SUCCESS, SYSTEM_ERROR, USER_ERROR } responseType;
 
-/*Uses for the labels table*/
-typedef enum {CODE, ENTRY, EXTERNAL, DATA, STRING, STRUCT} labelType;
-typedef enum {false, true} bool;
-typedef enum {SUCCESS, SYSTEM_ERROR, USER_ERROR} responseType;
+int IC; /* instruction counter*/
+int DC; /* data counter*/
 
+/* used for construction of labels table */
+typedef enum { CODE, ENTRY, EXTERNAL, DATA, STRING, STRUCT } labelType;
 
-/*
-A linked list of macros.
-*/
+/* linked list of macros */
 typedef struct macro *ptrMacro;
-typedef struct macro{
-    
-    char macro_id[MAX_LABEL_LENGTH]; /*Name of the macro*/
-    char *macro_content; /*Content of the macro*/
+typedef struct macro {
+    char macro_id[MAX_LABEL_LENGTH]; /* macro name*/
+    char *macro_content;
     ptrMacro next;
-}macro;
+} macro;
 
-
-
-/*
-A linked list of data code lines.
-*/
+/* linked list of data code lines */
 typedef struct data *ptrData;
-typedef struct data{
-    
+typedef struct data {
     unsigned long code;
     ptrData next;
-}data;
+} data;
 
-
-
-/*
-A linked list of commands code lines.
-*/
+/* linked list of commands code lines */
 typedef struct commands *ptrCommand;
-typedef struct commands{
-    
+typedef struct commands {
     unsigned long code;
     ptrCommand next;
-}commands;
+} commands;
 
-
-/*
-A linked list of labels.
-*/
+/* linked list of labels */
 typedef struct label *ptrlabel;
-typedef struct label{
-    
-    char name[MAX_LABEL_LENGTH];/*Label name*/
+typedef struct label {
+    char name[MAX_LABEL_LENGTH];
     labelType type;
-    int dec_address; /*Decimal address*/
+    int dec_address; /* decimal address */
     ptrlabel next;
-}label;
-
+} label;
 
 /*
-A linked list of unknown labels in the commands list.
-Assists to complete the commands list in second step.
+linked list of unknown labels in the commands list
+used to construct the commands list in second pass
 */
 typedef struct labelApearance *ptrLabelApearence;
-typedef struct labelApearance{
-    
-    char name[MAX_LABEL_LENGTH];/*Label name*/
-	/*Contains the index of unknown label line at the first step*/
-	int index_in_commands_list;
+typedef struct labelApearance {
+    char name[MAX_LABEL_LENGTH];
+    /* contains the index of unknown label line, found at the first pass */
+    int index_in_commands_list;
     int apeared_with_point;
     bool is_struct;
     ptrLabelApearence next;
-}labelApearance;
+} labelApearance;
 
-
-/*
-A linked list of external labels.
-*/
+/* linked list of external labels */
 typedef struct externLabel *ptrExternLabel;
-typedef struct externLabel{
-    
-    char name[MAX_LABEL_LENGTH];/*Label name*/
+typedef struct externLabel {
+    char name[MAX_LABEL_LENGTH];
     ptrExternLabel next;
-}externLabel;
-
+} externLabel;
 
 /*
-A structure of multiple types of variables.
-Assists to save and move variables from first step to second step.
+context (state) variables
+used to transfer state information between functions and steps
 */
-typedef struct multiVars{
-    
+typedef struct multiVars {
     ptrlabel head_label;
     ptrlabel tail_label;
     ptrLabelApearence head_label_apear;
@@ -121,16 +99,8 @@ typedef struct multiVars{
     ptrCommand tail_commands;
     ptrExternLabel head_extern_label;
     ptrExternLabel tail_extern_label;
-    char file_name[FILENAME_MAX];
-    int line_counter;
-}multiVars;
+    char file_name[FILENAME_MAX]; /* current file being processed */
+    int line_counter;             /* current line being processed */
+} multiVars;
 
-
-typedef struct struct_access{
-    
-    char label_name[MAX_LABEL_LENGTH];
-    int index;
-}struct_access;
-
-#endif 
-
+#endif /* consts_H */
