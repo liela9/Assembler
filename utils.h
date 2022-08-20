@@ -4,6 +4,9 @@
 #include <ctype.h>
 #include <stdarg.h>
 
+#include "constants.h"
+#include "lines.h"
+
 #define FREE_LIST(type, head) \
     type temp;                \
     while (head) {            \
@@ -34,5 +37,6 @@ void free_extern_label_list(ptrExternLabel);
 bool label_exists(char *, ptrlabel);
 bool valid_label_name(char *);
 char *clear_white_spaces(char *);
+int get_required_operands(int);
 
 #endif

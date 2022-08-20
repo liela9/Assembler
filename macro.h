@@ -1,6 +1,9 @@
 #ifndef MACRO_H
 #define MACRO_H
 
+#include "constants.h"
+#include "utils.h"
+
 #define MACRO_MAX_LINE_NUMBER 10
 #define MACRO_WORD "macro"
 #define ENDMACRO_WORD "endmacro"

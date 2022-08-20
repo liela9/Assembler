@@ -2,6 +2,10 @@
 #define FIRST_PASS_H
 
 #include "constants.h"
+#include "conversionUtils.h"
+#include "lines.h"
+#include "lists.h"
+#include "utils.h"
 
 #define CHECK_DATA_ARGUMENT                               \
     if (!rest_line) {                                     \
@@ -22,6 +26,7 @@ responseType first_pass(multiVars *);
 responseType handle_line(char *, char *, multiVars *);
 responseType extern_entry_validate(labelType, multiVars *, char *);
 responseType insert_data_label(char *, int, labelType, multiVars *);
+responseType check_and_insert_data_item(char *, multiVars *);
 responseType insert_string_line(char *, char *, multiVars *);
 responseType insert_struct_line(char *, char *, multiVars *);
 responseType insert_opcode_line(char *, char *, multiVars *);

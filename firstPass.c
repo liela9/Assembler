@@ -1,11 +1,5 @@
 #include "firstPass.h"
 
-#include "constants.h"
-#include "conversionUtils.h"
-#include "lines.h"
-#include "lists.h"
-#include "utils.h"
-
 /* the first pass of the assembler */
 responseType first_pass(multiVars *vars) {
     FILE *file;
@@ -105,7 +99,7 @@ responseType handle_line(char *line, char *line_copy, multiVars *vars) {
 }
 
 responseType extern_entry_validate(labelType type, multiVars *vars, char *line) {
-    char *current_word, *rest_line;
+    char *current_word;
 
     current_word = strtok(line, " ,\t\r\n");
     if (!current_word) {
@@ -130,7 +124,6 @@ responseType insert_data_label(char *label_name, int address, labelType type,
 }
 
 responseType insert_string_line(char *label_name, char *line, multiVars *vars) {
-    int i, str_len;
     char *rest_line, *string_part, *c;
     responseType response;
 
@@ -159,14 +152,14 @@ responseType insert_string_line(char *label_name, char *line, multiVars *vars) {
 
     for (c = string_part + sizeof(char); c != rest_line; c += sizeof(char))
         /* creates ascii representation of the character */
-        CHECK_RESPONSE(create_data_node(string_part[i], vars))
+        CHECK_RESPONSE(create_data_node(*c, vars))
 
     return create_zero_line(vars);
 }
 
 responseType insert_struct_line(char *label_name, char *line, multiVars *vars) {
     char *data_part = NULL, *string_part = NULL;
-    int number, line_length = strlen(line);
+    int line_length = strlen(line);
     responseType response;
 
     CHECK_RESPONSE(insert_data_label(label_name, DC, STRUCT, vars))
@@ -185,7 +178,7 @@ responseType insert_struct_line(char *label_name, char *line, multiVars *vars) {
 
 responseType check_and_insert_data_item(char *data_item, multiVars *vars) {
     int number;
-    responseType response;
+    responseType response = SUCCESS;
 
     data_item = strtok(data_item, " \t\r\n");
     if (!data_item) {
@@ -198,7 +191,7 @@ responseType check_and_insert_data_item(char *data_item, multiVars *vars) {
         return USER_ERROR;
     }
 
-    while (data_item) {
+    while (*data_item != '\0') {
         if ((number = atoi(data_item)) == 0 && (*data_item != '0')) {
             print_user_error(vars, "illegal data item");
             return USER_ERROR;
@@ -206,6 +199,7 @@ responseType check_and_insert_data_item(char *data_item, multiVars *vars) {
         CHECK_RESPONSE(create_data_node(number, vars))
         data_item += sizeof(char);
     }
+    return SUCCESS;
 }
 
 responseType insert_opcode_line(char *label_name, char *line, multiVars *vars) {
@@ -248,19 +242,18 @@ responseType insert_opcode_line(char *label_name, char *line, multiVars *vars) {
         case 2:
             return create_two_operands_command(op_code_index, first_operand,
                                                second_operand, vars);
+        default:
+            return SYSTEM_ERROR; /* should never reach here */
     }
 }
 
 responseType insert_data_line(char *label_name, char *line, multiVars *vars) {
-    char *token = NULL;
-    int number, i = 0;
-    bool is_comma = false, is_space_after_digit = false;
-
     char *data_item;
     responseType response;
 
-    CHECK_RESPONSE(create_label_node(label_name, DATA, vars))
-
+    if (label_name) {
+        CHECK_RESPONSE(create_label_node(label_name, DATA, vars))
+    }
     data_item = strtok(line, ",");
     while (data_item) {
         CHECK_RESPONSE(check_and_insert_data_item(data_item, vars))

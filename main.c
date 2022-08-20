@@ -1,12 +1,5 @@
 #include "main.h"
 
-#include "conversionUtils.h"
-#include "firstPass.h"
-#include "preAssembler.h"
-#include "secondPass.h"
-#include "utils.h"
-#include "writeFiles.h"
-
 int main(int argc, char *argv[]) {
     int i;
 
@@ -30,8 +23,7 @@ responseType process_file(char *file_name) {
     responseType response;
 
     vars = (multiVars *)calloc_with_check(1, sizeof(multiVars));
-    if (!vars)
-        return SYSTEM_ERROR;
+    if (!vars) return SYSTEM_ERROR;
 
     vars->head_label = NULL;
     vars->tail_label = NULL;
@@ -45,16 +37,20 @@ responseType process_file(char *file_name) {
     vars->tail_extern_label = NULL;
     strcpy(vars->file_name, file_name);
 
-    if ((response = pre_assembler(vars)) == SUCCESS) { /*Can't proceed if encoutered error */
+    if ((response = pre_assembler(vars)) ==
+        SUCCESS) { /*Can't proceed if encountered error */
 
         if (first_pass(vars) != SUCCESS)
-            printf("An error occured while processing file %s in first pass\n", file_name);
+            printf("An error occurred while processing file %s in first pass\n",
+                   file_name);
 
         else if (second_pass(vars) != SUCCESS)
-            printf("An error occured while processing file %s in second pass\n", file_name);
+            printf("An error occurred while processing file %s in second pass\n",
+                   file_name);
 
         else if (!write_files(file_name, vars))
-            printf("An error occured while processing file %s in 'write files'\n", file_name);
+            printf("An error occurred while processing file %s in 'write files'\n",
+                   file_name);
 
         else
             printf("File '%s' successfully compiled !\n", file_name);

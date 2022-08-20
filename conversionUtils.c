@@ -1,10 +1,5 @@
 #include "conversionUtils.h"
 
-#include <math.h>
-
-#include "constants.h"
-#include "utils.h"
-
 /* converts decimal number to binary representation using the two's complement method */
 unsigned long convertDtoB(int decimal_number) {
     unsigned long bin_number = 0;

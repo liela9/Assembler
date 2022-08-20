@@ -1,12 +1,9 @@
 #include "writeFiles.h"
 
-#include "constants.h"
-#include "conversionUtils.h"
-#include "utils.h"
-
 /*Calls the functions for writing the three files*/
 bool write_files(char *file_name, multiVars *vars) {
-    return (write_ob_file(file_name, vars) && write_ext_file(file_name, vars) && write_ent_file(file_name, vars));
+    return (write_ob_file(file_name, vars) && write_ext_file(file_name, vars) &&
+            write_ent_file(file_name, vars));
 }
 
 /*Creates and writes the .ob file*/
@@ -18,8 +15,7 @@ bool write_ob_file(char *file_name, multiVars *vars) {
     char *c;
 
     file = open_file_with_extension(file_name, OB_EXTENSION, "w");
-    if (!file)
-        return false;
+    if (!file) return false;
 
     /*
     The first line =>
@@ -73,7 +69,9 @@ bool write_ext_file(char *file_name, multiVars *vars) {
                 count_ext++;
                 fputs(h_extern_label->name, fext);
                 fputc('\t', fext);
-                fputs(convertDtoB32(h_label_apear->index_in_commands_list + FIRST_MEMORY_CELL), fext);
+                fputs(convertDtoB32(h_label_apear->index_in_commands_list +
+                                    FIRST_MEMORY_CELL),
+                      fext);
                 fputc('\n', fext);
             }
             h_label_apear = h_label_apear->next;

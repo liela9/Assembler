@@ -1,11 +1,5 @@
 #include "lists.h"
 
-#include <ctype.h>
-
-#include "constants.h"
-#include "conversionUtils.h"
-#include "utils.h"
-
 #define ZERO_ASCII_CODE 48
 #define NINE_ASCII_CODE 57
 
@@ -15,13 +9,13 @@ responseType create_label_node(char *name, labelType type, multiVars *vars) {
 
     if (label_exists(name, vars->head_label) || !valid_label_name(name)) {
         /* TODO: check if need to remove the label which alread exists */
-        printf("User Error: in %s.am line %d : '%s' is illegal label name\n", vars->file_name, vars->line_counter, name);
+        printf("User Error: in %s.am line %d : '%s' is illegal label name\n",
+               vars->file_name, vars->line_counter, name);
         return USER_ERROR;
     }
 
     new_node = (ptrlabel)calloc_with_check(1, sizeof(label));
-    if (!new_node)
-        return SYSTEM_ERROR;
+    if (!new_node) return SYSTEM_ERROR;
 
     /*Fills the values*/
     if (type == EXTERNAL)
@@ -48,8 +42,7 @@ responseType create_extern_label_node(char *name, multiVars *vars) {
     ptrExternLabel new_node;
 
     new_node = (ptrExternLabel)calloc_with_check(1, sizeof(externLabel));
-    if (!new_node)
-        return SYSTEM_ERROR;
+    if (!new_node) return SYSTEM_ERROR;
 
     /*Fills the value*/
     strcpy(new_node->name, name);
@@ -71,8 +64,7 @@ responseType create_commands_node(int code, multiVars *vars) {
     ptrCommand new_node;
 
     new_node = (ptrCommand)calloc_with_check(1, sizeof(commands));
-    if (!new_node)
-        return SYSTEM_ERROR;
+    if (!new_node) return SYSTEM_ERROR;
 
     code = (code & TEN_BITS_OF_ONE);
 
@@ -94,8 +86,7 @@ ptrlabel get_label_by_name(char *name, ptrlabel head) {
     ptrlabel temp = head;
 
     while (temp) {
-        if (!strcmp(name, temp->name))
-            return temp;
+        if (!strcmp(name, temp->name)) return temp;
         temp = temp->next;
     }
     return NULL;
@@ -106,8 +97,7 @@ responseType create_data_node(int code, multiVars *vars) {
     ptrData new_node;
 
     new_node = (ptrData)calloc_with_check(1, sizeof(data));
-    if (!new_node)
-        return SYSTEM_ERROR;
+    if (!new_node) return SYSTEM_ERROR;
 
     code = (code & TEN_BITS_OF_ONE); /*TODO : need it?*/
 

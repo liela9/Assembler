@@ -1,8 +1,5 @@
 #include "utils.h"
 
-#include "constants.h"
-#include "lines.h"
-
 const char registers[NUM_OF_REGISTERS][3] = {"r0", "r1", "r2", "r3",
                                              "r4", "r5", "r6", "r7"};
 
@@ -14,9 +11,10 @@ const char *reserved_words[NUM_OF_RESERVED_WORDS] = {
     "data", "string", "struct", "entry", "extern", "macro", "endmacro"};
 
 void print_user_error(multiVars *vars, const char *fmt, ...) {
+    va_list args;
+
     printf("User Error - in %s, line %d: ", vars->file_name, vars->line_counter);
 
-    va_list args;
     va_start(args, fmt);
     vprintf(fmt, args);
     va_end(args);

@@ -1,10 +1,5 @@
 #include "secondPass.h"
 
-#include "constants.h"
-#include "conversionUtils.h"
-#include "lists.h"
-#include "utils.h"
-
 /*The second pass of the Assembler*/
 responseType second_pass(multiVars *vars) {
     FILE *file;
@@ -23,8 +18,7 @@ responseType second_pass(multiVars *vars) {
         return SYSTEM_ERROR;
 
     line = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
-    if (!line)
-        return SYSTEM_ERROR;
+    if (!line) return SYSTEM_ERROR;
 
     /*Checks if there is a match between the type of the label and its use as operand*/
     while (temp_label_apear) {
@@ -32,14 +26,17 @@ responseType second_pass(multiVars *vars) {
         if (temp_label_apear->is_struct) {
             temp_label = get_label_by_name(temp_label_apear->name, vars->head_label);
             if (temp_label && temp_label->type != STRUCT) {
-                printf("User Error: in %s.am line %d : '%s' is not a struct label\n", vars->file_name, temp_label_apear->apeared_with_point, temp_label_apear->name);
+                printf("User Error: in %s.am line %d : '%s' is not a struct label\n",
+                       vars->file_name, temp_label_apear->apeared_with_point,
+                       temp_label_apear->name);
                 free(line);
                 return USER_ERROR;
             }
         } else {
             temp_label = get_label_by_name(temp_label_apear->name, vars->head_label);
             if (temp_label && temp_label->type == STRUCT) {
-                printf("User Error: in %s.am line %d : '%s' is struct label\n", vars->file_name, vars->line_counter, temp_label_apear->name);
+                printf("User Error: in %s.am line %d : '%s' is struct label\n",
+                       vars->file_name, vars->line_counter, temp_label_apear->name);
                 free(line);
                 return USER_ERROR;
             }
@@ -67,12 +64,14 @@ responseType second_pass(multiVars *vars) {
 
         if (!strcmp(label_type, ENTRY_WORD)) {
             if (!(temp_label = get_label_by_name(label_name, vars->head_label))) {
-                printf("User Error: in %s.am line %d : %s undefined\n", vars->file_name, vars->line_counter, label_name);
+                printf("User Error: in %s.am line %d : %s undefined\n", vars->file_name,
+                       vars->line_counter, label_name);
                 response = USER_ERROR;
             } else if (temp_label->type != EXTERNAL)
                 temp_label->type = ENTRY;
             else {
-                printf("User Error: in %s.am line %d : %s already defined as 'extern'\n", vars->file_name, vars->line_counter, label_name);
+                printf("User Error: in %s.am line %d : %s already defined as 'extern'\n",
+                       vars->file_name, vars->line_counter, label_name);
                 response = USER_ERROR;
             }
         }
@@ -84,7 +83,8 @@ responseType second_pass(multiVars *vars) {
             if (temp_label->type != ENTRY)
                 temp_label->type = EXTERNAL;
             else {
-                printf("User Error: in %s.am line %d : %s already defined as 'entry'\n", vars->file_name, vars->line_counter, temp_label->name);
+                printf("User Error: in %s.am line %d : %s already defined as 'entry'\n",
+                       vars->file_name, vars->line_counter, temp_label->name);
                 response = USER_ERROR;
             }
         }
@@ -125,10 +125,8 @@ responseType second_pass(multiVars *vars) {
         index++;
     }
 
-    while (temp_label)
-        temp_label = temp_label->next;
-    while (temp_label_apear)
-        temp_label_apear = temp_label_apear->next;
+    while (temp_label) temp_label = temp_label->next;
+    while (temp_label_apear) temp_label_apear = temp_label_apear->next;
     free(line);
     return response;
 }

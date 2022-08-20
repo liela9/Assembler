@@ -1,11 +1,7 @@
 #include "lines.h"
 
-#include "constants.h"
-#include "conversionUtils.h"
-#include "lists.h"
-#include "utils.h"
-
-responseType create_two_operands_command(int op_code, char *source_op, char *dest_op, multiVars *vars) {
+responseType create_two_operands_command(int op_code, char *source_op, char *dest_op,
+                                         multiVars *vars) {
     int index_of_source_struct, index_of_dest_struct;
     int source, dest;
     responseType response = SUCCESS;
@@ -105,7 +101,9 @@ responseType create_one_operand_command(int op_code, char *operand, multiVars *v
 
     if ((register_num = is_register(operand)) != -1) {
         dest_op_addressing = 3;
-        if (create_commands_node((op_code << 6) | (source_op_addressing << 4) | (dest_op_addressing << 2), vars) == SUCCESS) {
+        if (create_commands_node(
+                (op_code << 6) | (source_op_addressing << 4) | (dest_op_addressing << 2),
+                vars) == SUCCESS) {
             CHECK_RESPONSE(create_registers_line(register_num, 0, vars))
         } else
             return SYSTEM_ERROR;
@@ -113,7 +111,9 @@ responseType create_one_operand_command(int op_code, char *operand, multiVars *v
 
     else if ((struct_index = is_struct(operand))) {
         dest_op_addressing = 2;
-        if (create_commands_node((op_code << 6) | (source_op_addressing << 4) | (dest_op_addressing << 2), vars) == SUCCESS) {
+        if (create_commands_node(
+                (op_code << 6) | (source_op_addressing << 4) | (dest_op_addressing << 2),
+                vars) == SUCCESS) {
             CHECK_RESPONSE(create_unknown_line(operand, vars))
             CHECK_RESPONSE(create_number_line(struct_index, vars))
         } else
@@ -123,7 +123,9 @@ responseType create_one_operand_command(int op_code, char *operand, multiVars *v
     else if (operand[0] == '#') {
         operand = strtok(operand, "#");
         dest_op_addressing = 0;
-        if (create_commands_node((op_code << 6) | (source_op_addressing << 4) | (dest_op_addressing << 2), vars) == SUCCESS) {
+        if (create_commands_node(
+                (op_code << 6) | (source_op_addressing << 4) | (dest_op_addressing << 2),
+                vars) == SUCCESS) {
             CHECK_RESPONSE(create_number_line(atoi(operand), vars))
         } else
             return SYSTEM_ERROR;
@@ -131,7 +133,9 @@ responseType create_one_operand_command(int op_code, char *operand, multiVars *v
 
     else {
         dest_op_addressing = 1;
-        if (create_commands_node((op_code << 6) | (source_op_addressing << 4) | (dest_op_addressing << 2), vars) == SUCCESS) {
+        if (create_commands_node(
+                (op_code << 6) | (source_op_addressing << 4) | (dest_op_addressing << 2),
+                vars) == SUCCESS) {
             CHECK_RESPONSE(create_unknown_line(operand, vars))
         } else
             return SYSTEM_ERROR;
@@ -143,7 +147,8 @@ responseType create_one_operand_command(int op_code, char *operand, multiVars *v
 /*Creates new machine code line (binary) in commandd_table*/
 responseType create_command_line(int op_code, int source_op_addressing,
                                  int dest_op_addressing, multiVars *vars) {
-    return create_commands_node((op_code << 6) | (source_op_addressing << 4) | (dest_op_addressing << 2), vars);
+    return create_commands_node(
+        (op_code << 6) | (source_op_addressing << 4) | (dest_op_addressing << 2), vars);
 }
 
 /*Creates new machine code line (binary) for registers*/
@@ -165,24 +170,28 @@ responseType create_unknown_line(char *label_name, multiVars *vars) {
     strtok(label_name, "."); /*If there is'nt '.' => label_name will stay the same*/
 
     if (!valid_label_name(label_name)) {
-        printf("User Error: in %s.am line %d : '%s' is illegal label name\n", vars->file_name, vars->line_counter, label_name);
+        printf("User Error: in %s.am line %d : '%s' is illegal label name\n",
+               vars->file_name, vars->line_counter, label_name);
         return USER_ERROR;
     }
     new_node = (ptrLabelApearence)calloc_with_check(1, sizeof(labelApearance));
-    if (!new_node)
-        return SYSTEM_ERROR;
+    if (!new_node) return SYSTEM_ERROR;
 
     /* Check that there is only 1 or 2 after the '.' */
     if (check_number_after_point) {
         check_number_after_point = check_number_after_point + 1;
 
-        if (strcmp(check_number_after_point, "1") && strcmp(check_number_after_point, "2")) {
-            printf("User Error: in %s.am line %d : '%s' is illegal char after label name'\n", vars->file_name, vars->line_counter, check_number_after_point);
+        if (strcmp(check_number_after_point, "1") &&
+            strcmp(check_number_after_point, "2")) {
+            printf(
+                "User Error: in %s.am line %d : '%s' is illegal char after label name'\n",
+                vars->file_name, vars->line_counter, check_number_after_point);
             return USER_ERROR;
         }
-        strcpy(new_node->name, label_name);                /*Saves the location of the struct apearence*/
-        new_node->is_struct = true;                        /*Saves the operand as struct*/
-        new_node->apeared_with_point = vars->line_counter; /* Saves the line number it found as struct */
+        strcpy(new_node->name, label_name); /*Saves the location of the struct apearence*/
+        new_node->is_struct = true;         /*Saves the operand as struct*/
+        new_node->apeared_with_point =
+            vars->line_counter; /* Saves the line number it found as struct */
     } else {
         strcpy(new_node->name, label_name); /*Saves the location of the label apearence*/
         new_node->is_struct = false;        /*Saves the operand as not struct*/
@@ -225,8 +234,7 @@ responseType create_data_line(char *line, char *type, multiVars *vars) {
 
         for (i = 1; i < strlen(token) - 1; ++i) { /*Reads between the ""*/
             /*Converts the ASCII code of the letter to binary*/
-            if (create_data_node(token[i], vars) != SUCCESS)
-                return SYSTEM_ERROR;
+            if (create_data_node(token[i], vars) != SUCCESS) return SYSTEM_ERROR;
         }
         return create_zero_line(vars);
     }
@@ -236,21 +244,16 @@ responseType create_data_line(char *line, char *type, multiVars *vars) {
         int i;
 
         strcpy(token, strtok(NULL, " ,\t\r\n"));
-        if (create_data_node(atoi(token), vars) != SUCCESS)
-            return SYSTEM_ERROR;
+        if (create_data_node(atoi(token), vars) != SUCCESS) return SYSTEM_ERROR;
 
         for (i = 1; i < strlen(token) - 1; ++i) { /*Reads between the ""*/
-            if (create_data_node(token[i], vars) != SUCCESS)
-                return SYSTEM_ERROR;
+            if (create_data_node(token[i], vars) != SUCCESS) return SYSTEM_ERROR;
         }
 
-        if (create_zero_line(vars) != SUCCESS)
-            return SYSTEM_ERROR;
+        if (create_zero_line(vars) != SUCCESS) return SYSTEM_ERROR;
     }
     return SUCCESS;
 }
 
 /*Creates zero line for '\0' at the end of a string*/
-responseType create_zero_line(multiVars *vars) {
-    return create_data_node(0, vars);
-}
+responseType create_zero_line(multiVars *vars) { return create_data_node(0, vars); }
