@@ -36,8 +36,8 @@ responseType create_two_operands_command(int op_code, char *source_op, char *des
     }
 
     else if (source_op[0] == '#') {
-        source_op += sizeof(char);/* remove the char '#' */
-        
+        source_op += sizeof(char); /* remove the char '#' */
+
         if (op_code == LEA_INDEX) { /* 'lea' opcode */
             print_user_error(vars, "illegal source operand for 'lea'");
             return USER_ERROR;
@@ -130,12 +130,11 @@ responseType create_one_operand_command(int op_code, char *operand, multiVars *v
     }
 
     else if (operand[0] == '#') {
-    
-       if (op_code != PRN_INDEX) { 
+        if (op_code != PRN_INDEX) {
             print_user_error(vars, "illegal operand for '%s'", opcode[op_code]);
             return USER_ERROR;
         }
-        operand += sizeof(char);/* remove the char '#' */
+        operand += sizeof(char); /* remove the char '#' */
         dest_op_addressing = 0;
         if (create_commands_node(
                 (op_code << 6) | (source_op_addressing << 4) | (dest_op_addressing << 2),
@@ -184,8 +183,7 @@ responseType create_unknown_line(char *label_name, multiVars *vars) {
     strtok(label_name, "."); /*If there is'nt '.' => label_name will stay the same*/
 
     if (!valid_label_name(label_name)) {
-        printf("User Error: in %s.am line %d : '%s' is illegal operand\n",
-               vars->file_name, vars->line_counter, label_name);
+        print_user_error(vars, " '%s' is illegal operand\n", label_name);
         return USER_ERROR;
     }
     new_node = (ptrLabelApearence)calloc_with_check(1, sizeof(labelApearance));
@@ -197,9 +195,7 @@ responseType create_unknown_line(char *label_name, multiVars *vars) {
 
         if (strcmp(check_number_after_point, "1") &&
             strcmp(check_number_after_point, "2")) {
-            printf(
-                "User Error: in %s.am line %d : '%s' is illegal char after label name'\n",
-                vars->file_name, vars->line_counter, check_number_after_point);
+            printf("'%s' is illegal char after label name", check_number_after_point);
             return USER_ERROR;
         }
         strcpy(new_node->name, label_name); /*Saves the location of the struct apearence*/

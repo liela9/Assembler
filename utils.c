@@ -121,16 +121,19 @@ void free_commands_list(ptrCommand head) { FREE_LIST(ptrCommand, head) }
 
 /*Checks if this label exists in this file*/
 bool label_exists(char *name, ptrlabel head_label) {
-    ptrlabel temp_label;
+    LABEL_EXISTS(name, ptrlabel, head_label)
+}
+bool extern_label_exists(char *name,
+                         ptrExternLabel head){LABEL_EXISTS(name, ptrExternLabel, head)}
 
-    temp_label = head_label;
-    while (temp_label) {
-        if (!strcmp(temp_label->name, name)) {
-            return true;
-        }
-        temp_label = temp_label->next;
+ptrlabel get_label_by_name(char *name, ptrlabel head) {
+    ptrlabel temp = head;
+
+    while (temp) {
+        if (!strcmp(name, temp->name)) return temp;
+        temp = temp->next;
     }
-    return false;
+    return NULL;
 }
 
 /*Checks if it is a valid label name*/

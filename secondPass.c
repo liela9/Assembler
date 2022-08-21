@@ -4,7 +4,7 @@
 responseType second_pass(multiVars *vars) {
     FILE *file;
     char *label_name, *line, *label_type;
-    int index = 0, i;
+    int i = 0;
     ptrlabel temp_label;
     ptrExternLabel temp_extern_label;
     bool is_space_flag;
@@ -26,17 +26,17 @@ responseType second_pass(multiVars *vars) {
         if (temp_label_apear->is_struct) {
             temp_label = get_label_by_name(temp_label_apear->name, vars->head_label);
             if (temp_label && temp_label->type != STRUCT) {
-                printf("User Error: in %s.am line %d : '%s' is not a struct label\n",
-                       vars->file_name, temp_label_apear->apeared_with_point,
-                       temp_label_apear->name);
+                print_user_error(vars, " '%s' is not a struct label\n", vars->file_name,
+                                 temp_label_apear->apeared_with_point,
+                                 temp_label_apear->name);
                 free(line);
                 return USER_ERROR;
             }
         } else {
             temp_label = get_label_by_name(temp_label_apear->name, vars->head_label);
             if (temp_label && temp_label->type == STRUCT) {
-                printf("User Error: in %s.am line %d : '%s' is struct label\n",
-                       vars->file_name, vars->line_counter, temp_label_apear->name);
+                print_user_error(vars, " '%s' is struct label\n", vars->file_name,
+                                 vars->line_counter, temp_label_apear->name);
                 free(line);
                 return USER_ERROR;
             }
@@ -64,19 +64,19 @@ responseType second_pass(multiVars *vars) {
 
         if (!strcmp(label_type, ENTRY_WORD)) {
             if (!(temp_label = get_label_by_name(label_name, vars->head_label))) {
-                printf("User Error: in %s.am line %d : %s undefined\n", vars->file_name,
-                       vars->line_counter, label_name);
+                print_user_error(vars, " %s undefined\n", vars->file_name,
+                                 vars->line_counter, label_name);
                 response = USER_ERROR;
-            } else if (temp_label->type != EXTERNAL){
-                if(temp_label->type == ENTRY){
-                    print_user_error(vars, "'%s' already declared as entry", temp_label->name);
+            } else if (temp_label->type != EXTERNAL) {
+                if (temp_label->type == ENTRY) {
+                    print_user_error(vars, "'%s' already declared as entry",
+                                     temp_label->name);
                     response = USER_ERROR;
                 }
                 temp_label->type = ENTRY;
-            }
-            else {
-                printf("User Error: in %s.am line %d : %s already defined as 'extern'\n",
-                       vars->file_name, vars->line_counter, label_name);
+            } else {
+                print_user_error(vars, " %s already defined as 'extern'\n",
+                                 vars->file_name, vars->line_counter, label_name);
                 response = USER_ERROR;
             }
         }
@@ -88,8 +88,8 @@ responseType second_pass(multiVars *vars) {
             if (temp_label->type != ENTRY)
                 temp_label->type = EXTERNAL;
             else {
-                printf("User Error: in %s.am line %d : %s already defined as 'entry'\n",
-                       vars->file_name, vars->line_counter, temp_label->name);
+                print_user_error(vars, " %s already defined as 'entry'\n",
+                                 vars->file_name, vars->line_counter, temp_label->name);
                 response = USER_ERROR;
             }
         }
@@ -97,12 +97,12 @@ responseType second_pass(multiVars *vars) {
     label_name = NULL;
 
     /*While it is not the end of the list*/
-    while (temp_commands) {
+    for (i = 0; temp_commands; ++i) {
         /*Finds the lines without binary code*/
         if (temp_commands->code == question_mark) {
             /* Finds the name of the label */
             while (temp_label_apear) {
-                if ((temp_label_apear->index_in_commands_list) == index) {
+                if ((temp_label_apear->index_in_commands_list) == i) {
                     label_name = temp_label_apear->name;
                     break;
                 }
@@ -127,11 +127,7 @@ responseType second_pass(multiVars *vars) {
             continue;
         }
         temp_commands = temp_commands->next;
-        index++;
     }
-
-    while (temp_label) temp_label = temp_label->next;
-    while (temp_label_apear) temp_label_apear = temp_label_apear->next;
     free(line);
     return response;
 }

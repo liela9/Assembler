@@ -3,14 +3,24 @@
 #define ZERO_ASCII_CODE 48
 #define NINE_ASCII_CODE 57
 
+#define INSERT(head, tail)     \
+    new_node->next = NULL;     \
+    if (!(tail)) {             \
+        head = new_node;       \
+        tail = new_node;       \
+    } else {                   \
+        tail->next = new_node; \
+        tail = new_node;       \
+    }
+
 /*Inserts new label to the labels list*/
 responseType create_label_node(char *name, labelType type, multiVars *vars) {
     ptrlabel new_node;
 
     if (label_exists(name, vars->head_label) || !valid_label_name(name)) {
         /* TODO: check if need to remove the label which alread exists */
-        printf("User Error: in %s.am line %d : '%s' is illegal label name\n",
-               vars->file_name, vars->line_counter, name);
+        print_user_error(vars, " '%s' is illegal label name\n", vars->file_name,
+                         vars->line_counter, name);
         return USER_ERROR;
     }
 
@@ -24,15 +34,7 @@ responseType create_label_node(char *name, labelType type, multiVars *vars) {
         new_node->dec_address = DC + IC + FIRST_MEMORY_CELL;
     strcpy(new_node->name, name);
     new_node->type = type;
-    new_node->next = NULL;
-
-    if (!(vars->tail_label)) {
-        vars->head_label = new_node;
-        vars->tail_label = new_node;
-    } else {
-        vars->tail_label->next = new_node;
-        vars->tail_label = new_node;
-    }
+    INSERT(vars->head_label, vars->tail_label)
 
     return SUCCESS;
 }
@@ -51,20 +53,12 @@ responseType create_extern_label_node(char *name, multiVars *vars) {
 
     /*Fills the value*/
     strcpy(new_node->name, name);
-    new_node->next = NULL;
-
-    if (!(vars->tail_extern_label)) {
-        vars->head_extern_label = new_node;
-        vars->tail_extern_label = new_node;
-    } else {
-        vars->tail_extern_label->next = new_node;
-        vars->tail_extern_label = new_node;
-    }
+    INSERT(vars->head_extern_label, vars->tail_extern_label)
 
     return SUCCESS;
 }
 
-/*Insert new node to the commands list*/
+/*Inserts new node to the commands list*/
 responseType create_commands_node(int code, multiVars *vars) {
     ptrCommand new_node;
 
@@ -74,40 +68,13 @@ responseType create_commands_node(int code, multiVars *vars) {
     code = (code & TEN_BITS_OF_ONE);
 
     new_node->code = convertDtoB(code);
-    new_node->next = NULL;
+    INSERT(vars->head_commands, vars->tail_commands)
 
-    if (!(vars->tail_commands)) {
-        vars->head_commands = new_node;
-        vars->tail_commands = new_node;
-    } else {
-        vars->tail_commands->next = new_node;
-        vars->tail_commands = new_node;
-    }
     IC++;
     return SUCCESS;
 }
 
-ptrlabel get_label_by_name(char *name, ptrlabel head) {
-    ptrlabel temp = head;
-
-    while (temp) {
-        if (!strcmp(name, temp->name)) return temp;
-        temp = temp->next;
-    }
-    return NULL;
-}
-
-bool extern_label_exists(char *name, ptrExternLabel head) {
-    ptrExternLabel temp = head;
-
-    while (temp) {
-        if (!strcmp(name, temp->name)) return true;
-        temp = temp->next;
-    }
-    return false;
-}
-
-/*Insert new node to the data list*/
+/*Inserts new node to the data list*/
 responseType create_data_node(int code, multiVars *vars) {
     ptrData new_node;
 
@@ -117,14 +84,8 @@ responseType create_data_node(int code, multiVars *vars) {
     code = (code & TEN_BITS_OF_ONE); /*TODO : need it?*/
 
     new_node->code = convertDtoB(code);
-    new_node->next = NULL;
+    INSERT(vars->head_data, vars->tail_data)
 
-    if (!(vars->tail_data))
-        vars->head_data = vars->tail_data = new_node;
-    else {
-        vars->tail_data->next = new_node;
-        vars->tail_data = new_node;
-    }
     DC++;
     return SUCCESS;
 }

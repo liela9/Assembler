@@ -9,7 +9,6 @@
 #define EXT_EXTENSION ".ext"
 #define OB_EXTENSION ".ob"
 
-/*Functions of file 'writeFiles.c'*/
 bool write_files(char *, multiVars *);
 bool write_ob_file(char *, multiVars *);
 bool write_ext_file(char *, multiVars *);
