@@ -16,6 +16,10 @@ responseType create_two_operands_command(int op_code, char *source_op, char *des
         Value: #-5, #2
     */
     if ((source = is_register(source_op)) != -1) {
+        if (op_code == LEA_INDEX) { /* 'lea' opcode */
+            print_user_error(vars, "illegal source operand for 'lea'");
+            return USER_ERROR;
+        }
         if ((dest = is_register(dest_op)) != -1) { /*Two registers*/
             CHECK_RESPONSE(create_command_line(op_code, 3, 3, vars))
             CHECK_RESPONSE(create_registers_line(source, dest, vars))
@@ -32,7 +36,12 @@ responseType create_two_operands_command(int op_code, char *source_op, char *des
     }
 
     else if (source_op[0] == '#') {
-        source_op[0] = '\0'; /*Removes the charactar # */
+        source_op += sizeof(char);/* remove the char '#' */
+        
+        if (op_code == LEA_INDEX) { /* 'lea' opcode */
+            print_user_error(vars, "illegal source operand for 'lea'");
+            return USER_ERROR;
+        }
 
         if ((dest = is_register(dest_op)) != -1) { /*Value and register*/
             CHECK_RESPONSE(create_command_line(op_code, 0, 3, vars))
@@ -121,7 +130,12 @@ responseType create_one_operand_command(int op_code, char *operand, multiVars *v
     }
 
     else if (operand[0] == '#') {
-        operand = strtok(operand, "#");
+    
+       if (op_code != PRN_INDEX) { 
+            print_user_error(vars, "illegal operand for '%s'", opcode[op_code]);
+            return USER_ERROR;
+        }
+        operand += sizeof(char);/* remove the char '#' */
         dest_op_addressing = 0;
         if (create_commands_node(
                 (op_code << 6) | (source_op_addressing << 4) | (dest_op_addressing << 2),
@@ -170,7 +184,7 @@ responseType create_unknown_line(char *label_name, multiVars *vars) {
     strtok(label_name, "."); /*If there is'nt '.' => label_name will stay the same*/
 
     if (!valid_label_name(label_name)) {
-        printf("User Error: in %s.am line %d : '%s' is illegal label name\n",
+        printf("User Error: in %s.am line %d : '%s' is illegal operand\n",
                vars->file_name, vars->line_counter, label_name);
         return USER_ERROR;
     }
@@ -179,7 +193,7 @@ responseType create_unknown_line(char *label_name, multiVars *vars) {
 
     /* Check that there is only 1 or 2 after the '.' */
     if (check_number_after_point) {
-        check_number_after_point = check_number_after_point + 1;
+        check_number_after_point = check_number_after_point + sizeof(char);
 
         if (strcmp(check_number_after_point, "1") &&
             strcmp(check_number_after_point, "2")) {

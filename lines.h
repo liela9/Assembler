@@ -9,6 +9,8 @@
 #define DATA_WORD ".data"
 #define STRING_WORD ".string"
 #define STRUCT_WORD ".struct"
+#define LEA_INDEX 6
+#define PRN_INDEX 12
 
 /*Functions of file 'lines.c'*/
 responseType create_two_operands_command(int, char *, char *, multiVars *);

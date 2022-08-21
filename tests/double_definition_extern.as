@@ -1,0 +1,4 @@
+
+.extern A
+.extern A
+

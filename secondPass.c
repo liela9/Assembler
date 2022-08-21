@@ -67,8 +67,13 @@ responseType second_pass(multiVars *vars) {
                 printf("User Error: in %s.am line %d : %s undefined\n", vars->file_name,
                        vars->line_counter, label_name);
                 response = USER_ERROR;
-            } else if (temp_label->type != EXTERNAL)
+            } else if (temp_label->type != EXTERNAL){
+                if(temp_label->type == ENTRY){
+                    print_user_error(vars, "'%s' already declared as entry", temp_label->name);
+                    response = USER_ERROR;
+                }
                 temp_label->type = ENTRY;
+            }
             else {
                 printf("User Error: in %s.am line %d : %s already defined as 'extern'\n",
                        vars->file_name, vars->line_counter, label_name);

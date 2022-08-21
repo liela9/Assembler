@@ -14,16 +14,16 @@ responseType first_pass(multiVars *vars) {
     if (!(file = open_file_with_extension(vars->file_name, AM_EXTENSION, "r")))
         return SYSTEM_ERROR; /* can't open file */
 
-    line = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
+    line = (char *)calloc_with_check(LINE_LENGTH, sizeof(char));
     if (!line) return SYSTEM_ERROR;
-    copy_line = (char *)calloc_with_check(MAX_LINE_LENGTH, sizeof(char));
+    copy_line = (char *)calloc_with_check(LINE_LENGTH, sizeof(char));
     if (!copy_line) {
         free(line);
         return SYSTEM_ERROR;
     }
 
     /* reads a line*/
-    while (fgets(line, MAX_LINE_LENGTH, file)) {
+    while (fgets(line, LINE_LENGTH, file)) {
         (vars->line_counter)++;
         strcpy(copy_line, line);
 
@@ -51,6 +51,11 @@ responseType handle_line(char *line, char *line_copy, multiVars *vars) {
     char *current_word, *label_name, *rest_line;
     responseType response;
 
+    if (strlen(line) > MAX_LINE_LENGTH) {
+        print_user_error(vars, "too long line");
+        return USER_ERROR;
+    }
+
     if (!(current_word = strtok(line, " \t\r\n")) || ((current_word[0] == ';')))
         /* if the line is a comment or empty */
         return SUCCESS;
@@ -67,12 +72,10 @@ responseType handle_line(char *line, char *line_copy, multiVars *vars) {
         label_name = NULL;
 
     if (!strcmp(current_word, ENTRY_WORD))
-        return extern_entry_validate(ENTRY, vars,
-                                     strstr(line_copy, strtok(NULL, " \t\r\n")));
+        return extern_entry_validate(ENTRY, vars, strtok(NULL, ""));
 
     if (!strcmp(current_word, EXTERN_WORD))
-        return extern_entry_validate(EXTERNAL, vars,
-                                     strstr(line_copy, strtok(NULL, " \t\r\n")));
+        return extern_entry_validate(EXTERNAL, vars, strtok(NULL, ""));
 
     rest_line = strtok(NULL, " \t\r\n");
     if (!strcmp(current_word, DATA_WORD)) {
@@ -131,6 +134,7 @@ responseType insert_string_line(char *label_name, char *line, multiVars *vars) {
     string_part = strchr(line, '\"');
     /* pointer to the last quotation mark */
     rest_line = strrchr(line, '\"');
+    line = clear_white_spaces(line);
 
     /* if there're 0 or 1 quotation mark */
     if (!rest_line || (string_part == rest_line)) {
@@ -139,17 +143,16 @@ responseType insert_string_line(char *label_name, char *line, multiVars *vars) {
     }
 
     /* if the first non-whitespace letter is not the first quotation mark */
-    if (strtok(line, " \t\r") != string_part) {
+    if (line[0] != '\"') {
         print_user_error(vars, "extra content before string argument");
         return USER_ERROR;
     }
-
     /* if after the second quotation mark there's chars other than spaces */
     if (strtok(rest_line + sizeof(char), " \t\r\n")) {
         print_user_error(vars, "extra content after string argument");
         return USER_ERROR;
     }
-
+    
     for (c = string_part + sizeof(char); c != rest_line; c += sizeof(char))
         /* creates ascii representation of the character */
         CHECK_RESPONSE(create_data_node(*c, vars))
@@ -191,14 +194,13 @@ responseType check_and_insert_data_item(char *data_item, multiVars *vars) {
         return USER_ERROR;
     }
 
-    while (*data_item != '\0') {
-        if ((number = atoi(data_item)) == 0 && (*data_item != '0')) {
-            print_user_error(vars, "illegal data item");
-            return USER_ERROR;
-        }
-        CHECK_RESPONSE(create_data_node(number, vars))
-        data_item += sizeof(char);
+    if (((number = atoi(data_item)) == 0 && (strcmp(data_item, "0"))) ||
+        (strchr(data_item, '.'))) {
+        print_user_error(vars, "illegal data item");
+        return USER_ERROR;
     }
+    CHECK_RESPONSE(create_data_node(number, vars))
+
     return SUCCESS;
 }
 
@@ -216,6 +218,10 @@ responseType insert_opcode_line(char *label_name, char *line, multiVars *vars) {
     rest_line = strtok(NULL, "");
 
     if (rest_line) {
+        if (rest_line[0] == ',') {
+            print_user_error(vars, "extra comma before operand");
+            return USER_ERROR;
+        }
         first_operand = strtok(rest_line, ",");
         second_operand = strtok(NULL, "");
     }
@@ -248,16 +254,20 @@ responseType insert_opcode_line(char *label_name, char *line, multiVars *vars) {
 }
 
 responseType insert_data_line(char *label_name, char *line, multiVars *vars) {
-    char *data_item;
+    char *data_item, *rest_line;
     responseType response;
 
     if (label_name) {
         CHECK_RESPONSE(create_label_node(label_name, DATA, vars))
     }
     data_item = strtok(line, ",");
+    rest_line = strtok(NULL, "");
+
     while (data_item) {
         CHECK_RESPONSE(check_and_insert_data_item(data_item, vars))
-        data_item = strtok(NULL, ",");
+        data_item = strtok(rest_line, ",");
+        rest_line = strtok(NULL, "");
     }
     return SUCCESS;
 }
+

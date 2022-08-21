@@ -41,6 +41,11 @@ responseType create_label_node(char *name, labelType type, multiVars *vars) {
 responseType create_extern_label_node(char *name, multiVars *vars) {
     ptrExternLabel new_node;
 
+    if (extern_label_exists(name, vars->head_extern_label)) {
+        print_user_error(vars, "'%s' is already exist", name);
+        return USER_ERROR;
+    }
+
     new_node = (ptrExternLabel)calloc_with_check(1, sizeof(externLabel));
     if (!new_node) return SYSTEM_ERROR;
 
@@ -90,6 +95,16 @@ ptrlabel get_label_by_name(char *name, ptrlabel head) {
         temp = temp->next;
     }
     return NULL;
+}
+
+bool extern_label_exists(char *name, ptrExternLabel head) {
+    ptrExternLabel temp = head;
+
+    while (temp) {
+        if (!strcmp(name, temp->name)) return true;
+        temp = temp->next;
+    }
+    return false;
 }
 
 /*Insert new node to the data list*/

@@ -149,7 +149,7 @@ bool valid_label_name(char *name) {
         if (!isalnum(name[index])) return false;
     }
 
-    return name[0] && len <= MAX_LABEL_LENGTH && !is_reserved_word(name);
+    return isalpha(name[0]) && len <= MAX_LABEL_LENGTH && !is_reserved_word(name);
 }
 
 char *clear_white_spaces(char *string) {
